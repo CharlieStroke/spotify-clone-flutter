@@ -1,83 +1,100 @@
-const express = require('express');
 const pool = require('../config/db');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const asyncHandler = require('../utils/asyncHandler');
+const { registerSchema, loginSchema } = require('../validators/authValidator');
 
 
-const register = async (req, res) => {
-    try {
-        const { email, password } = req.body;
+// =============================
+// REGISTER
+// =============================
+const register = asyncHandler(async (req, res) => {
 
-        if (!email || !password) {
-            return res.status(400).json({ error: 'Email and password are required' });
-        }
-        
-        const userExists = await pool.query(
-            'SELECT * FROM usuarios WHERE email = $1', 
-            [email]
-        );
-
-        if (userExists.rows.length > 0) {
-            return res.status(400).json({ error: 'User already exists' });
-        }
-
-        const hashedPassword = await bcrypt.hash(password, 10); 
-        
-        const newUser = await pool.query(
-            'INSERT INTO usuarios (email, password_hash) VALUES ($1, $2) RETURNING *', 
-            [email, hashedPassword]
-        );
-
-        res.status(201).json({ 
-            message: 'User registered successfully', 
-            user: newUser.rows[0] 
-        });
-
-    } catch (error) {
-        console.error('Error registering user:', error);
-        res.status(500).json({ error: 'Internal server error' });
+    const { error } = registerSchema.validate(req.body);
+    if (error) {
+        error.statusCode = 400;
+        throw error;
     }
-};
 
-const login = async (req, res) => {
-    try {
-        const { email, password } = req.body;
-        if (!email || !password) {
-            return res.status(400).json({ error: 'Email and password are required' });
-        }
+    const { email, password, username } = req.body;
 
-        const userResult = await pool.query(
-            'SELECT * FROM usuarios WHERE email = $1', 
-            [email]
-        );
+    const userExists = await pool.query(
+        'SELECT * FROM users WHERE email = $1 OR username = $2',
+        [email, username]
+    );
 
-        if (userResult.rows.length === 0) {
-            return res.status(400).json({ error: 'Invalid email or password' });
-        }
-
-        const user = userResult.rows[0];
-        const isPasswordValid = await bcrypt.compare(password, user.password_hash); // Asegúrate de que el campo en la base de datos se llame "password_hash"
-
-        if (!isPasswordValid) {
-            return res.status(400).json({ error: 'Invalid email or password' });
-        }
-
-        const token = jwt.sign(
-            { userId: user.id, email: user.email },
-            process.env.JWT_SECRET,
-            { expiresIn: '1h' }
-        );
-
-        res.json({ message: 'Login successful', token });
-
-    } catch (error) {
-        console.error('Error logging in:', error);
-        res.status(500).json({ error: 'Internal server error' });
+    if (userExists.rows.length > 0) {
+        const err = new Error('Usuario ya existe');
+        err.statusCode = 400;
+        throw err;
     }
-};
 
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newUser = await pool.query(
+        'INSERT INTO users (email, password_hash, username) VALUES ($1, $2, $3) RETURNING user_id, email, username',
+        [email, hashedPassword, username]
+    );
+
+    res.status(201).json({
+        success: true,
+        message: 'Usuario registrado exitosamente',
+        user: newUser.rows[0]
+    });
+});
+
+
+// =============================
+// LOGIN
+// =============================
+const login = asyncHandler(async (req, res) => {
+
+    const { error } = loginSchema.validate(req.body);
+    if (error) {
+        error.statusCode = 400;
+        throw error;
+    }
+
+    const { email, password } = req.body;
+
+    const userResult = await pool.query(
+        'SELECT * FROM users WHERE email = $1',
+        [email]
+    );
+
+    if (userResult.rows.length === 0) {
+        const err = new Error('Email o contraseña inválidos');
+        err.statusCode = 401;
+        throw err;
+    }
+
+    const user = userResult.rows[0];
+
+    const isPasswordValid = await bcrypt.compare(password, user.password_hash);
+
+    if (!isPasswordValid) {
+        const err = new Error('Email o contraseña inválidos');
+        err.statusCode = 401;
+        throw err;
+    }
+
+    const token = jwt.sign(
+    {
+        userId: user.user_id,
+        email: user.email
+    },
+    process.env.JWT_SECRET,
+    { expiresIn: '1h' }
+    );
+
+    res.json({
+        success: true,
+        message: 'Login exitoso',
+        token
+    });
+});
 
 module.exports = {
     register,
     login
-}
+};
