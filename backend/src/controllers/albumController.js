@@ -4,6 +4,11 @@ const asyncHandler = require('../utils/asyncHandler');
 const { albumSchema } = require('../validators/artistValidator');
 
 const createAlbum = asyncHandler(async (req, res) => {
+    const { error } = albumSchema.validate(req.body);
+    if (error) {
+        error.statusCode = 400;
+        throw error;
+    }
 
     const { title } = req.body;
     const artistId = req.user.userId; // Assuming the user ID is stored in the token and represents the artist

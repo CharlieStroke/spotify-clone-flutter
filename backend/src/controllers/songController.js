@@ -1,12 +1,13 @@
 const pool = require('../config/db');
 const asyncHandler = require('../utils/asyncHandler');
-const { uploadSong, uploadCoverImage } = require('../services/objectStorageService');
+const { uploadFile } = require('../services/objectStorageService');
 
 const createSong = asyncHandler(async (req, res) => {
     
     const { title, album_id, duration } = req.body;
-    const song = req.files['audio']; // Assuming the file is uploaded using multer and available in req.files.audio
-    const cover = req.files['cover']; // Assuming the cover is uploaded using multer and available in req.files.cover
+
+    const song = req.files?.audio?.[0];
+    const cover = req.files?.cover?.[0];
 
     if (!song) {
         const err = new Error('Archivo de canción es requerido');
@@ -20,17 +21,16 @@ const createSong = asyncHandler(async (req, res) => {
         throw err;
     }
 
-    const songName = `songs/${Date.now()}_${song.originalname}`;
-    const coverName = `covers/songs/${Date.now()}_${cover.originalname}`;
-     // Replace spaces with underscores for better URL handling
+    const songName = `songs/tracks/${Date.now()}_${song.originalname}`;
+    const coverName = `songs/covers/${Date.now()}_${cover.originalname}`;
 
-    const songUrl = await uploadSong(
+    const songUrl = await uploadFile(
         song.buffer,
         songName,
         song.mimetype
     );
 
-    const coverUrl = await uploadCoverImage(
+    const coverUrl = await uploadFile(
         cover.buffer,
         coverName,
         cover.mimetype
