@@ -94,7 +94,29 @@ const login = asyncHandler(async (req, res) => {
     });
 });
 
+const MyUserInfo = asyncHandler(async (req, res) => {
+    
+    const userId = req.user.userId;
+
+    const userResult = await pool.query(
+        'SELECT user_id, email, username FROM users WHERE user_id = $1',
+        [userId]
+    );
+    if (userResult.rows.length === 0) {
+        const err = new Error('Usuario no encontrado');
+        err.statusCode = 404;
+        throw err;
+    }
+
+    res.json({
+        success: true,
+        user: userResult.rows[0]
+    });
+
+});
+
 module.exports = {
     register,
-    login
+    login,
+    MyUserInfo
 };
