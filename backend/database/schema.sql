@@ -32,9 +32,16 @@ CREATE TABLE users (
 
 CREATE TABLE artists (
     artist_id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    image_url VARCHAR(255),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    user_id INTEGER UNIQUE NOT NULL,
+    stage_name VARCHAR(255) NOT NULL,
+    bio TEXT,
+    image_url TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_artist_user
+        FOREIGN KEY (user_id)
+        REFERENCES users(user_id)
+        ON DELETE CASCADE
 );
 
 -- =========================
@@ -45,7 +52,7 @@ CREATE TABLE albums (
     album_id SERIAL PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     artist_id INTEGER NOT NULL,
-    cover_url VARCHAR(255),
+    cover_url TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_album_artist
@@ -63,6 +70,8 @@ CREATE TABLE songs (
     title VARCHAR(255) NOT NULL,
     album_id INTEGER NOT NULL,
     duration INTEGER NOT NULL, -- duración en segundos
+    cover_url TEXT,
+    audio_url TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_song_album
