@@ -1,20 +1,21 @@
 const pool = require('../config/db');
+const { uploadCoverImage } = require('../services/objectStorageService'); // importamos el servicio de subida de imágenes
 const asyncHandler = require('../utils/asyncHandler');
 const { albumSchema } = require('../validators/artistValidator');
 
 const createAlbum = asyncHandler(async (req, res) => {
-    
-    const { error } = albumSchema.validate(req.body);
-    if (error) {
-        const err = new Error(error.details[0].message);
-        err.statusCode = 400;
-        throw err;
-    }
 
-    const { title, coverUrl } = req.body;
+    const { title } = req.body;
     const artistId = req.user.userId; // Assuming the user ID is stored in the token and represents the artist
+    const cover = req.files['cover']; // Assuming the cover image is uploaded using multer and available in req.files.cover
 
-    
+    const coverName = `covers/albums/${Date.now()}_${cover.originalname}`; // le asignamos un nombre único a la imagen para evitar colisiones en el almacenamiento, y organizamos las imágenes en carpetas por tipo (covers/albums/)
+
+    const coverUrl = await uploadCoverImage(
+        cover.buffer,
+        coverName,
+        cover.mimetype
+    ); // subimos la imagen a OCI y obtenemos la URL pública para almacenarla en la base de datos
 
     const newAlbum = await pool.query(
         `INSERT INTO albums (title, artist_id, cover_url) 
