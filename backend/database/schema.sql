@@ -149,3 +149,8 @@ CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_playlists_user_id ON playlists(user_id);
 CREATE INDEX idx_songs_album_id ON songs(album_id);
 CREATE INDEX idx_favorites_user_id ON favorites(user_id);
+CREATE INDEX idx_favorites_song_id ON favorites(song_id);
+CREATE INDEX idx_albums_artist_id ON albums(artist_id);
+CREATE INDEX idx_songs_title ON songs(title);
+CREATE INDEX idx_albums_title ON albums(title);
+CREATE INDEX idx_artists_stage_name ON artists(stage_name);
