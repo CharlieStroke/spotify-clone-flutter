@@ -10,7 +10,10 @@ const ensureArtist = require('../middleware/artistMiddleware');
 router.post('/addsong', 
     authenticateToken, 
     ensureArtist,
-    upload.single('audio'), 
+    upload.fields([
+        { name: 'audio', maxCount: 1 },
+        { name: 'cover', maxCount: 1 }
+    ]),
     validateAlbumOwnership,
     createSong
 );
