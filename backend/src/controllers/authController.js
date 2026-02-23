@@ -84,7 +84,7 @@ const login = asyncHandler(async (req, res) => {
         email: user.email
     },
     process.env.JWT_SECRET,
-    { expiresIn: '1h' }
+    { expiresIn: '24h' }
     );
 
     res.json({

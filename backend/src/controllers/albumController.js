@@ -36,7 +36,7 @@ const createAlbum = asyncHandler(async (req, res) => {
     });
 });
 
-const getAlbumsByArtist = asyncHandler(async (req, res) => {
+const getAlbums = asyncHandler(async (req, res) => {
 
     const artistId = req.user.userId;
     
@@ -116,7 +116,7 @@ const updateAlbumName = asyncHandler(async (req, res) => {
 
 module.exports = {
     createAlbum,
-    getAlbumsByArtist,
+    getAlbums,
     deleteAlbum,
     updateAlbumName
 };

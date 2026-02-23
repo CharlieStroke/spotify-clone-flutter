@@ -1,7 +1,7 @@
 const pool = require('../config/db');
 const asyncHandler = require('../utils/asyncHandler');
 const { createArtistSchema } = require('../validators/artistValidator');
-const {uploadFile} = require('../services/objectStorageService');
+const { uploadFile } = require('../services/objectStorageService');
 // =============================
 // CREATE ARTIST
 const createArtist = asyncHandler(async (req, res) => {

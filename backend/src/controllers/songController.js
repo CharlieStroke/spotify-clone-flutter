@@ -50,6 +50,92 @@ const createSong = asyncHandler(async (req, res) => {
     });
 });
 
+
+const deleteSong = asyncHandler(async (req, res) => {
+
+    const songId = req.params.id;
+    const artistId = req.user.userId;
+    const songResult = await pool.query(
+        `SELECT s.* 
+        FROM songs s
+        JOIN albums a ON s.album_id = a.album_id
+        WHERE s.song_id = $1 AND a.artist_id = $2`,
+        [songId, artistId]
+    );
+
+    if (songResult.rows.length === 0) {
+        const err = new Error('Canción no encontrada o no pertenece al artista');
+        err.statusCode = 404;
+        throw err;
+    }
+
+    await pool.query(
+        `DELETE FROM songs WHERE song_id = $1`,
+        [songId]
+    );
+
+    res.status(200).json({
+        success: true,
+        message: 'Canción eliminada exitosamente',
+        song: songResult.rows[0]
+    });
+});
+
+const getSongsByArtist = asyncHandler(async (req, res) => {
+
+    const artistId = req.user.userId;
+
+    const songs = await pool.query(
+        `SELECT song_id, title, duration, audio_url, cover_url FROM songs WHERE album_id IN (SELECT album_id FROM albums WHERE artist_id = $1)`,
+        [artistId]
+    );
+
+    res.status(200).json({
+        success: true,
+        message: 'Canciones obtenidas exitosamente',
+        songs: songs.rows
+    });
+});
+
+const updateSong = asyncHandler(async (req, res) => {
+
+    const { title } = req.body;
+
+    const songId = req.params.id;
+    const artistId = req.user.userId;
+    const songResult = await pool.query(
+
+        `SELECT s.* 
+        FROM songs s
+        JOIN albums a ON s.album_id = a.album_id
+        WHERE s.song_id = $1 AND a.artist_id = $2`,
+        [songId, artistId]
+    );
+
+    if (songResult.rows.length === 0) {
+        const err = new Error('Canción no encontrada o no pertenece al artista');
+        err.statusCode = 404;
+        throw err;
+    }
+    
+
+    const result = await pool.query(
+        `UPDATE songs SET title = $1, duration = $2 WHERE song_id = $3 RETURNING *`,
+        [title, duration, songId]
+    );
+
+    res.status(200).json({
+        success: true,
+        message: 'Canción actualizada exitosamente',
+        song: result.rows[0]
+    });
+});
+
+
+
 module.exports = {
-    createSong
+    createSong,
+    getSongsByArtist,
+    deleteSong,
+    updateSong
 };
