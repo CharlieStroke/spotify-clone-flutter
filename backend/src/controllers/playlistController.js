@@ -1,6 +1,6 @@
 const pool = require('../config/db');
 const asyncHandler = require('../utils/asyncHandler');
-const { createPlaylistSchema, addSongSchema } = require('../validators/playlistValidator');
+const { createPlaylistSchema } = require('../validators/playlistValidator');
 
 // =============================
 // CREATE PLAYLIST
@@ -33,13 +33,23 @@ const getPlaylists = asyncHandler(async (req, res) => {
     
     const userId = req.user.userId;
 
+
+
     const playlists = await pool.query(
         `SELECT playlist_id, name, description 
         FROM playlists WHERE user_id = $1 
         ORDER BY created_at DESC`,
         [userId]
     );
-    
+
+    if (playlists.rows.length === 0) {
+        return res.status(200).json({
+            success: false,
+            message: 'No hay playlists para el usuario',
+            playlists: []
+        });
+    }
+
     res.status(200).json({
         success: true,
         playlists: playlists.rows
@@ -48,14 +58,8 @@ const getPlaylists = asyncHandler(async (req, res) => {
 
 const addSongToPlaylist = asyncHandler(async (req, res) => {
 
-    const { error } = addSongSchema.validate(req.body);
-    if (error) {
-        error.statusCode = 400;
-        throw error;
-    }
-
     const { playlistId } = req.params;
-    const { trackId } = req.body;
+    const { songId } = req.params;
     const userId = req.user.userId;
 
     // Verificar que la playlist exista y pertenezca al usuario
@@ -66,6 +70,7 @@ const addSongToPlaylist = asyncHandler(async (req, res) => {
         AND user_id = $2`,
         [playlistId, userId]
     );
+
     if (playlistResult.rows.length === 0) {
         const err = new Error('Playlist no encontrada');
         err.statusCode = 404;
@@ -74,8 +79,8 @@ const addSongToPlaylist = asyncHandler(async (req, res) => {
 
     // Verificar que la cancion ya esta en la playlist 
     const existing = await pool.query(
-        'SELECT * FROM playlist_canciones WHERE playlist_id = $1 AND cancion_id = $2',
-        [playlistId, trackId]
+        'SELECT * FROM playlist_songs WHERE playlist_id = $1 AND song_id = $2',
+        [playlistId, songId]
     );
 
     if (existing.rows.length > 0) {
@@ -83,12 +88,12 @@ const addSongToPlaylist = asyncHandler(async (req, res) => {
         err.statusCode = 400;
         throw err;
     }
-
+//------- Verificar que la canción exista
     const trackResult = await pool.query(
         `SELECT * 
         FROM songs 
         WHERE song_id = $1`,
-        [trackId]
+        [songId]
     );
 
     if (trackResult.rows.length === 0) {
@@ -97,17 +102,50 @@ const addSongToPlaylist = asyncHandler(async (req, res) => {
         throw err;
     }
 
-    // Agregar la canción a la playlist
+//-------- Agregar la canción a la playlist
     await pool.query(
         `INSERT INTO playlist_songs 
         (playlist_id, song_id) 
         VALUES ($1, $2)`,
-        [playlistId, trackId]
+        [playlistId, songId]
     );
 
     res.status(200).json({
         success: true,
         message: 'Canción agregada a la playlist exitosamente'
+    });
+});
+
+const deletesongFromPlaylist = asyncHandler(async (req, res) => {
+
+    const { playlistId } = req.params;
+    const { songId } = req.params;
+    const userId = req.user.userId;
+
+    // Verificar que la playlist exista y pertenezca al usuario
+    const playlistResult = await pool.query(
+        `SELECT * 
+        FROM playlists 
+        WHERE playlist_id = $1 AND user_id = $2`,
+        [playlistId, userId]
+    );
+
+    if (playlistResult.rows.length === 0) {
+        const err = new Error('Playlist no encontrada');
+        err.statusCode = 404;
+        throw err;
+    }
+
+    // Eliminar la canción de la playlist
+    await pool.query(
+        `DELETE FROM playlist_songs 
+        WHERE playlist_id = $1 AND song_id = $2`,
+        [playlistId, songId]
+    );
+
+    res.status(200).json({
+        success: true,
+        message: 'Canción eliminada de la playlist exitosamente'
     });
 });
 
@@ -147,5 +185,6 @@ module.exports = {
     createPlaylist,
     getPlaylists,
     addSongToPlaylist,
-    deletePlaylist
+    deletePlaylist,
+    deletesongFromPlaylist
 };
