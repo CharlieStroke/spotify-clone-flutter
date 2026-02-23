@@ -1,5 +1,6 @@
 const pool = require('../config/db');
 const asyncHandler = require('../utils/asyncHandler');
+const paginate = require('../utils/pagination');
 const { uploadFile } = require('../services/objectStorageService');
 
 const createSong = asyncHandler(async (req, res) => {
@@ -20,14 +21,14 @@ const createSong = asyncHandler(async (req, res) => {
         throw err;
     }
 
-    const songName = `songs/tracks/${Date.now()}_${song.originalname}`;
+    const songName = `songs/tracks/${Date.now()}_${audio.originalname}`;
     const coverName = `songs/covers/${Date.now()}_${cover.originalname}`;
      // Replace spaces with underscores for better URL handling
 
     const songUrl = await uploadFile(
-        song.buffer,
+        audio.buffer,
         songName,
-        song.mimetype
+        audio.mimetype
     );
 
         const coverUrl = await uploadFile(
@@ -43,13 +44,45 @@ const createSong = asyncHandler(async (req, res) => {
         [title, album_id, duration, songUrl, coverUrl]
     );
 
+    console.log(req.files);
     res.status(201).json({
         success: true,
         message: 'Canción creada exitosamente',
         song: result.rows[0]
+        
     });
 });
 
+const getallSongs = asyncHandler(async (req, res) => {
+
+    const { page, limit, offset } = paginate.getPagination(req);
+
+    const totalResult = await pool.query(`SELECT COUNT(*) FROM songs`);
+
+    const totalItems = parseInt(totalResult.rows[0].count);
+    
+    const result = await pool.query(
+        `SELECT song_id, album_id, title, duration, audio_url, cover_url 
+        FROM songs 
+        ORDER BY created_at DESC 
+        LIMIT $1 OFFSET $2`,
+        [limit, offset]
+    );
+
+    const totalPages = Math.ceil(totalItems / limit);
+    
+    res.status(200).json({
+        success: true,
+        message: 'Canciones obtenidas exitosamente',
+        songs: result.rows,
+        pagination: {
+            page,
+            limit,
+            totalItems,
+            totalPages
+        }
+    });
+});
 
 const deleteSong = asyncHandler(async (req, res) => {
 
@@ -133,41 +166,6 @@ const updateSong = asyncHandler(async (req, res) => {
     });
 });
 
-const addtoFavorites = asyncHandler(async (req, res) => {
-
-    const songId = req.params.id;
-    const userId = req.user.userId;
-
-    const favoriteResult = await pool.query(
-        `INSERT INTO favorites (user_id, song_id) VALUES ($1, $2) RETURNING *`,
-        [userId, songId]
-    );
-
-    res.status(201).json({
-        success: true,
-        message: 'Canción agregada a favoritos exitosamente',
-        favorite: favoriteResult.rows[0]
-    });
-});
-
-const getfavorites = asyncHandler(async (req, res) => {
-
-    const userId = req.user.userId;
-
-    const favorites = await pool.query(
-        `SELECT s.song_id, s.title, s.duration, s.audio_url, s.cover_url 
-        FROM favorites f
-        JOIN songs s ON f.song_id = s.song_id
-        WHERE f.user_id = $1`,
-        [userId]
-    );
-
-    res.status(200).json({
-        success: true,
-        message: 'Canciones favoritas obtenidas exitosamente',
-        favorites: favorites.rows
-    });
-});
 
 const incrementPlayCount = asyncHandler(async (req, res) => {
 
@@ -198,5 +196,6 @@ module.exports = {
     getSongsByArtist,
     deleteSong,
     updateSong,
-    incrementPlayCount
+    incrementPlayCount,
+    getallSongs
 };
