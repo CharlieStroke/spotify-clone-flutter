@@ -29,7 +29,7 @@ const createPlaylist = asyncHandler(async (req, res) => {
     });
 });
 
-const getPlaylists = asyncHandler(async (req, res) => {
+const getUserPlaylists = asyncHandler(async (req, res) => {
     
     const userId = req.user.userId;
 
@@ -181,10 +181,46 @@ const deletePlaylist = asyncHandler(async (req, res) => {
     });
 });
 
+const getPlaylistSongs = asyncHandler(async (req, res) => {
+
+    const { playlistId } = req.params;
+    const userId = req.user.userId;
+
+    // Verificar que la playlist exista y pertenezca al usuario
+    const playlistResult = await pool.query(
+        `SELECT * 
+        FROM playlists 
+        WHERE playlist_id = $1 AND user_id = $2`,
+        [playlistId, userId]
+    );
+
+    if (playlistResult.rows.length === 0) {
+        const err = new Error('Playlist no encontrada');
+        err.statusCode = 404;
+        throw err;
+    }
+
+    // Obtener las canciones de la playlist
+    const songsResult = await pool.query(
+        `SELECT s.song_id, s.title, s.duration, s.audio_url, s.cover_url
+        FROM songs s
+        JOIN playlist_songs ps ON s.song_id = ps.song_id
+        WHERE ps.playlist_id = $1`,
+        [playlistId]
+    );
+
+    res.status(200).json({
+        success: true,
+        message: 'Canciones de la playlist obtenidas exitosamente',
+        songs: songsResult.rows
+    });
+});
+
 module.exports = {
     createPlaylist,
-    getPlaylists,
+    getUserPlaylists,
     addSongToPlaylist,
+    deletesongFromPlaylist,
     deletePlaylist,
-    deletesongFromPlaylist
+    getPlaylistSongs
 };
