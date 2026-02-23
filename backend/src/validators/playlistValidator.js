@@ -5,11 +5,7 @@ const createPlaylistSchema = Joi.object({
     description: Joi.string().allow('').optional()
 });
 
-const addSongSchema = Joi.object({
-    trackId: Joi.number().integer().required()
-});
 
 module.exports = {
-    createPlaylistSchema,
-    addSongSchema
+    createPlaylistSchema
 };
