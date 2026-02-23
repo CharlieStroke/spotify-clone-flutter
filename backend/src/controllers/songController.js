@@ -86,7 +86,9 @@ const getSongsByArtist = asyncHandler(async (req, res) => {
     const artistId = req.user.userId;
 
     const songs = await pool.query(
-        `SELECT song_id, title, duration, audio_url, cover_url FROM songs WHERE album_id IN (SELECT album_id FROM albums WHERE artist_id = $1)`,
+        `SELECT song_id, album_id, title, duration, audio_url, cover_url 
+        FROM songs 
+        WHERE album_id IN (SELECT album_id FROM albums WHERE artist_id = $1)`,
         [artistId]
     );
 
