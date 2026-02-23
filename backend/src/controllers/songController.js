@@ -5,11 +5,10 @@ const { uploadFile } = require('../services/objectStorageService');
 const createSong = asyncHandler(async (req, res) => {
     
     const { title, album_id, duration } = req.body;
+    const audio = req.files?.audio?.[0]; // Assuming the song is uploaded using multer and available in req.files.audio
+    const cover = req.files?.cover?.[0]; // Assuming the cover is uploaded using multer and available in req.files.cover
 
-    const song = req.files?.audio?.[0];
-    const cover = req.files?.cover?.[0];
-
-    if (!song) {
+    if (!audio) {
         const err = new Error('Archivo de canción es requerido');
         err.statusCode = 400;
         throw err;
@@ -23,6 +22,7 @@ const createSong = asyncHandler(async (req, res) => {
 
     const songName = `songs/tracks/${Date.now()}_${song.originalname}`;
     const coverName = `songs/covers/${Date.now()}_${cover.originalname}`;
+     // Replace spaces with underscores for better URL handling
 
     const songUrl = await uploadFile(
         song.buffer,
@@ -30,11 +30,11 @@ const createSong = asyncHandler(async (req, res) => {
         song.mimetype
     );
 
-    const coverUrl = await uploadFile(
-        cover.buffer,
-        coverName,
-        cover.mimetype
-    );
+        const coverUrl = await uploadFile(
+            cover.buffer,
+            coverName,
+            cover.mimetype
+        );
 
     const result = await pool.query(
         `INSERT INTO songs (title, album_id, duration, audio_url, cover_url)
@@ -45,6 +45,7 @@ const createSong = asyncHandler(async (req, res) => {
 
     res.status(201).json({
         success: true,
+        message: 'Canción creada exitosamente',
         song: result.rows[0]
     });
 });

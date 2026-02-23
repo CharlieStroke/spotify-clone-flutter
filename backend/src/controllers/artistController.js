@@ -1,6 +1,7 @@
 const pool = require('../config/db');
 const asyncHandler = require('../utils/asyncHandler');
 const { createArtistSchema } = require('../validators/artistValidator');
+const {uploadFile} = require('../services/objectStorageService');
 // =============================
 // CREATE ARTIST
 const createArtist = asyncHandler(async (req, res) => {
@@ -10,8 +11,24 @@ const createArtist = asyncHandler(async (req, res) => {
         throw error;
     }
 
-    const { stage_name, bio, image_url } = req.body;
+    const { stage_name, bio} = req.body;
+
     const userId = req.user.userId;
+
+    const imageFile = req.files?.image?.[0];
+
+    if (!imageFile) {
+        const err = new Error('Archivo de imagen es requerido');
+        err.statusCode = 400;
+        throw err;
+    }
+
+    const imageName = `artists/${Date.now()}_${imageFile.originalname}`;
+    const image_url = await uploadFile(
+        imageFile.buffer,
+        imageName,
+        imageFile.mimetype
+    );
 
     const artistExists = await pool.query(
         'SELECT stage_name FROM artists WHERE stage_name = $1',
@@ -35,12 +52,6 @@ const createArtist = asyncHandler(async (req, res) => {
         throw err;
     }
 
-    if (!userId) {
-        const err = new Error('Usuario no autenticado');
-        err.statusCode = 401;
-        throw err;
-    }
-    
     const newArtist = await pool.query(
         `INSERT INTO artists (user_id, stage_name, bio, image_url) 
         VALUES ($1, $2, $3, $4) RETURNING artist_id, user_id, stage_name, bio, image_url`,
