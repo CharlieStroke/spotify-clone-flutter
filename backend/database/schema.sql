@@ -69,10 +69,12 @@ CREATE TABLE songs (
     song_id SERIAL PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     album_id INTEGER NOT NULL,
-    duration INTEGER NOT NULL, -- duración en segundos
+    duration INTEGER NOT NULL CHECK (duration > 0), k
+    plays INTEGER DEFAULT 0,
     cover_url TEXT,
     audio_url TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_song_album
         FOREIGN KEY (album_id)

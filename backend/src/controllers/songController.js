@@ -169,11 +169,34 @@ const getfavorites = asyncHandler(async (req, res) => {
     });
 });
 
+const incrementPlayCount = asyncHandler(async (req, res) => {
 
+    const songId = req.params.id;
+
+    const result = await pool.query(
+        `UPDATE songs 
+        SET play_count = play_count + 1 
+        WHERE song_id = $1 RETURNING *`,
+        [songId]
+    );
+
+    if (result.rows.length === 0) {
+        const err = new Error('Canción no encontrada');
+        err.statusCode = 404;
+        throw err;
+    }
+
+    res.status(200).json({
+        success: true,
+        message: 'Contador de reproducciones incrementado exitosamente',
+        song: result.rows[0]
+    });
+});
 
 module.exports = {
     createSong,
     getSongsByArtist,
     deleteSong,
-    updateSong
+    updateSong,
+    incrementPlayCount
 };

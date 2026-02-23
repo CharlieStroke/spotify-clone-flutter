@@ -24,4 +24,6 @@ router.delete('/delete/:id', authenticateToken, deleteSong);
 
 router.put('/update/:id', authenticateToken, updateSong);
 
+router.patch('/:id/play', authenticateToken, incrementPlayCount);
+
 module.exports = router;
