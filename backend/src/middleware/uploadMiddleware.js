@@ -1,20 +1,46 @@
 const multer = require('multer');
 
+const allowedAudioTypes = [
+    'audio/mpeg',
+    'audio/mp3',
+    'audio/wave',
+    'audio/wav',
+    'audio/x-wav',
+    'audio/x-pn-wav',
+    'audio/webm'
+];
 
-const allowedTypes = ['audio/mpeg', 'audio/wav', 'image/jpeg', 'image/png'];
-
-const fileFilter = (req, file, cb) => {
-    if (allowedTypes.includes(file.mimetype)) {
-        cb(null, true);
-    } else {
-        cb(new Error('Tipo de archivo no permitido. Solo se permiten archivos de audio y portadas de imagen.'));
-    }
-};
+const allowedImageTypes = [
+    'image/jpeg',
+    'image/png',
+    'image/webp',
+    'image/gif',
+    'image/svg+xml',
+    'image/bmp',
+    'image/tiff'
+]; 
 
 const upload = multer({
-    storage: multer.memoryStorage(), // Usar almacenamiento en memoria para manejar archivos en buffer
-    limits: { fileSize: 20 * 1024 * 1024 }, // Limitar a 20MB
-    fileFilter: fileFilter
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 20 * 1024 * 1024 },
+    fileFilter: (req, file, cb) => {
+        console.log(file.mimetype);
+        if (file.fieldname === 'audio') {
+            if (!allowedAudioTypes.includes(file.mimetype)) {
+                return cb(new Error('Tipo de audio no permitido'), false);
+            }
+            
+        }
+
+        if (file.fieldname === 'cover' || file.fieldname === 'image') {
+            if (!allowedImageTypes.includes(file.mimetype)) {
+                return cb(new Error('Tipo de imagen no permitido'), false);
+            }
+        }
+
+        cb(null, true);
+        
+    } 
 });
 
 module.exports = upload;
