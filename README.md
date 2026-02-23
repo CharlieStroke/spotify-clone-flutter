@@ -1,43 +1,109 @@
-# spotify_clone
+# 🎵 Spotify Clone Backend
 
-A new Flutter project.
+Backend developed as part of a **Semester Project for the Mobile Application Development course**.
 
-## Getting Started
+This system replicates the core functionality of Spotify, allowing management of users, artists, albums, songs, playlists, and favorites, including multimedia file uploads to Object Storage.
 
-This project is a starting point for a Flutter application.
+---
 
-A few resources to get you started if this is your first Flutter project:
+# 🧱 Architecture
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+The project follows a **Layered Architecture** with clear separation of responsibilities.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```
+src/
+ ├── config/        → Database, OCI, and logger configuration
+ ├── controllers/   → Business logic
+ ├── middleware/    → Authentication, validation, and error handling
+ ├── routes/        → API endpoints
+ ├── services/      → External services (Object Storage)
+ ├── utils/         → Helpers (asyncHandler, pagination)
+ ├── validators/    → Request validation using Joi
+```
 
-# Spotify_clone Backend
+### Implemented Layers
 
-Backend desarrollado con Node.js, Express y PostgreSQL
-Incluye autentificación con JWT y arquitectura modular.
+* **Presentation Layer** → Routes
+* **Application Layer** → Controllers
+* **Service Layer** → Services
+* **Infrastructure Layer** → Config
+* **Cross-cutting Concerns** → Middleware
 
-## Tech Stack
+This structure ensures scalability, maintainability, and clean separation of concerns.
 
-- Node.js
-- Express
-- PostgreSQL
-- JWT
-- bcrypt
-- dotenv
+---
 
-## Instalación 
+# 🛠 Tech Stack
 
-1. git clone https://github.com/tu_usuario/tu_repo.git
-2. Install dependencies: npm install
-3. Create .env with the .env.example
-4. Run the server: node server.js
+* Node.js
+* Express 5
+* PostgreSQL
+* JWT (jsonwebtoken)
+* bcrypt
+* Joi
+* Multer (file uploads)
+* OCI Object Storage
+* Pino (structured logging)
+* Helmet (security headers)
+* CORS
+* Rate Limiting
 
-## Enviroment Variables
+---
 
+# 🗄 Database
+
+Database Engine: **PostgreSQL**
+
+### Main Tables
+
+* `users`
+* `artists`
+* `albums`
+* `songs`
+* `playlists`
+* `playlist_songs` (many-to-many relationship)
+* `favorites`
+
+### Database Features
+
+* Foreign keys with `ON DELETE CASCADE`
+* Unique constraints
+* CHECK constraints
+* Optimized indexes
+* 1–1, 1–N, and N–N relationships
+
+---
+
+# 🔐 Security Features
+
+* JWT-based authentication
+* Password hashing using bcrypt
+* Role-based authorization (artist role)
+* Album ownership validation
+* Helmet security headers
+* CORS configuration
+* Rate limiting
+* File validation:
+
+  * MIME type validation
+  * 20MB size limit
+* Centralized error handler
+* Request validation with Joi
+* Structured logging with Pino
+
+---
+
+# 📦 Installation
+
+```bash
+git clone <repository_url>
+cd backend
+npm install
+```
+
+Create a `.env` file based on `.env.example`:
+
+```
 PORT=
 DB_HOST=
 DB_PORT=
@@ -45,18 +111,123 @@ DB_USER=
 DB_PASSWORD=
 DB_NAME=
 JWT_SECRET=
+```
 
-## API Endpoints
+Run in development mode:
 
-POST /api/auth/register
-POST /api/auth/login
-GET /profile (Protected route)
+```bash
+npm run dev
+```
 
-## Project Structure
+Run in production mode:
 
-src/
- ├── config
- ├── controllers
- ├── middleware
- ├── routes
+```bash
+npm start
+```
 
+---
+
+# 📡 Main API Endpoints
+
+## 🔑 Authentication
+
+```
+POST   /api/auth/register
+POST   /api/auth/login
+GET    /api/auth/my-info
+```
+
+## 🎤 Artists
+
+```
+POST   /api/artists/create
+```
+
+## 💿 Albums
+
+```
+POST   /api/albums/create
+GET    /api/albums/my-albums
+PUT    /api/albums/update/:id
+DELETE /api/albums/delete/:id
+```
+
+## 🎵 Songs
+
+```
+POST   /api/songs/addsong
+GET    /api/songs/my-songs
+GET    /api/songs/all
+PUT    /api/songs/update/:id
+DELETE /api/songs/delete/:id
+PATCH  /api/songs/:id/play
+```
+
+## 📁 Playlists
+
+```
+POST   /api/playlists/create
+GET    /api/playlists/userplaylists
+POST   /api/playlists/:playlistId/add/:songId
+DELETE /api/playlists/:playlistId
+DELETE /api/playlists/:playlistId/remove/:songId
+GET    /api/playlists/:playlistId/songs
+```
+
+## ❤️ Favorites
+
+```
+POST   /api/favorites/add/:id
+GET    /api/favorites/
+DELETE /api/favorites/remove/:id
+```
+
+---
+
+# 📂 File Upload System
+
+* Multer with `memoryStorage`
+* MIME type validation
+* 20MB file size limit
+* Upload to OCI Object Storage
+* URLs stored in the database
+
+---
+
+# 📈 Implemented Features
+
+✔ User registration and login
+✔ Artist profile creation
+✔ Album creation
+✔ Song upload (audio + cover)
+✔ Playlist management
+✔ Favorites system
+✔ Play count increment
+✔ Pagination
+✔ Structured logging
+✔ Advanced security configuration
+
+---
+
+# 🧠 Future Improvements
+
+* UUID-based file naming
+* Soft delete for songs
+* Audio duration validation
+* Additional strategic indexes
+* Automated testing
+* Swagger/OpenAPI documentation
+
+---
+
+# 🎓 Academic Justification
+
+This backend demonstrates:
+
+* Modular and scalable architecture
+* Clear separation of concerns
+* Secure authentication and authorization
+* Multimedia file handling
+* Integration with external storage services
+* Complete relational database modeling
+* Production-ready middleware structure
