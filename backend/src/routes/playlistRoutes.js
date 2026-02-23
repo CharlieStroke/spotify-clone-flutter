@@ -5,8 +5,6 @@ const { createPlaylist, getUserPlaylists, addSongToPlaylist, deletePlaylist, del
 
 router.use(verifyToken);
 
-
-
 router.post('/create', createPlaylist);
 
 router.get('/userplaylists', getUserPlaylists);
