@@ -5,15 +5,26 @@ const { uploadFile } = require('../services/objectStorageService');
 // =============================
 // CREATE ARTIST
 const createArtist = asyncHandler(async (req, res) => {
+    const userId = req.user.userId;
+
+    const userArtist = await pool.query(
+        'SELECT artist_id FROM artists WHERE user_id = $1',
+        [userId]
+    ); 
+
+    if (userArtist.rows.length > 0) {
+        const err = new Error('El usuario ya tiene un perfil de artista');
+        err.statusCode = 400;
+        throw err;
+    }
+
     const { error } = createArtistSchema.validate(req.body);
     if (error) {
         error.statusCode = 400;
         throw error;
     }
-
+    
     const { stage_name, bio} = req.body;
-
-    const userId = req.user.userId;
 
     const imageFile = req.files?.image?.[0];
 
@@ -41,16 +52,7 @@ const createArtist = asyncHandler(async (req, res) => {
         throw err;
     }
 
-    const userArtist = await pool.query(
-        'SELECT artist_id FROM artists WHERE user_id = $1',
-        [userId]
-    ); 
-
-    if (userArtist.rows.length > 0) {
-        const err = new Error('El usuario ya tiene un perfil de artista');
-        err.statusCode = 400;
-        throw err;
-    }
+    
 
     const newArtist = await pool.query(
         `INSERT INTO artists (user_id, stage_name, bio, image_url) 

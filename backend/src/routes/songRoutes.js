@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { createSong } = require('../controllers/songController');
+const { createSong, getSongsByArtist, deleteSong, updateSong } = require('../controllers/songController');
 const authenticateToken = require('../middleware/authMiddleware');
 const upload = require('../middleware/uploadMiddleware');
 const validateAlbumOwnership = require('../middleware/validateAlbumOwnership');
@@ -17,6 +17,12 @@ router.post('/addsong',
     validateAlbumOwnership,
     createSong
 );
+
+router.get('/my-songs', authenticateToken, getSongsByArtist);
+
+router.delete('/delete/:id', authenticateToken, deleteSong);
+
+router.put('/update/:id', authenticateToken, updateSong);
 
 
 
