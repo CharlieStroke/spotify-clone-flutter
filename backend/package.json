@@ -19,6 +19,8 @@
     "express": "^5.2.1",
     "joi": "^18.0.2",
     "jsonwebtoken": "^9.0.3",
+    "oci-common": "^2.125.2",
+    "oci-objectstorage": "^2.125.2",
     "pg": "^8.18.0",
     "pino": "^10.3.1",
     "pino-http": "^11.0.0"
