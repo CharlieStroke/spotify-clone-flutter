@@ -178,7 +178,7 @@ const incrementPlayCount = asyncHandler(async (req, res) => {
 
     const result = await pool.query(
         `UPDATE songs 
-        SET play_count = play_count + 1 
+        SET plays= plays + 1 
         WHERE song_id = $1 RETURNING *`,
         [songId]
     );
