@@ -155,8 +155,8 @@ const updateSong = asyncHandler(async (req, res) => {
     
 
     const result = await pool.query(
-        `UPDATE songs SET title = $1, duration = $2 WHERE song_id = $3 RETURNING *`,
-        [title, duration, songId]
+        `UPDATE songs SET title = $1 WHERE song_id = $2 RETURNING *`,
+        [title, songId]
     );
 
     res.status(200).json({
