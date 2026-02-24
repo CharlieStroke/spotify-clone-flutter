@@ -13,10 +13,36 @@ const addtoFavorites = asyncHandler(async (req, res) => {
         });
     }
 
+    const songalreadyFavorite = await pool.query(
+        `SELECT * FROM favorites WHERE user_id = $1 AND song_id = $2`,
+        [userId, songId]
+    );
+    if (songalreadyFavorite.rows.length > 0) {
+        return res.status(400).json({
+            success: false,
+            message: 'La canción ya está en favoritos'
+        });
+    }
+
+    const songResult = await pool.query(
+        `SELECT * FROM songs WHERE song_id = $1`,
+        [songId]
+    );
+
+    if (songResult.rows.length === 0) {
+        return res.status(404).json({
+            success: false,
+            message: 'Canción no encontrada'
+        });
+    }
+
+
     const favoriteResult = await pool.query(
         `INSERT INTO favorites (user_id, song_id) VALUES ($1, $2) RETURNING *`,
         [userId, songId]
     );
+
+
 
     res.status(201).json({
         success: true,
