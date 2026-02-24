@@ -1,4 +1,4 @@
-const common = require("oci-common");
+const common = require("oci-identity");
 
 const provider = new common.InstancePrincipalsAuthenticationDetailsProvider();
 
