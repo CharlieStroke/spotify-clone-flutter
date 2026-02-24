@@ -69,7 +69,7 @@ CREATE TABLE songs (
     song_id SERIAL PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     album_id INTEGER NOT NULL,
-    duration INTEGER NOT NULL CHECK (duration > 0), k
+    duration INTEGER NOT NULL CHECK (duration > 0),
     plays INTEGER DEFAULT 0,
     cover_url TEXT,
     audio_url TEXT,
