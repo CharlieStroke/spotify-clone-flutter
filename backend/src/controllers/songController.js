@@ -134,10 +134,12 @@ const getSongsByArtist = asyncHandler(async (req, res) => {
 
 const updateSong = asyncHandler(async (req, res) => {
 
-    const { title } = req.body;
+    const { title, duration } = req.body;
 
     const songId = req.params.id;
     const artistId = req.user.userId;
+
+
     const songResult = await pool.query(
 
         `SELECT s.* 
@@ -155,8 +157,11 @@ const updateSong = asyncHandler(async (req, res) => {
     
 
     const result = await pool.query(
-        `UPDATE songs SET title = $1 WHERE song_id = $2 RETURNING *`,
-        [title, songId]
+        `UPDATE songs 
+        SET title = COALESCE($1, title), 
+        duration = COALESCE($2, duration) 
+        WHERE song_id = $3 RETURNING *`,
+        [title, duration || null, songId]
     );
 
     res.status(200).json({
