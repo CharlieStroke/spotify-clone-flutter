@@ -1,5 +1,7 @@
 const common = require("oci-common");
 
-const provider = new common.auth.InstancePrincipalsAuthenticationDetailsProvider();
+async function getProvider() {
+    return await common.auth.InstancePrincipalsAuthenticationDetailsProvider.builder().build();
+}
 
-module.exports = provider;
+module.exports = getProvider;
