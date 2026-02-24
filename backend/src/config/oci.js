@@ -10,7 +10,7 @@ async function getProvider() {
             process.env.OCI_FINGERPRINT,
             process.env.OCI_PRIVATE_KEY_PATH,
             null,
-            common.Region.fromRegionId(process.env.OCI_REGION)
+            common.Region.fromRegionId(process.env.region)
         );
         return provider;
     } catch (error) {
