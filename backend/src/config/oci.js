@@ -3,18 +3,18 @@ require('dotenv').config();
 
 async function getProvider() {
     try {
-        // Creamos el proveedor usando los datos de la API Key
+        // Este es el método más estable del SDK
         const provider = new common.SimpleAuthenticationDetailsProvider(
             process.env.OCI_TENANCY_OCID,
             process.env.OCI_USER_OCID,
             process.env.OCI_FINGERPRINT,
             process.env.OCI_PRIVATE_KEY_PATH,
-            null, // No usamos passphrase
+            null,
             common.Region.fromRegionId(process.env.OCI_REGION)
         );
         return provider;
     } catch (error) {
-        console.error("Error al configurar el proveedor con API Key:", error.message);
+        console.error("Error fatal en el proveedor OCI:", error.message);
         throw error;
     }
 }
