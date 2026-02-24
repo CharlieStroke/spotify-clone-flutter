@@ -1,5 +1,5 @@
-const identity = require("oci-identity");
+const common = require("oci-common");
 
-const provider = new identity.InstancePrincipalsAuthenticationDetailsProvider();
+const provider = new common.auth.InstancePrincipalsAuthenticationDetailsProvider();
 
 module.exports = provider;
