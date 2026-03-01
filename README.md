@@ -134,7 +134,7 @@ npm start
 ```
 POST   /api/auth/register
 POST   /api/auth/login
-GET    /api/auth/my-info
+GET    /api/auth/
 ```
 
 ## 🎤 Artists
@@ -147,7 +147,7 @@ POST   /api/artists/create
 
 ```
 POST   /api/albums/create
-GET    /api/albums/my-albums
+GET    /api/albums/
 PUT    /api/albums/update/:id
 DELETE /api/albums/delete/:id
 ```
@@ -156,7 +156,7 @@ DELETE /api/albums/delete/:id
 
 ```
 POST   /api/songs/addsong
-GET    /api/songs/my-songs
+GET    /api/songs/
 GET    /api/songs/all
 PUT    /api/songs/update/:id
 DELETE /api/songs/delete/:id
@@ -167,7 +167,7 @@ PATCH  /api/songs/:id/play
 
 ```
 POST   /api/playlists/create
-GET    /api/playlists/userplaylists
+GET    /api/playlists/
 POST   /api/playlists/:playlistId/add/:songId
 DELETE /api/playlists/:playlistId
 DELETE /api/playlists/:playlistId/remove/:songId
