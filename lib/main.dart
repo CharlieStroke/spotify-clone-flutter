@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'injection_container.dart' as di;
 import 'core/theme/app_theme.dart';
+import 'features/auth/presentation/pages/login_or_register.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
 
 void main() async {
@@ -24,7 +25,7 @@ class MyApp extends StatelessWidget {
         title: 'Snakefy',
         theme: AppTheme.darkTheme,
         debugShowCheckedModeBanner: false,
-        home: const Scaffold(body: Center(child: Text("Snakefy Ready"))),
+        home: const SignupOrSigninPage(),
       ),
     );
   }
