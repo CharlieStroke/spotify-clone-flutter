@@ -1,0 +1,30 @@
+name: Deploy Backend to Oracle Cloud
+
+on:
+  push:
+    branches:
+      - main # O el nombre de tu rama principal (master, main, etc.)
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Conectar por SSH y actualizar servidor
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            # Entramos a la carpeta de tu backend
+            cd /home/ubuntu/backend/spotify-clone-flutter/backend
+            
+            # Descargamos los últimos cambios de GitHub
+            git pull origin main
+            
+            # Instalamos nuevas dependencias si las hay
+            npm install
+            
+            # Reiniciamos la aplicación con PM2
+            pm2 restart backend
