@@ -7,7 +7,7 @@ router.use(verifyToken);
 
 router.post('/create', createPlaylist);
 
-router.get('/userplaylists', getUserPlaylists);
+router.get('/', getUserPlaylists);
 
 router.post('/:playlistId/add/:songId', addSongToPlaylist);
 
