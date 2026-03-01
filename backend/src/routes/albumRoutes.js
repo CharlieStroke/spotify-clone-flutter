@@ -13,7 +13,7 @@ router.post('/create',
         { name: 'cover', maxCount: 1 }
     ]), 
     createAlbum);
-router.get('/my-albums', authenticateToken, getAlbums);
+router.get('/', authenticateToken, getAlbums);
 router.put('/update/:id', authenticateToken, updateAlbumName);
 router.delete('/delete/:id', authenticateToken, deleteAlbum);
 

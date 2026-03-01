@@ -18,7 +18,7 @@ router.post('/addsong',
     createSong
 );
 
-router.get('/my-songs', authenticateToken, getSongsByArtist);
+router.get('/', authenticateToken, getSongsByArtist);
 
 router.delete('/delete/:id', authenticateToken, deleteSong);
 
