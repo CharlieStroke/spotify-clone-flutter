@@ -1,5 +1,5 @@
 import 'package:dartz/dartz.dart';
-import '../../domain/repository/auth_repository.dart';
+import 'auth_repository.dart';
 import '../../domain/entities/user_entity.dart';
 import '/features/auth/data/sources/auth_api_service.dart';
 
