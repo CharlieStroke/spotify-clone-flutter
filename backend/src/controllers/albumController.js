@@ -37,7 +37,7 @@ const createAlbum = asyncHandler(async (req, res) => {
 
     res.status(201).json({
         success: true,
-        message: 'Álbum creado exitosamente',
+        message: 'Álbum con nombre "' + title + '" creado exitosamente',
         album: newAlbum.rows[0]
     });
 });
@@ -83,7 +83,7 @@ const deleteAlbum = asyncHandler(async (req, res) => {
 
     res.status(200).json({
         success: true,
-        message: 'Álbum eliminado exitosamente',
+        message: 'Álbum con nombre "' + albumResult.rows[0].title + '" eliminado exitosamente',
         album: albumResult.rows[0]
     });
 });
@@ -112,7 +112,7 @@ const updateAlbumName = asyncHandler(async (req, res) => {
 
     res.status(200).json({
         success: true,
-        message: 'Nombre del álbum actualizado exitosamente',
+        message: 'Nombre del álbum actualizado exitosamente con el nuevo título: ' + newTitle,
         album: {
             ...albumResult.rows[0],
             title: newTitle
