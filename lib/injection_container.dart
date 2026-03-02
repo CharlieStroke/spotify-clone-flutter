@@ -11,6 +11,8 @@ import 'features/auth/data/sources/auth_local_services.dart';
 import 'features/home/data/sources/song_api_services.dart';
 import 'features/home/data/repository/song_repository.dart';
 import 'features/home/data/repository/song_repository_impl.dart';
+import 'features/home/domain/usecases/get_songs_usecase.dart';
+import 'features/home/presentation/bloc/home_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -36,10 +38,12 @@ Future<void> init() async {
   // --- Use Cases ---
   sl.registerLazySingleton(() => LoginUseCase(sl()));
   sl.registerLazySingleton(() => RegisterUseCase(sl()));
+  sl.registerLazySingleton(() => SongUseCase(sl()));
 
   // --- Blocs ---
   sl.registerFactory(() => AuthBloc(
     loginUseCase: sl(),
     registerUseCase: sl(),
   ));
+  sl.registerFactory(() => HomeBloc(getSongsUseCase: sl()));
 }
