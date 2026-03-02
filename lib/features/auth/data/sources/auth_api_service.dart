@@ -26,11 +26,11 @@ Future<UserModel> login(String email, String password) async {
 
     // Verificamos si 'user' existe en la respuesta
     if (response.data['user'] != null) {
-      return UserModel.fromJson(response.data['user']);
+      return UserModel.fromJson(response.data);
     } else {
       // Si el backend solo manda el token, creamos un modelo básico
       // para que el flujo de la app continúe al Home
-      return UserModel(email: email, uid: 'logged_in'); 
+      return UserModel(email: email, uid: 'logged_in', token: response.data['token']); 
     }
   } on DioException catch (e) {
     throw Exception(e.response?.data['message'] ?? 'Error al iniciar sesión');

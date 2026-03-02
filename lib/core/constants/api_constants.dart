@@ -7,4 +7,6 @@ class ApiConstants {
   static const String userProfileEndpoint = '/auth/';
 
 
+  static const String getSongsEndpoint = '/songs/all';
+
 }
