@@ -18,7 +18,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     // Manejar Registro
     on<AuthSignupEvent>((event, emit) async {
       emit(AuthLoading());
-      final result = await _registerUseCase(event.email, event.password, event.name);
+      final result = await _registerUseCase(event.username, event.email, event.password);
       result.fold(
         (error) => emit(AuthFailure(message: error)),
         (user) => emit(AuthSuccess(user: user)),

@@ -30,12 +30,12 @@ class AuthApiServiceImpl implements AuthApiService {
   }
 
   @override
-  Future<UserModel> register(String name, String email, String password) async {
+  Future<UserModel> register(String username, String email, String password) async {
     try {
       final response = await _apiClient.dio.post(
         ApiConstants.registerEndpoint,
         data: {
-          'name': name, 
+          'username': username, 
           'email': email, 
           'password': password},
       );
