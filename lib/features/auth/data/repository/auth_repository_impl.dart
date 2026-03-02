@@ -9,9 +9,9 @@ class AuthRepositoryImpl implements AuthRepository {
   AuthRepositoryImpl(this.authApiService);
 
   @override
-  Future<Either<String, UserEntity>> register(String email, String password, String name) async {
+  Future<Either<String, UserEntity>> register(String username, String email, String password) async {
     try {
-      final user = await authApiService.register(email, password, name);
+      final user = await authApiService.register(username, email, password);
       return Right(user); // Éxito
     } catch (e) {
       return Left(e.toString()); // Error

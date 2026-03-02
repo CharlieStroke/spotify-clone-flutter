@@ -14,7 +14,7 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-  final TextEditingController _fullName = TextEditingController();
+  final TextEditingController _userName = TextEditingController();
   final TextEditingController _email = TextEditingController();
   final TextEditingController _password = TextEditingController();
 
@@ -40,7 +40,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 children: [
                   const Text('Regístrate', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25)),
                   const SizedBox(height: 50),
-                  AppTextField(hintText: 'Nombre completo', controller: _fullName),
+                  AppTextField(hintText: 'Nombre completo', controller: _userName),
                   const SizedBox(height: 20),
                   AppTextField(hintText: 'Email', controller: _email),
                   const SizedBox(height: 20),
@@ -51,9 +51,9 @@ class _RegisterPageState extends State<RegisterPage> {
                       : BasicAppButton(
                           onPressed: () {
                             context.read<AuthBloc>().add(AuthSignupEvent(
+                                  username: _userName.text,
                                   email: _email.text,
-                                  password: _password.text,
-                                  name: _fullName.text,
+                                  password: _password.text
                                 ));
                           },
                           title: 'Crear cuenta',
