@@ -4,15 +4,30 @@ import 'injection_container.dart' as di;
 import 'core/theme/app_theme.dart';
 import 'core/routes/app_routes.dart'; // Importamos las rutas
 import 'features/auth/presentation/bloc/auth_bloc.dart';
+import 'features/auth/data/sources/auth_local_services.dart'; // Importamos el servicio local
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // 1. Inicializamos GetIt (DI)
   await di.init();
-  runApp(const MyApp());
+  
+  // 2. Consultamos si existe un token guardado
+  final authLocalService = di.sl<AuthLocalService>();
+  final String? token = await authLocalService.getToken();
+
+  // 3. Decidimos la ruta inicial
+  final String initialRoute = (token != null) 
+      ? AppRoutes.home 
+      : AppRoutes.initial;
+
+  runApp(MyApp(initialRoute: initialRoute));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final String initialRoute;
+  
+  const MyApp({required this.initialRoute, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -21,11 +36,9 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (_) => di.sl<AuthBloc>()),
       ],
       child: MaterialApp(
-        title: 'Snakefy',
-        theme: AppTheme.darkTheme,
         debugShowCheckedModeBanner: false,
-        // Configuramos el enrutamiento centralizado aquí:
-        initialRoute: AppRoutes.initial,
+        theme: AppTheme.darkTheme,
+        initialRoute: initialRoute, // Usamos la ruta decidida
         routes: AppRoutes.routes,
       ),
     );
