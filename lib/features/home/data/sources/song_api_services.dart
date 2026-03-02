@@ -14,20 +14,26 @@ class SongApiServiceImpl implements SongApiService {
   @override
   Future<List<SongModel>> getSongs() async {
     try {
-      // Usamos 'Response' de la librería Dio para tipar la respuesta
-      final Response response = await _apiClient.dio.get('/api/songs/all');
+      // 1. Asegúrate de que la ruta coincida con tu backend (/api/songs/all)
+      final Response response = await _apiClient.dio.get('/songs/all');
       
-      if (response.statusCode == 200) {
-        // Mapeamos la lista de JSON a una lista de Modelos
-        return (response.data as List)
-            .map((song) => SongModel.fromJson(song))
-            .toList();
-      } else {
-        return [];
+      // 2. Verificamos que 'songs' exista y sea una lista
+      if (response.data != null && response.data['songs'] is List) {
+        final List<dynamic> songsList = response.data['songs'];
+
+        // 3. Convertimos explícitamente cada elemento a Map<String, dynamic>
+        return songsList.map((songJson) {
+          return SongModel.fromJson(songJson as Map<String, dynamic>);
+        }).toList();
       }
+      
+      return [];
     } on DioException catch (e) {
-      // Usamos 'DioException' para capturar errores de red específicos
-      throw Exception(e.response?.data['message'] ?? 'Error al cargar canciones');
+      // Captura errores específicos de Dio (como 404 o 500)
+      throw Exception(e.response?.data['message'] ?? 'Error de red al cargar canciones');
+    } catch (e) {
+      // Captura cualquier otro error (como errores de mapeo)
+      throw Exception('Error inesperado: $e');
     }
   }
 }
