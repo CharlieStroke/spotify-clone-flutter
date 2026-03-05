@@ -7,8 +7,8 @@ const validateAlbumOwnership = require('../middleware/validateAlbumOwnership');
 const ensureArtist = require('../middleware/artistMiddleware');
 
 
-router.post('/addsong', 
-    authenticateToken, 
+router.post('/addsong',
+    authenticateToken,
     ensureArtist,
     upload.fields([
         { name: 'audio', maxCount: 1 },
@@ -18,11 +18,11 @@ router.post('/addsong',
     createSong
 );
 
-router.get('/', authenticateToken, getSongsByArtist);
+router.get('/', authenticateToken, ensureArtist, getSongsByArtist);
 
-router.delete('/delete/:id', authenticateToken, deleteSong);
+router.delete('/delete/:id', authenticateToken, ensureArtist, deleteSong);
 
-router.put('/update/:id', authenticateToken, updateSong);
+router.put('/update/:id', authenticateToken, ensureArtist, updateSong);
 
 router.patch('/:id/play', authenticateToken, incrementPlayCount);
 

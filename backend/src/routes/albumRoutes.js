@@ -6,16 +6,16 @@ const { createAlbum, getAlbums, deleteAlbum, updateAlbumName } = require('../con
 const authenticateToken = require('../middleware/authMiddleware');
 
 
-router.post('/create', 
-    authenticateToken, 
+router.post('/create',
+    authenticateToken,
     ensureArtist,
     upload.fields([
         { name: 'cover', maxCount: 1 }
-    ]), 
+    ]),
     createAlbum);
-router.get('/', authenticateToken, getAlbums);
-router.put('/update/:id', authenticateToken, updateAlbumName);
-router.delete('/delete/:id', authenticateToken, deleteAlbum);
+router.get('/', authenticateToken, ensureArtist, getAlbums);
+router.put('/update/:id', authenticateToken, ensureArtist, updateAlbumName);
+router.delete('/delete/:id', authenticateToken, ensureArtist, deleteAlbum);
 
 
 module.exports = router;

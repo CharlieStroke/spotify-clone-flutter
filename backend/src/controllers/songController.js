@@ -87,7 +87,7 @@ const getallSongs = asyncHandler(async (req, res) => {
 const deleteSong = asyncHandler(async (req, res) => {
 
     const songId = req.params.id;
-    const artistId = req.user.userId;
+    const artistId = req.artist.artist_id;
     const songResult = await pool.query(
         `SELECT s.* 
         FROM songs s
@@ -116,7 +116,7 @@ const deleteSong = asyncHandler(async (req, res) => {
 
 const getSongsByArtist = asyncHandler(async (req, res) => {
 
-    const artistId = req.user.userId;
+    const artistId = req.artist.artist_id;
 
     const songs = await pool.query(
         `SELECT song_id, album_id, title, duration, audio_url, cover_url 
@@ -137,7 +137,7 @@ const updateSong = asyncHandler(async (req, res) => {
     const { title, duration } = req.body;
 
     const songId = req.params.id;
-    const artistId = req.user.userId;
+    const artistId = req.artist.artist_id;
 
 
     const songResult = await pool.query(
