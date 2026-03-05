@@ -9,6 +9,7 @@ const favoriteRoutes = require('./routes/favoriteRoute');
 const errorHandler = require('./middleware/errorHandler');
 const httpLogger = require('./middleware/httpLogger');
 const helmet = require('helmet');
+const searchRoutes = require('./routes/searchRoutes');
 
 const app = express();
 
@@ -31,6 +32,7 @@ app.use('/api/artists', artistRoutes);
 app.use('/api/albums', albumRoutes);
 app.use('/api/songs', songRoutes);
 app.use('/api/favorites', favoriteRoutes);
+app.use('/api/search', searchRoutes);
 app.use(errorHandler);
 
 module.exports = app;

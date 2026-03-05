@@ -1,5 +1,5 @@
 const pool = require('../config/db');
-const { uploadFile } = require('../services/objectStorageService'); // importamos el servicio de subida de imágenes
+const { uploadFile } = require('../services/supabaseStorageService'); // importamos el servicio de subida de imágenes (Supabase)
 const asyncHandler = require('../utils/asyncHandler');
 const { albumSchema } = require('../validators/artistValidator');
 
@@ -13,13 +13,13 @@ const createAlbum = asyncHandler(async (req, res) => {
     const { title } = req.body;
     const artistId = req.user.userId; // Assuming the user ID is stored in the token and represents the artist
     const cover = req.files?.cover?.[0]; // Assuming the cover image is uploaded using multer and available in req.files.cover
-    
+
     if (!cover) {
         const err = new Error('Archivo de portada es requerido');
         err.statusCode = 400;
         throw err;
     }
-    
+
     const coverName = `covers/albums/${Date.now()}_${cover.originalname}`; // le asignamos un nombre único a la imagen para evitar colisiones en el almacenamiento, y organizamos las imágenes en carpetas por tipo (covers/albums/)
 
     const coverUrl = await uploadFile(
@@ -33,7 +33,7 @@ const createAlbum = asyncHandler(async (req, res) => {
         VALUES ($1, $2, $3) 
         RETURNING album_id, title, artist_id, cover_url`,
         [title, artistId, coverUrl]
-    ); 
+    );
 
     res.status(201).json({
         success: true,
@@ -45,7 +45,7 @@ const createAlbum = asyncHandler(async (req, res) => {
 const getAlbums = asyncHandler(async (req, res) => {
 
     const artistId = req.user.userId;
-    
+
     const albums = await pool.query(
         `SELECT album_id, title, cover_url 
         FROM albums 

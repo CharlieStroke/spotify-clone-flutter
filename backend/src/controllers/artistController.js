@@ -1,7 +1,7 @@
 const pool = require('../config/db');
 const asyncHandler = require('../utils/asyncHandler');
 const { createArtistSchema } = require('../validators/artistValidator');
-const { uploadFile } = require('../services/objectStorageService');
+const { uploadFile } = require('../services/supabaseStorageService');
 // =============================
 // CREATE ARTIST
 const createArtist = asyncHandler(async (req, res) => {
@@ -10,7 +10,7 @@ const createArtist = asyncHandler(async (req, res) => {
     const userArtist = await pool.query(
         'SELECT artist_id FROM artists WHERE user_id = $1',
         [userId]
-    ); 
+    );
 
     if (userArtist.rows.length > 0) {
         const err = new Error('El usuario ya tiene un perfil de artista');
@@ -23,8 +23,8 @@ const createArtist = asyncHandler(async (req, res) => {
         error.statusCode = 400;
         throw error;
     }
-    
-    const { stage_name, bio} = req.body;
+
+    const { stage_name, bio } = req.body;
 
     const imageFile = req.files?.image?.[0];
 
@@ -52,7 +52,7 @@ const createArtist = asyncHandler(async (req, res) => {
         throw err;
     }
 
-    
+
 
     const newArtist = await pool.query(
         `INSERT INTO artists (user_id, stage_name, bio, image_url) 
