@@ -13,6 +13,9 @@ const searchRoutes = require('./routes/searchRoutes');
 
 const app = express();
 
+// Confiar en los proxies (necesario para Rate Limit en Render, Railway, Heroku)
+app.set('trust proxy', 1);
+
 const rateLimit = require('express-rate-limit');
 
 const limiter = rateLimit({

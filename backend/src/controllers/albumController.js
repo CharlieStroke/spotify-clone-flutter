@@ -11,7 +11,7 @@ const createAlbum = asyncHandler(async (req, res) => {
     }
 
     const { title } = req.body;
-    const artistId = req.user.userId; // Assuming the user ID is stored in the token and represents the artist
+    const artistId = req.artist.artist_id; // Using the retrieved artist_id from ensureArtist middleware
     const cover = req.files?.cover?.[0]; // Assuming the cover image is uploaded using multer and available in req.files.cover
 
     if (!cover) {
@@ -44,7 +44,7 @@ const createAlbum = asyncHandler(async (req, res) => {
 
 const getAlbums = asyncHandler(async (req, res) => {
 
-    const artistId = req.user.userId;
+    const artistId = req.artist.artist_id;
 
     const albums = await pool.query(
         `SELECT album_id, title, cover_url 
@@ -63,7 +63,7 @@ const getAlbums = asyncHandler(async (req, res) => {
 const deleteAlbum = asyncHandler(async (req, res) => {
 
     const albumId = req.params.id;
-    const artistId = req.user.userId;
+    const artistId = req.artist.artist_id;
 
     const albumResult = await pool.query(
         `SELECT * FROM albums WHERE album_id = $1 AND artist_id = $2`,
@@ -91,7 +91,7 @@ const deleteAlbum = asyncHandler(async (req, res) => {
 const updateAlbumName = asyncHandler(async (req, res) => {
 
     const albumId = req.params.id;
-    const artistId = req.user.userId;
+    const artistId = req.artist.artist_id;
     const { newTitle } = req.body;
 
     const albumResult = await pool.query(
