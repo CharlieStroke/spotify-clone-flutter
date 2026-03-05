@@ -1,10 +1,10 @@
 const pool = require('../config/db');
 const asyncHandler = require('../utils/asyncHandler');
 const paginate = require('../utils/pagination');
-const { uploadFile } = require('../services/objectStorageService');
+const { uploadFile } = require('../services/supabaseStorageService');
 
 const createSong = asyncHandler(async (req, res) => {
-    
+
     const { title, album_id, duration } = req.body;
     const audio = req.files?.audio?.[0]; // Assuming the song is uploaded using multer and available in req.files.audio
     const cover = req.files?.cover?.[0]; // Assuming the cover is uploaded using multer and available in req.files.cover
@@ -23,7 +23,7 @@ const createSong = asyncHandler(async (req, res) => {
 
     const songName = `songs/tracks/${Date.now()}_${audio.originalname}`;
     const coverName = `songs/covers/${Date.now()}_${cover.originalname}`;
-     // Replace spaces with underscores for better URL handling
+    // Replace spaces with underscores for better URL handling
 
     const songUrl = await uploadFile(
         audio.buffer,
@@ -31,11 +31,11 @@ const createSong = asyncHandler(async (req, res) => {
         audio.mimetype
     );
 
-        const coverUrl = await uploadFile(
-            cover.buffer,
-            coverName,
-            cover.mimetype
-        );
+    const coverUrl = await uploadFile(
+        cover.buffer,
+        coverName,
+        cover.mimetype
+    );
 
     const result = await pool.query(
         `INSERT INTO songs (title, album_id, duration, audio_url, cover_url)
@@ -49,7 +49,7 @@ const createSong = asyncHandler(async (req, res) => {
         success: true,
         message: 'Canción creada exitosamente',
         song: result.rows[0]
-        
+
     });
 });
 
@@ -60,7 +60,7 @@ const getallSongs = asyncHandler(async (req, res) => {
     const totalResult = await pool.query(`SELECT COUNT(*) FROM songs`);
 
     const totalItems = parseInt(totalResult.rows[0].count);
-    
+
     const result = await pool.query(
         `SELECT song_id, album_id, title, duration, audio_url, cover_url 
         FROM songs 
@@ -70,7 +70,7 @@ const getallSongs = asyncHandler(async (req, res) => {
     );
 
     const totalPages = Math.ceil(totalItems / limit);
-    
+
     res.status(200).json({
         success: true,
         message: 'Canciones obtenidas exitosamente',
@@ -154,7 +154,7 @@ const updateSong = asyncHandler(async (req, res) => {
         err.statusCode = 404;
         throw err;
     }
-    
+
 
     const result = await pool.query(
         `UPDATE songs 
