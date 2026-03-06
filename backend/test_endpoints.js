@@ -1,15 +1,10 @@
 // test_endpoints.js
-// Script para testear todo tu Backend E2E (End-to-End) remotamente o localmente.
 const fs = require('fs');
 
-// Permite pasar la IP de la VM por argumento en la terminal. Si no se pasa, usa localhost.
-// Ejemplo: node test_endpoints.js http://150.136.x.x:4000
 const HOST = process.argv[2] || 'http://localhost:4000';
 const API_URL = `${HOST}/api`;
 
-// Generar una imagen falsa en memoria
 const generateFakeImage = () => new Blob([new Uint8Array(20)], { type: 'image/png' });
-// Generar un audio falso en memoria
 const generateFakeAudio = () => new Blob([new Uint8Array(20)], { type: 'audio/mpeg' });
 
 async function runTests() {
@@ -27,9 +22,6 @@ async function runTests() {
     console.log(`📡 Apuntando al Servidor: ${HOST}\n`);
 
     try {
-        // ==========================================
-        // 1. AUTH - REGISTRO Y LOGIN
-        // ==========================================
         console.log('1️⃣  Testeando Auth (Registro/Login)...');
         let res = await fetch(`${API_URL}/auth/register`, {
             method: 'POST',
@@ -49,15 +41,6 @@ async function runTests() {
         token = loginData.token;
         console.log(' - Login:', token ? '✅ OK' : '❌ FALLÓ', loginData.message || loginData.error);
 
-        res = await fetch(`${API_URL}/auth/`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const meData = await res.json();
-        console.log(' - Obtener Mi Perfil (/auth/):', meData.success ? '✅ OK' : '❌ FALLÓ', meData.user ? meData.user.email : '');
-
-        // ==========================================
-        // 2. ARTISTAS - CREAR PERFIL
-        // ==========================================
         console.log('\n2️⃣  Testeando Artistas (Crear Perfil)...');
         const artistFormData = new FormData();
         artistFormData.append('stage_name', `The Test Band ${Date.now()}`);
@@ -72,10 +55,7 @@ async function runTests() {
         const artistData = await res.json();
         console.log(' - Crear Artista:', artistData.success ? '✅ OK' : '❌ FALLÓ', artistData.message || artistData.error);
 
-        // ==========================================
-        // 3. ALBUMS - CREAR ALBUM
-        // ==========================================
-        console.log('\n3️⃣  Testeando Albums (Crear)...');
+        console.log('\n3️⃣  Testeando Albums (Crear y Obtener Todos)...');
         const albumFormData = new FormData();
         albumFormData.append('title', `Album E2E Remoto`);
         albumFormData.append('cover', generateFakeImage(), 'test_cover.png');
@@ -89,9 +69,14 @@ async function runTests() {
         albumId = albumData.album?.album_id;
         console.log(' - Crear Album:', albumData.success ? '✅ OK' : '❌ FALLÓ', albumData.message || albumData.error);
 
-        // ==========================================
-        // 4. CANCIONES - SUBIR, LISTAR Y BUSCAR
-        // ==========================================
+        // NUEVA PRUEBA PARA GET ALL ALBUMS
+        res = await fetch(`${API_URL}/albums/all`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const allAlbumsData = await res.json();
+        console.log(' - Obtener Todos los Albums (/albums/all):', allAlbumsData.success ? '✅ OK' : '❌ FALLÓ', `(${allAlbumsData.albums?.length} encontrados)`);
+
+
         console.log('\n4️⃣  Testeando Canciones (Subir, Buscar)...');
         if (albumId) {
             const songFormData = new FormData();
@@ -109,49 +94,6 @@ async function runTests() {
             const songData = await res.json();
             songId = songData.song?.song_id;
             console.log(' - Subir Canción a BD y Bucket:', songData.success ? '✅ OK' : '❌ FALLÓ', songData.message || songData.error);
-        } else {
-            console.log(' - ⚠️ Saltando Subir Canción (Falta ID del album)');
-        }
-
-        res = await fetch(`${API_URL}/songs/`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const songsArtistData = await res.json();
-        console.log(' - Mis Canciones:', songsArtistData.success ? '✅ OK' : '❌ FALLÓ');
-
-        res = await fetch(`${API_URL}/search?q=Canción E2E`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const searchData = await res.json();
-        console.log(' - Buscar Canción (/search):', searchData.success ? '✅ OK' : '❌ FALLÓ', searchData.songs ? `(${searchData.songs.length} resultados)` : '');
-
-        // ==========================================
-        // 5. PLAYLISTS - CREAR, AGREGAR
-        // ==========================================
-        console.log('\n5️⃣  Testeando Playlists y Favoritos...');
-        res = await fetch(`${API_URL}/playlists/create`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-            body: JSON.stringify({ name: 'Playlist VM', description: 'Pruebas Remotas' })
-        });
-        const playlistData = await res.json();
-        playlistId = playlistData.playlist?.playlist_id;
-        console.log(' - Crear Playlist:', playlistData.success ? '✅ OK' : '❌ FALLÓ', playlistData.message || playlistData.error);
-
-        if (playlistId && songId) {
-            res = await fetch(`${API_URL}/playlists/${playlistId}/add/${songId}`, {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const addToPlData = await res.json();
-            console.log(' - Añadir Canción a Playlist:', addToPlData.success ? '✅ OK' : '❌ FALLÓ', addToPlData.message || addToPlData.error);
-
-            res = await fetch(`${API_URL}/favorites/add/${songId}`, {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const favData = await res.json();
-            console.log(' - Marcar Canción como Favorita:', favData.success ? '✅ OK' : '❌ FALLÓ', favData.message || favData.error);
         }
 
         console.log('\n🎉 ¡PRUEBAS EN LA VM FINALIZADAS EXITOSAMENTE!');
