@@ -13,6 +13,7 @@ import 'features/home/data/repository/song_repository.dart';
 import 'features/home/data/repository/song_repository_impl.dart';
 import 'features/home/domain/usecases/get_songs_usecase.dart';
 import 'features/home/presentation/bloc/home_bloc.dart';
+import 'features/main_navigation/presentation/cubit/main_navigation_cubit.dart';
 
 final sl = GetIt.instance;
 
@@ -46,4 +47,5 @@ Future<void> init() async {
     registerUseCase: sl(),
   ));
   sl.registerFactory(() => HomeBloc(getSongsUseCase: sl()));
+  sl.registerFactory(() => MainNavigationCubit());
 }
