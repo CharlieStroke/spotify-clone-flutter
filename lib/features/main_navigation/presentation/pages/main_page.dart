@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../home/presentation/pages/home.dart';
 import '../../../search/presentation/pages/search_page.dart';
+import '../../../create/presentation/pages/create_page.dart';
 import '../../../library/presentation/pages/library_page.dart';
 import '../../../profile/presentation/pages/profile_page.dart';
 import '../cubit/main_navigation_cubit.dart';
@@ -19,10 +20,11 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
     final List<Widget> _pages = const [
+        ProfilePage(),
         HomePage(),
         SearchPage(),
         LibraryPage(),
-        ProfilePage(),
+        CreatePage(),
     ];
 
     @override
@@ -67,6 +69,11 @@ class _MainPageState extends State<MainPage> {
                 unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.normal, fontSize: 12),
                 items: const [
                     BottomNavigationBarItem(
+                    icon: Icon(Icons.person_outline),
+                    activeIcon: Icon(Icons.person),
+                    label: 'Usuario',
+                    ),
+                    BottomNavigationBarItem(
                     icon: Icon(Icons.home_outlined),
                     activeIcon: Icon(Icons.home),
                     label: 'Inicio',
@@ -82,9 +89,9 @@ class _MainPageState extends State<MainPage> {
                     label: 'Biblioteca',
                     ),
                     BottomNavigationBarItem(
-                    icon: Icon(Icons.person_outline),
-                    activeIcon: Icon(Icons.person),
-                    label: 'Usuario',
+                    icon: Icon(Icons.add_box_outlined),
+                    activeIcon: Icon(Icons.add_box),
+                    label: 'Crear',
                     ),
                 ],
                 ),

@@ -18,18 +18,13 @@ class SignupOrSigninPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const Spacer(),
-              // Logo Placeholder (Círculo Morado con icono)
-              Container(
-                width: 120,
-                height: 120,
-                decoration: const BoxDecoration(
-                  color: AppColors.primary,
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.audiotrack, // Placeholder para la serpiente
-                  size: 60,
-                  color: Colors.black,
+              // Logo de la Aplicación
+              ClipOval(
+                child: Image.asset(
+                  'assets/images/logo.png',
+                  width: 150,
+                  height: 150,
+                  fit: BoxFit.cover,
                 ),
               ),
               const SizedBox(height: 40),

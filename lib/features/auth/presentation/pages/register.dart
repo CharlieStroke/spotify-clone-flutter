@@ -84,18 +84,13 @@ class _RegisterPageState extends State<RegisterPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const SizedBox(height: 10),
-                  // Logo Placeholder
-                  Container(
-                    width: 120,
-                    height: 120,
-                    decoration: const BoxDecoration(
-                      color: AppColors.primary,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.audiotrack,
-                      size: 60,
-                      color: Colors.black,
+                  // Logo de la App
+                  ClipOval(
+                    child: Image.asset(
+                      'assets/images/logo.png',
+                      width: 100,
+                      height: 100,
+                      fit: BoxFit.cover,
                     ),
                   ),
                   const SizedBox(height: 30),
@@ -111,7 +106,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       height: 1.2,
                     ),
                   ),
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 20),
                   
                   // Campos
                   _buildTextFieldWithLabel('Nombre', 'Nombre', _userName),
@@ -120,7 +115,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   const SizedBox(height: 20),
                   _buildTextFieldWithLabel('Contraseña', 'Contraseña', _password, isPassword: true),
                   
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 20),
 
                   // Botón
                   state is AuthLoading

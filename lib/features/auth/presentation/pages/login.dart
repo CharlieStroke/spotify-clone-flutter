@@ -83,25 +83,20 @@ class _LoginPageState extends State<LoginPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const SizedBox(height: 20),
-                  // Logo Placeholder
-                  Container(
-                    width: 120,
-                    height: 120,
-                    decoration: const BoxDecoration(
-                      color: AppColors.primary,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.audiotrack,
-                      size: 60,
-                      color: Colors.black,
+                  // Logo de la App
+                  ClipOval(
+                    child: Image.asset(
+                      'assets/images/logo.png',
+                      width: 120,
+                      height: 120,
+                      fit: BoxFit.cover,
                     ),
                   ),
                   const SizedBox(height: 40),
                   
                   // Título principal
                   const Text(
-                    'Iniciar sesión en\nSpotify',
+                    'Iniciar sesión en\nSnakefy',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
