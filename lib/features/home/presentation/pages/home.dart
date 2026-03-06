@@ -5,6 +5,8 @@ import '../../../../core/theme/app_colors.dart';
 import '../bloc/home_bloc.dart';
 import '../bloc/home_event.dart';
 import '../bloc/home_state.dart';
+import '../../domain/entities/album_entity.dart';
+import '../../domain/entities/playlist_entity.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -205,7 +207,7 @@ class HomePage extends StatelessWidget {
                                     style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
                                   ),
                                   Text(
-                                    isAlbum ? (item as AlbumEntity).title : (item).name,
+                                    isAlbum ? (item as AlbumEntity).title : (item as PlaylistEntity).name,
                                     style: const TextStyle(color: Colors.white70, fontSize: 12),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,

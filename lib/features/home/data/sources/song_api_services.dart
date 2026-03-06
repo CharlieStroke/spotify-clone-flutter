@@ -29,8 +29,11 @@ class SongApiServiceImpl implements SongApiService {
       
       return [];
     } on DioException catch (e) {
-      // Captura errores específicos de Dio (como 404 o 500)
-      throw Exception(e.response?.data['message'] ?? 'Error de red al cargar canciones');
+      String msg = e.message ?? 'Error de red al cargar canciones';
+      if (e.response?.data is Map) {
+         msg = e.response?.data['message'] ?? msg;
+      }
+      throw Exception('Error: $msg');
     } catch (e) {
       // Captura cualquier otro error (como errores de mapeo)
       throw Exception('Error inesperado: $e');
