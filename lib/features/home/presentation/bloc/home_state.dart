@@ -1,5 +1,6 @@
 import '../../domain/entities/album_entity.dart';
 import '../../domain/entities/playlist_entity.dart';
+import '../../domain/entities/song_entity.dart';
 
 abstract class HomeState {}
 

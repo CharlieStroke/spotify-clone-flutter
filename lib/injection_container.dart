@@ -31,7 +31,7 @@ Future<void> init() async {
   // --- External ---
   final sharedPreferences = await SharedPreferences.getInstance();
   sl.registerLazySingleton(() => sharedPreferences);
-  sl.registerLazySingleton(() => ApiClient());
+  sl.registerLazySingleton(() => ApiClient(sl()));
 
   // --- Data Sources ---
   // ASEGÚRATE DE QUE ESTAS LÍNEAS ESTÉN SOLO UNA VEZ
