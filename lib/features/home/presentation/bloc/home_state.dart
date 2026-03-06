@@ -1,4 +1,5 @@
-import '../../domain/entities/song_entity.dart';
+import '../../domain/entities/album_entity.dart';
+import '../../domain/entities/playlist_entity.dart';
 
 abstract class HomeState {}
 
@@ -6,7 +7,14 @@ class HomeLoading extends HomeState {}
 
 class HomeLoaded extends HomeState {
   final List<SongEntity> songs;
-  HomeLoaded({required this.songs});
+  final List<AlbumEntity> albums;
+  final List<PlaylistEntity> playlists;
+
+  HomeLoaded({
+    required this.songs,
+    required this.albums,
+    required this.playlists,
+  });
 }
 
 class HomeFailure extends HomeState {
