@@ -6,6 +6,8 @@ import 'core/routes/app_routes.dart'; // Importamos las rutas
 import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/auth/data/sources/auth_local_services.dart'; // Importamos el servicio local
 import 'features/main_navigation/presentation/cubit/main_navigation_cubit.dart';
+import 'features/profile/presentation/bloc/profile_bloc.dart';
+import 'features/profile/presentation/bloc/profile_event.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -36,6 +38,8 @@ class MyApp extends StatelessWidget {
       providers: [
         BlocProvider(create: (_) => di.sl<AuthBloc>()),
         BlocProvider(create: (_) => di.sl<MainNavigationCubit>()),
+        // Disparamos el LoadProfileEvent al iniciar la app para tener los datos precargados
+        BlocProvider(create: (_) => di.sl<ProfileBloc>()..add(LoadProfileEvent())),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

@@ -14,6 +14,11 @@ import 'features/home/data/repository/song_repository_impl.dart';
 import 'features/home/domain/usecases/get_songs_usecase.dart';
 import 'features/home/presentation/bloc/home_bloc.dart';
 import 'features/main_navigation/presentation/cubit/main_navigation_cubit.dart';
+import 'features/profile/data/sources/profile_api_service.dart';
+import 'features/profile/domain/repositories/profile_repository.dart';
+import 'features/profile/data/repositories/profile_repository_impl.dart';
+import 'features/profile/domain/usecases/get_user_profile_usecase.dart';
+import 'features/profile/presentation/bloc/profile_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -28,6 +33,7 @@ Future<void> init() async {
   sl.registerLazySingleton<AuthApiService>(() => AuthApiServiceImpl(sl()));
   sl.registerLazySingleton<AuthLocalService>(() => AuthLocalServiceImpl(sl()));
   sl.registerLazySingleton<SongApiService>(() => SongApiServiceImpl(sl()));
+  sl.registerLazySingleton<ProfileApiService>(() => ProfileApiServiceImpl(apiClient: sl(), sharedPreferences: sl()));
 
   // --- Repositories ---
   sl.registerLazySingleton<AuthRepository>(
@@ -35,11 +41,13 @@ Future<void> init() async {
     
   );
   sl.registerLazySingleton<SongRepository>(() => SongRepositoryImpl(sl()));
+  sl.registerLazySingleton<ProfileRepository>(() => ProfileRepositoryImpl(profileApiService: sl()));
 
   // --- Use Cases ---
   sl.registerLazySingleton(() => LoginUseCase(sl()));
   sl.registerLazySingleton(() => RegisterUseCase(sl()));
   sl.registerLazySingleton(() => SongUseCase(sl()));
+  sl.registerLazySingleton(() => GetUserProfileUseCase(repository: sl()));
 
   // --- Blocs ---
   sl.registerFactory(() => AuthBloc(
@@ -48,4 +56,5 @@ Future<void> init() async {
   ));
   sl.registerFactory(() => HomeBloc(getSongsUseCase: sl()));
   sl.registerFactory(() => MainNavigationCubit());
+  sl.registerFactory(() => ProfileBloc(getUserProfileUseCase: sl()));
 }
