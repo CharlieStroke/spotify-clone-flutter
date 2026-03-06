@@ -3,6 +3,7 @@ import '../../features/auth/presentation/pages/login.dart';
 import '../../features/auth/presentation/pages/register.dart';
 import '../../features/auth/presentation/pages/login_or_register.dart';
 import '../../features/home/presentation/pages/home.dart';
+import '../../features/main_navigation/presentation/pages/main_page.dart';
 
 class AppRoutes {
   // Nombres de las rutas como constantes para evitar errores de tipeo
@@ -16,6 +17,6 @@ class AppRoutes {
         initial: (context) => const SignupOrSigninPage(),
         signup: (context) => const RegisterPage(),
         signin: (context) => const LoginPage(),
-        home: (context) => const HomePage(),
+        home: (context) => const MainPage(),
       };
 }

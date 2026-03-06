@@ -5,6 +5,7 @@ import 'core/theme/app_theme.dart';
 import 'core/routes/app_routes.dart'; // Importamos las rutas
 import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/auth/data/sources/auth_local_services.dart'; // Importamos el servicio local
+import 'features/main_navigation/presentation/cubit/main_navigation_cubit.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,6 +35,7 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (_) => di.sl<AuthBloc>()),
+        BlocProvider(create: (_) => di.sl<MainNavigationCubit>()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
