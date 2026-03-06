@@ -119,7 +119,7 @@ class ProfilePage extends StatelessWidget {
                       ElevatedButton(
                         onPressed: () async {
                           final prefs = di.sl<SharedPreferences>();
-                          await prefs.remove('auth_token');
+                          await prefs.remove('token');
                           if (context.mounted) {
                             // Limpiamos el stack de navegación
                             Navigator.pushNamedAndRemoveUntil(

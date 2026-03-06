@@ -36,10 +36,22 @@ const register = asyncHandler(async (req, res) => {
         [email, hashedPassword, username]
     );
 
+    const user = newUser.rows[0];
+
+    const token = jwt.sign(
+        {
+            userId: user.user_id,
+            email: user.email
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: '24h' }
+    );
+
     res.status(201).json({
         success: true,
         message: 'Usuario registrado exitosamente',
-        user: newUser.rows[0]
+        user: user,
+        token: token
     });
 });
 

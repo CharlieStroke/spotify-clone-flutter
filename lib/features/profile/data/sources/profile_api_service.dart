@@ -16,7 +16,7 @@ class ProfileApiServiceImpl implements ProfileApiService {
   @override
   Future<UserModel> getUserProfile() async {
     try {
-      final token = sharedPreferences.getString('auth_token');
+      final token = sharedPreferences.getString('token');
       if (token == null) throw Exception('No token found');
 
       final response = await apiClient.dio.get(

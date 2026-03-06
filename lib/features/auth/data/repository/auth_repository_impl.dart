@@ -14,13 +14,13 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Either<String, UserEntity>> register(String username, String email, String password) async {
     try {
-      // 1. Llamamos a la API
-      final user = await authApiService.register(username, email, password);
+      final userModel = await authApiService.register(username, email, password);
       
-      // Nota: Si tu backend devuelve el token al registrar, 
-      // podrías guardarlo aquí igual que en el login.
+      if (userModel.token != null) {
+        await authLocalService.saveToken(userModel.token!);
+      }
       
-      return Right(user);
+      return Right(userModel);
     } catch (e) {
       return Left(e.toString());
     }

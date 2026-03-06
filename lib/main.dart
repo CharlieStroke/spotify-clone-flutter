@@ -38,8 +38,10 @@ class MyApp extends StatelessWidget {
       providers: [
         BlocProvider(create: (_) => di.sl<AuthBloc>()),
         BlocProvider(create: (_) => di.sl<MainNavigationCubit>()),
-        // Disparamos el LoadProfileEvent al iniciar la app para tener los datos precargados
-        BlocProvider(create: (_) => di.sl<ProfileBloc>()..add(LoadProfileEvent())),
+        // Eliminamos el ..add(LoadProfileEvent()) de aquí porque si el usuario
+        // no está logueado, la app hará crash pidiendo el token. 
+        // El evento se lanzará cuando se entre a la pantalla principal protegida.
+        BlocProvider(create: (_) => di.sl<ProfileBloc>()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
