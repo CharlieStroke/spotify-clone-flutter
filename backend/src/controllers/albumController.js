@@ -120,11 +120,28 @@ const updateAlbumName = asyncHandler(async (req, res) => {
     });
 });
 
+const getAllAlbums = asyncHandler(async (req, res) => {
+    // No requiere que sea un artista, solo un usuario logueado.
+    // Hacemos JOIN con users para obtener el nombre del artista que lo creó.
+    const albums = await pool.query(
+        `SELECT a.album_id, a.title, a.cover_url, u.username as artist_name 
+         FROM albums a
+         JOIN users u ON a.artist_id = u.user_id
+         ORDER BY a.created_at DESC`
+    );
+
+    res.status(200).json({
+        success: true,
+        albums: albums.rows
+    });
+});
+
 
 
 module.exports = {
     createAlbum,
     getAlbums,
     deleteAlbum,
-    updateAlbumName
+    updateAlbumName,
+    getAllAlbums
 };

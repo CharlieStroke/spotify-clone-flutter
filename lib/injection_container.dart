@@ -9,9 +9,14 @@ import 'features/auth/domain/usecases/register_usecase.dart';
 import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/auth/data/sources/auth_local_services.dart';
 import 'features/home/data/sources/song_api_services.dart';
+import 'features/home/data/sources/home_api_service.dart';
 import 'features/home/data/repository/song_repository.dart';
 import 'features/home/data/repository/song_repository_impl.dart';
+import 'features/home/data/repository/home_repository.dart';
+import 'features/home/data/repository/home_repository_impl.dart';
 import 'features/home/domain/usecases/get_songs_usecase.dart';
+import 'features/home/domain/usecases/get_albums_usecase.dart';
+import 'features/home/domain/usecases/get_playlists_usecase.dart';
 import 'features/home/presentation/bloc/home_bloc.dart';
 import 'features/main_navigation/presentation/cubit/main_navigation_cubit.dart';
 import 'features/profile/data/sources/profile_api_service.dart';
@@ -33,6 +38,7 @@ Future<void> init() async {
   sl.registerLazySingleton<AuthApiService>(() => AuthApiServiceImpl(sl()));
   sl.registerLazySingleton<AuthLocalService>(() => AuthLocalServiceImpl(sl()));
   sl.registerLazySingleton<SongApiService>(() => SongApiServiceImpl(sl()));
+  sl.registerLazySingleton<HomeApiService>(() => HomeApiServiceImpl(sl()));
   sl.registerLazySingleton<ProfileApiService>(() => ProfileApiServiceImpl(apiClient: sl(), sharedPreferences: sl()));
 
   // --- Repositories ---
@@ -41,12 +47,15 @@ Future<void> init() async {
     
   );
   sl.registerLazySingleton<SongRepository>(() => SongRepositoryImpl(sl()));
+  sl.registerLazySingleton<HomeRepository>(() => HomeRepositoryImpl(sl()));
   sl.registerLazySingleton<ProfileRepository>(() => ProfileRepositoryImpl(profileApiService: sl()));
 
   // --- Use Cases ---
   sl.registerLazySingleton(() => LoginUseCase(sl()));
   sl.registerLazySingleton(() => RegisterUseCase(sl()));
   sl.registerLazySingleton(() => SongUseCase(sl()));
+  sl.registerLazySingleton(() => GetAlbumsUseCase(sl()));
+  sl.registerLazySingleton(() => GetPlaylistsUseCase(sl()));
   sl.registerLazySingleton(() => GetUserProfileUseCase(repository: sl()));
 
   // --- Blocs ---
@@ -54,7 +63,11 @@ Future<void> init() async {
     loginUseCase: sl(),
     registerUseCase: sl(),
   ));
-  sl.registerFactory(() => HomeBloc(getSongsUseCase: sl()));
+  sl.registerFactory(() => HomeBloc(
+    getSongsUseCase: sl(),
+    getAlbumsUseCase: sl(),
+    getPlaylistsUseCase: sl(),
+  ));
   sl.registerFactory(() => MainNavigationCubit());
   sl.registerFactory(() => ProfileBloc(getUserProfileUseCase: sl()));
 }
