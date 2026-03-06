@@ -47,7 +47,7 @@ Future<UserModel> login(String email, String password) async {
           'email': email, 
           'password': password},
       );
-      return UserModel.fromJson(response.data['user']);
+      return UserModel.fromJson(response.data);
     } on DioException catch (e) {
       throw Exception(e.response?.data['message'] ?? 'Error al registrarse');
     }

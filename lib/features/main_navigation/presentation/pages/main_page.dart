@@ -7,16 +7,31 @@ import '../../../profile/presentation/pages/profile_page.dart';
 import '../cubit/main_navigation_cubit.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../profile/presentation/bloc/profile_bloc.dart';
+import '../../../profile/presentation/bloc/profile_event.dart';
 
-class MainPage extends StatelessWidget {
+class MainPage extends StatefulWidget {
     const MainPage({super.key});
 
+    @override
+    State<MainPage> createState() => _MainPageState();
+}
+
+class _MainPageState extends State<MainPage> {
     final List<Widget> _pages = const [
         HomePage(),
         SearchPage(),
         LibraryPage(),
         ProfilePage(),
     ];
+
+    @override
+    void initState() {
+        super.initState();
+        // Disparamos la carga del perfil aquí, una vez que el usuario ya ha aterrizado
+        // en una pantalla que requiere estar autenticado.
+        context.read<ProfileBloc>().add(LoadProfileEvent());
+    }
 
     @override
     Widget build(BuildContext context) {
