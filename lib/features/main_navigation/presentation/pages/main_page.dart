@@ -20,11 +20,11 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
     final List<Widget> _pages = const [
-        ProfilePage(),
         HomePage(),
         SearchPage(),
         LibraryPage(),
         CreatePage(),
+        ProfilePage(),
     ];
 
     @override
@@ -69,11 +69,6 @@ class _MainPageState extends State<MainPage> {
                 unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.normal, fontSize: 12),
                 items: const [
                     BottomNavigationBarItem(
-                    icon: Icon(Icons.person_outline),
-                    activeIcon: Icon(Icons.person),
-                    label: 'Usuario',
-                    ),
-                    BottomNavigationBarItem(
                     icon: Icon(Icons.home_outlined),
                     activeIcon: Icon(Icons.home),
                     label: 'Inicio',
@@ -92,6 +87,11 @@ class _MainPageState extends State<MainPage> {
                     icon: Icon(Icons.add_box_outlined),
                     activeIcon: Icon(Icons.add_box),
                     label: 'Crear',
+                    ),
+                    BottomNavigationBarItem(
+                    icon: Icon(Icons.person_outline),
+                    activeIcon: Icon(Icons.person),
+                    label: 'Usuario',
                     ),
                 ],
                 ),

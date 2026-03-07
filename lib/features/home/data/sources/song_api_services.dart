@@ -31,7 +31,7 @@ class SongApiServiceImpl implements SongApiService {
     } on DioException catch (e) {
       String msg = e.message ?? 'Error de red al cargar canciones';
       if (e.response?.data is Map) {
-         msg = e.response?.data['message'] ?? msg;
+          msg = e.response?.data['message'] ?? msg;
       }
       throw Exception('Error: $msg');
     } catch (e) {
