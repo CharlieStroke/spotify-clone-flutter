@@ -5,6 +5,7 @@ import '../bloc/library_bloc.dart';
 import '../bloc/library_event.dart';
 import '../bloc/library_state.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../playlist_detail/presentation/pages/playlist_detail_page.dart';
 
 class LibraryPage extends StatelessWidget {
   const LibraryPage({super.key});
@@ -83,15 +84,35 @@ class _LibraryViewState extends State<LibraryView> {
           
           String title = 'Título';
           String subtitle = 'Playlist o álbum';
+          String? coverUrl;
+          String id = '';
 
           if (playlists.isNotEmpty && index < playlists.length) {
             title = playlists[index].name;
             subtitle = 'Playlist'; 
+            id = playlists[index].id.toString();
+            coverUrl = null; // Las playlists no tienen cover_url en la BD actual
           }
 
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+          return GestureDetector(
+            onTap: () {
+              if (id.isNotEmpty) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PlaylistDetailPage(
+                      id: id,
+                      title: title,
+                      type: 'playlist', // Asumimos playlist por ahora hasta introducir mixtos
+                      coverUrl: coverUrl,
+                    ),
+                  ),
+                );
+              }
+            },
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
               // Cuadro Morado
               Expanded(
                 child: Container(
@@ -133,9 +154,9 @@ class _LibraryViewState extends State<LibraryView> {
                 overflow: TextOverflow.ellipsis,
               ),
             ],
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 }

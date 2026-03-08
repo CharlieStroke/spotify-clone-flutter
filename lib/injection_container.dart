@@ -46,6 +46,13 @@ import 'features/library/data/repository/library_repository_impl.dart';
 import 'features/library/domain/usecases/get_library_usecase.dart';
 import 'features/library/presentation/bloc/library_bloc.dart';
 
+// Playlist/Album Detail Feature
+import 'features/playlist_detail/data/sources/detail_api_service.dart';
+import 'features/playlist_detail/data/repository/detail_repository_impl.dart';
+import 'features/playlist_detail/domain/repository/detail_repository.dart';
+import 'features/playlist_detail/domain/usecases/get_songs_usecase.dart';
+import 'features/playlist_detail/presentation/bloc/detail_bloc.dart';
+
 final sl = GetIt.instance;
 
 Future<void> init() async {
@@ -64,6 +71,7 @@ Future<void> init() async {
   sl.registerLazySingleton<CreateApiService>(() => CreateApiServiceImpl(sl()));
   sl.registerLazySingleton<SearchApiService>(() => SearchApiServiceImpl(sl()));
   sl.registerLazySingleton<LibraryApiService>(() => LibraryApiServiceImpl(sl()));
+  sl.registerLazySingleton<PlaylistDetailApiService>(() => PlaylistDetailApiServiceImpl(sl()));
 
   // --- Repositories ---
   sl.registerLazySingleton<AuthRepository>(
@@ -76,6 +84,7 @@ Future<void> init() async {
   sl.registerLazySingleton<CreateRepository>(() => CreateRepositoryImpl(sl()));
   sl.registerLazySingleton<SearchRepository>(() => SearchRepositoryImpl(sl()));
   sl.registerLazySingleton<LibraryRepository>(() => LibraryRepositoryImpl(sl()));
+  sl.registerLazySingleton<PlaylistDetailRepository>(() => PlaylistDetailRepositoryImpl(sl()));
 
   // --- Use Cases ---
   sl.registerLazySingleton(() => LoginUseCase(sl()));
@@ -87,6 +96,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => CreatePlaylistUseCase(sl()));
   sl.registerLazySingleton(() => SearchUseCase(sl()));
   sl.registerLazySingleton(() => GetLibraryUseCase(sl()));
+  sl.registerLazySingleton(() => GetSongsUseCase(sl()));
 
   // --- Blocs ---
   sl.registerFactory(() => AuthBloc(
@@ -103,4 +113,5 @@ Future<void> init() async {
   sl.registerFactory(() => CreatePlaylistBloc(sl()));
   sl.registerFactory(() => SearchBloc(sl()));
   sl.registerFactory(() => LibraryBloc(sl()));
+  sl.registerFactory(() => PlaylistDetailBloc(sl()));
 }
