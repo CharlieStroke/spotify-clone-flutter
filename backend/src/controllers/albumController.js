@@ -92,7 +92,7 @@ const updateAlbumName = asyncHandler(async (req, res) => {
 
     const albumId = req.params.id;
     const artistId = req.artist.artist_id;
-    const { newTitle } = req.body;
+    const title = req.body.title || req.body.newTitle;
 
     const albumResult = await pool.query(
         `SELECT * FROM albums WHERE album_id = $1 AND artist_id = $2`,
@@ -107,15 +107,15 @@ const updateAlbumName = asyncHandler(async (req, res) => {
 
     await pool.query(
         `UPDATE albums SET title = $1 WHERE album_id = $2 AND artist_id = $3`,
-        [newTitle, albumId, artistId]
+        [title, albumId, artistId]
     );
 
     res.status(200).json({
         success: true,
-        message: 'Nombre del álbum actualizado exitosamente con el nuevo título: ' + newTitle,
+        message: 'Nombre del álbum actualizado exitosamente con el nuevo título: ' + title,
         album: {
             ...albumResult.rows[0],
-            title: newTitle
+            title: title
         }
     });
 });
