@@ -124,9 +124,9 @@ const getAllAlbums = asyncHandler(async (req, res) => {
     // No requiere que sea un artista, solo un usuario logueado.
     // Hacemos JOIN con users para obtener el nombre del artista que lo creó.
     const albums = await pool.query(
-        `SELECT a.album_id, a.title, a.cover_url, u.username as artist_name 
+        `SELECT a.album_id, a.title, a.cover_url, ar.stage_name as artist_name 
          FROM albums a
-         JOIN users u ON a.artist_id = u.user_id
+         LEFT JOIN artists ar ON a.artist_id = ar.artist_id
          ORDER BY a.created_at DESC`
     );
 

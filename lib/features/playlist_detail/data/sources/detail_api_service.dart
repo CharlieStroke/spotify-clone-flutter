@@ -5,6 +5,7 @@ import '../../../home/data/models/song_model.dart';
 abstract class PlaylistDetailApiService {
   Future<List<SongModel>> getSongsFromPlaylist(String playlistId);
   Future<List<SongModel>> getSongsFromAlbum(String albumId);
+  Future<List<SongModel>> getSongsFromFavorites();
 }
 
 class PlaylistDetailApiServiceImpl implements PlaylistDetailApiService {
@@ -39,6 +40,20 @@ class PlaylistDetailApiServiceImpl implements PlaylistDetailApiService {
       return [];
     } on DioException catch (e) {
       throw Exception('Error loading album songs: ${e.message}');
+    }
+  }
+
+  @override
+  Future<List<SongModel>> getSongsFromFavorites() async {
+    try {
+      final response = await _apiClient.dio.get('/favorites/');
+      if (response.data != null && response.data['favorites'] is List) {
+        final List<dynamic> rawSongs = response.data['favorites'] ?? [];
+        return rawSongs.map((e) => SongModel.fromJson(e as Map<String, dynamic>)).toList();
+      }
+      return [];
+    } on DioException catch (e) {
+      throw Exception('Error loading favorites: ${e.message}');
     }
   }
 }

@@ -7,10 +7,12 @@ class GetSongsUseCase {
 
   GetSongsUseCase(this.repository);
 
-  // type = 'playlist' or 'album'
+  // type = 'playlist', 'album' o 'favorites'
   Future<Either<String, List<SongEntity>>> call(String id, String type) async {
     if (type == 'album') {
       return repository.getSongsFromAlbum(id);
+    } else if (type == 'favorites') {
+      return repository.getSongsFromFavorites();
     } else {
       return repository.getSongsFromPlaylist(id);
     }
