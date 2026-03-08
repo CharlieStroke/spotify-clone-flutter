@@ -1,7 +1,7 @@
 // test_endpoints.js
 const fs = require('fs');
 
-const HOST = process.argv[2] || 'http://localhost:4000';
+const HOST = process.argv[2] || 'http://localhost:4000'; //node test_endpoints.js http://159.54.145.22:4000 para testing
 const API_URL = `${HOST}/api`;
 
 const generateFakeImage = () => new Blob([new Uint8Array(20)], { type: 'image/png' });
@@ -94,6 +94,39 @@ async function runTests() {
             const songData = await res.json();
             songId = songData.song?.song_id;
             console.log(' - Subir Canción a BD y Bucket:', songData.success ? '✅ OK' : '❌ FALLÓ', songData.message || songData.error);
+        }
+
+        console.log('\n5️⃣  Testeando Playlists (Crear)...');
+        res = await fetch(`${API_URL}/playlists/create`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                name: 'Playlist E2E VM',
+                description: 'Lista generada automáticamente para pruebas'
+            })
+        });
+        const playlistData = await res.json();
+        playlistId = playlistData.playlist?.playlist_id;
+        console.log(' - Crear Playlist:', playlistData.success ? '✅ OK' : '❌ FALLÓ', playlistData.message || playlistData.error);
+
+
+        console.log('\n6️⃣  Testeando Búsqueda Global (/search)...');
+        res = await fetch(`${API_URL}/search?q=E2E`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const searchData = await res.json();
+
+        const hasSongs = searchData.songs?.length > 0;
+        const hasAlbums = searchData.albums?.length > 0;
+        const hasPlaylists = searchData.playlists?.length > 0;
+
+        console.log(' - Búsqueda Global (q=E2E):', searchData.success ? '✅ OK' : '❌ FALLÓ', `(${searchData.songs?.length} canciones, ${searchData.albums?.length} álbumes, ${searchData.playlists?.length} listas encontradas)`);
+
+        if (searchData.success && (!hasSongs || !hasAlbums || !hasPlaylists)) {
+            console.log('   ⚠️  Nota: La búsqueda funcionó pero no encontró coincidencias en todas las de las 3 categorías. (Esperado si la base de datos es nueva)');
         }
 
         console.log('\n🎉 ¡PRUEBAS EN LA VM FINALIZADAS EXITOSAMENTE!');
