@@ -26,4 +26,34 @@ class LibraryRepositoryImpl implements LibraryRepository {
       return Left(e.toString());
     }
   }
+
+  @override
+  Future<Either<String, void>> createPlaylist(String name, String description) async {
+    try {
+      await _apiService.createPlaylist(name, description);
+      return const Right(null);
+    } catch (e) {
+      return Left(e.toString());
+    }
+  }
+
+  @override
+  Future<Either<String, void>> deletePlaylist(String playlistId) async {
+    try {
+      await _apiService.deletePlaylist(playlistId);
+      return const Right(null);
+    } catch (e) {
+      return Left(e.toString());
+    }
+  }
+
+  @override
+  Future<Either<String, void>> removeSongFromPlaylist(String playlistId, String songId) async {
+    try {
+      await _apiService.removeSongFromPlaylist(playlistId, songId);
+      return const Right(null);
+    } catch (e) {
+      return Left(e.toString());
+    }
+  }
 }

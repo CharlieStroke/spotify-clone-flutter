@@ -10,17 +10,21 @@ import '../bloc/library_action_bloc.dart';
 import '../bloc/library_action_event.dart';
 import '../bloc/library_action_state.dart';
 
+import '../../../playlist_detail/presentation/bloc/detail_bloc.dart';
+import '../../../playlist_detail/presentation/bloc/detail_event.dart';
+
 class SearchSongToAddSheet extends StatefulWidget {
   final String playlistId;
+  final PlaylistDetailBloc? detailBloc;
 
-  const SearchSongToAddSheet({super.key, required this.playlistId});
+  const SearchSongToAddSheet({super.key, required this.playlistId, this.detailBloc});
 
-  static void show(BuildContext context, String playlistId) {
+  static void show(BuildContext context, String playlistId, {PlaylistDetailBloc? detailBloc}) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (_) => SearchSongToAddSheet(playlistId: playlistId),
+      builder: (_) => SearchSongToAddSheet(playlistId: playlistId, detailBloc: detailBloc),
     );
   }
 
@@ -75,6 +79,10 @@ class _SearchSongToAddSheetState extends State<SearchSongToAddSheet> {
                 duration: const Duration(seconds: 2),
               ),
             );
+            // Refrescar playlist si tenemos el bloc
+            if (widget.detailBloc != null) {
+              widget.detailBloc!.add(LoadPlaylistDetailEvent(id: widget.playlistId, type: 'playlist'));
+            }
           } else if (state is LibraryActionFailure) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
