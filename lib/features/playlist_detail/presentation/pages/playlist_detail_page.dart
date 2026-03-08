@@ -7,6 +7,7 @@ import '../bloc/detail_state.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../library/presentation/widgets/add_to_playlist_sheet.dart';
 import '../../../library/presentation/widgets/search_song_to_add_sheet.dart';
+import '../../../../features/player/presentation/bloc/player_cubit.dart';
 
 class PlaylistDetailPage extends StatelessWidget {
   final String id;
@@ -202,7 +203,8 @@ class PlaylistDetailView extends StatelessWidget {
                           },
                         ),
                         onTap: () {
-                          // Play individual song
+                          // Play full playlist starting from this index
+                          context.read<PlayerCubit>().playPlaylist(state.songs, initialIndex: index);
                         },
                       );
                     },
