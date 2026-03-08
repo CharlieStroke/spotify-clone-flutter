@@ -91,12 +91,14 @@ class _LibraryViewState extends State<LibraryView> {
           String subtitle = 'Playlist o álbum';
           String? coverUrl;
           String id = '';
+          int? ownerId;
 
           if (playlists.isNotEmpty && index < playlists.length) {
             title = playlists[index].name;
             subtitle = 'Playlist'; 
             id = playlists[index].id.toString();
             coverUrl = null; // Las playlists no tienen cover_url en la BD actual
+            ownerId = playlists[index].userId;
           }
 
           return GestureDetector(
@@ -110,6 +112,7 @@ class _LibraryViewState extends State<LibraryView> {
                       title: title,
                       type: 'playlist', // Asumimos playlist por ahora hasta introducir mixtos
                       coverUrl: coverUrl,
+                      ownerId: ownerId,
                     ),
                   ),
                 );

@@ -5,6 +5,7 @@ class PlaylistModel extends PlaylistEntity {
     required super.id,
     required super.name,
     required super.description,
+    required super.userId,
   });
 
   factory PlaylistModel.fromJson(Map<String, dynamic> json) {
@@ -12,6 +13,7 @@ class PlaylistModel extends PlaylistEntity {
       id: json['playlist_id'] ?? 0,
       name: json['name'] ?? '',
       description: json['description'] ?? '',
+      userId: json['user_id'] ?? 0,
     );
   }
 
@@ -20,6 +22,7 @@ class PlaylistModel extends PlaylistEntity {
       'playlist_id': id,
       'name': name,
       'description': description,
+      'user_id': userId,
     };
   }
 }
