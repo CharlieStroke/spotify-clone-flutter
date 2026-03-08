@@ -6,9 +6,6 @@ import '../bloc/search_event.dart';
 import '../bloc/search_state.dart';
 import '../../../../core/theme/app_colors.dart';
 // Modelos necesarios (podemos reusar los que ya existen para pintar resultados)
-import '../../../home/data/models/album_model.dart';
-import '../../../home/data/models/playlist_model.dart';
-import '../../../home/data/models/song_model.dart';
 
 class SearchPage extends StatelessWidget {
   const SearchPage({super.key});

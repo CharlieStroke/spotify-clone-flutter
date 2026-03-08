@@ -7,8 +7,6 @@ import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/auth/data/sources/auth_local_services.dart'; // Importamos el servicio local
 import 'features/main_navigation/presentation/cubit/main_navigation_cubit.dart';
 import 'features/profile/presentation/bloc/profile_bloc.dart';
-import 'features/profile/presentation/bloc/profile_event.dart';
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
