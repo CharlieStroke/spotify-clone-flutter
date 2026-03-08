@@ -16,34 +16,45 @@ const searchSongs = asyncHandler(async (req, res) => {
     // ILIKE es la versión case-insensitive de LIKE en PostgreSQL
     const searchQuery = `%${q}%`;
 
-    const totalResult = await pool.query(
-        `SELECT COUNT(*) FROM songs 
-            WHERE title ILIKE $1`,
-        [searchQuery]
-    );
-
-    const totalItems = parseInt(totalResult.rows[0].count);
-
-    const result = await pool.query(
-        `SELECT song_id, album_id, title, duration, audio_url, cover_url 
-        FROM songs 
-        WHERE title ILIKE $1
-        ORDER BY created_at DESC 
-        LIMIT $2 OFFSET $3`,
-        [searchQuery, limit, offset]
-    );
-
-    const totalPages = Math.ceil(totalItems / limit);
+    // Ejecutamos las 3 búsquedas globales de manera concurrente
+    const [songsResult, albumsResult, playlistsResult] = await Promise.all([
+        pool.query(
+            `SELECT song_id, album_id, title, duration, audio_url, cover_url 
+            FROM songs 
+            WHERE title ILIKE $1
+            ORDER BY created_at DESC 
+            LIMIT $2 OFFSET $3`,
+            [searchQuery, limit, offset]
+        ),
+        pool.query(
+            `SELECT a.album_id, a.title, a.cover_url, u.username as artist_name 
+            FROM albums a 
+            JOIN users u ON a.artist_id = u.user_id 
+            WHERE a.title ILIKE $1
+            ORDER BY a.created_at DESC 
+            LIMIT $2 OFFSET $3`,
+            [searchQuery, limit, offset]
+        ),
+        pool.query(
+            // Asumiendo que las playlists globales son las que no son privadas (si tuvieras campo) o simplemente buscamos por nombre
+            `SELECT playlist_id, name, description 
+            FROM playlists 
+            WHERE name ILIKE $1
+            ORDER BY created_at DESC 
+            LIMIT $2 OFFSET $3`,
+            [searchQuery, limit, offset]
+        )
+    ]);
 
     res.status(200).json({
         success: true,
-        message: 'Búsqueda de canciones exitosa',
-        songs: result.rows,
+        message: 'Búsqueda global exitosa',
+        songs: songsResult.rows,
+        albums: albumsResult.rows,
+        playlists: playlistsResult.rows,
         pagination: {
             page,
             limit,
-            totalItems,
-            totalPages
         }
     });
 });
