@@ -159,10 +159,13 @@ const getAlbumSongs = asyncHandler(async (req, res) => {
 
     // Obtener las canciones que pertenecen al álbum
     const songsResult = await pool.query(
-        `SELECT song_id, title, duration, audio_url, cover_url 
-         FROM songs 
-         WHERE album_id = $1
-         ORDER BY created_at ASC`,
+        `SELECT s.song_id, s.title, s.duration, s.audio_url, s.cover_url,
+                ar.stage_name AS artist_name
+         FROM songs s
+         JOIN albums al ON s.album_id = al.album_id
+         LEFT JOIN artists ar ON al.artist_id = ar.artist_id
+         WHERE s.album_id = $1
+         ORDER BY s.created_at ASC`,
         [id]
     );
 

@@ -21,7 +21,7 @@ const createPlaylist = asyncHandler(async (req, res) => {
         RETURNING *`,
         [name, description, userId]
     );
-    
+
     res.status(201).json({
         success: true,
         message: 'Playlist creada exitosamente',
@@ -30,7 +30,7 @@ const createPlaylist = asyncHandler(async (req, res) => {
 });
 
 const getUserPlaylists = asyncHandler(async (req, res) => {
-    
+
     const userId = req.user.userId;
 
 
@@ -88,7 +88,7 @@ const addSongToPlaylist = asyncHandler(async (req, res) => {
         err.statusCode = 400;
         throw err;
     }
-//------- Verificar que la canción exista
+    //------- Verificar que la canción exista
     const trackResult = await pool.query(
         `SELECT * 
         FROM songs 
@@ -102,7 +102,7 @@ const addSongToPlaylist = asyncHandler(async (req, res) => {
         throw err;
     }
 
-//-------- Agregar la canción a la playlist
+    //-------- Agregar la canción a la playlist
     await pool.query(
         `INSERT INTO playlist_songs 
         (playlist_id, song_id) 
@@ -202,10 +202,13 @@ const getPlaylistSongs = asyncHandler(async (req, res) => {
 
     // Obtener las canciones de la playlist
     const songsResult = await pool.query(
-        `SELECT s.song_id, s.title, s.duration, s.audio_url, s.cover_url
-        FROM songs s
-        JOIN playlist_songs ps ON s.song_id = ps.song_id
-        WHERE ps.playlist_id = $1`,
+        `SELECT s.song_id, s.title, s.duration, s.audio_url, s.cover_url,
+                ar.stage_name AS artist_name
+         FROM songs s
+         JOIN playlist_songs ps ON s.song_id = ps.song_id
+         LEFT JOIN albums al ON s.album_id = al.album_id
+         LEFT JOIN artists ar ON al.artist_id = ar.artist_id
+         WHERE ps.playlist_id = $1`,
         [playlistId]
     );
 
