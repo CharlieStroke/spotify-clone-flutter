@@ -27,7 +27,9 @@ class _LibraryViewState extends State<LibraryView> {
   void initState() {
     super.initState();
     final bloc = context.read<LibraryBloc>();
-    if (bloc.state is LibraryInitial) {
+    // Siempre recargamos si es Initial (primera vez) o si ya hay datos cargados
+    // (puede ser de un usuario anterior luego de hacer logout + nuevo login)
+    if (bloc.state is LibraryInitial || bloc.state is LibraryLoaded) {
       bloc.add(LoadLibraryEvent());
     }
   }
@@ -72,8 +74,29 @@ class _LibraryViewState extends State<LibraryView> {
   }
 
   Widget _buildGrid(List<dynamic> playlists) {
-    // Si la lista está vacía podemos mostrar placeholders temporales o un mensaje
-    final itemsCount = playlists.isEmpty ? 12 : playlists.length; 
+    // Si la lista está vacía mostramos un mensaje amigable
+    if (playlists.isEmpty) {
+      return const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.library_music_outlined, color: Colors.white24, size: 80),
+            SizedBox(height: 16),
+            Text(
+              'Aún no tienes playlists',
+              style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 8),
+            Text(
+              'Crea tu primera playlist en la pestaña \'+\'',
+              style: TextStyle(color: Colors.white54, fontSize: 14),
+            ),
+          ],
+        ),
+      );
+    }
+    
+    final itemsCount = playlists.length; 
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),

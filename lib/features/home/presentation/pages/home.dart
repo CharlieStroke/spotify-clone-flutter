@@ -150,7 +150,20 @@ class HomePage extends StatelessWidget {
                                                     width: 150,
                                                     height: 150,
                                                     fit: BoxFit.cover,
-                                                    errorBuilder: (e, s, t) => _albumFallback(),
+                                                    loadingBuilder: (ctx, child, progress) {
+                                                      if (progress == null) return child;
+                                                      return Container(
+                                                        width: 150,
+                                                        height: 150,
+                                                        color: Colors.white10,
+                                                        child: const Center(child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white54)),
+                                                      );
+                                                    },
+                                                    errorBuilder: (ctx, error, stack) {
+                                                      // ignore: avoid_print
+                                                      print('❌ Error cargando imagen: $error\nURL: ${album.coverUrl}');
+                                                      return _albumFallback();
+                                                    },
                                                   )
                                                 : _albumFallback(),
                                           ),

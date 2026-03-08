@@ -5,10 +5,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../injection_container.dart' as di;
 import '../bloc/profile_bloc.dart';
 import '../bloc/profile_state.dart';
-import '../../../home/presentation/bloc/home_bloc.dart' as di;
-import '../../../home/presentation/bloc/home_event.dart' as di;
-import '../../../library/presentation/bloc/library_bloc.dart' as di;
-import '../../../library/presentation/bloc/library_event.dart' as di;
+import '../../../home/presentation/bloc/home_bloc.dart';
+import '../../../home/presentation/bloc/home_event.dart';
+import '../../../library/presentation/bloc/library_bloc.dart';
+import '../../../library/presentation/bloc/library_event.dart';
 
 
 class ProfilePage extends StatelessWidget {
@@ -128,8 +128,8 @@ class ProfilePage extends StatelessWidget {
                           
                           if (context.mounted) {
                             // Limpiamos los BLoCs globales para que no quede info del otro perfil
-                            di.sl<di.HomeBloc>().add(di.ResetHomeEvent());
-                            di.sl<di.LibraryBloc>().add(di.ResetLibraryEvent());
+                            di.sl<HomeBloc>().add(ResetHomeEvent());
+                            di.sl<LibraryBloc>().add(ResetLibraryEvent());
 
                             // Limpiamos el stack de navegación
                             Navigator.pushNamedAndRemoveUntil(
