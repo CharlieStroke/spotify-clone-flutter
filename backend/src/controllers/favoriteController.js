@@ -56,10 +56,14 @@ const getfavorites = asyncHandler(async (req, res) => {
     const userId = req.user.userId;
 
     const favorites = await pool.query(
-        `SELECT s.song_id, s.title, s.duration, s.audio_url, s.cover_url 
+        `SELECT s.song_id, s.title, s.duration, s.audio_url, s.cover_url,
+                al.album_id, al.title as album_name, ar.stage_name as artist_name
         FROM favorites f
         JOIN songs s ON f.song_id = s.song_id
-        WHERE f.user_id = $1`,
+        LEFT JOIN albums al ON s.album_id = al.album_id
+        LEFT JOIN artists ar ON al.artist_id = ar.artist_id
+        WHERE f.user_id = $1
+        ORDER BY f.created_at DESC`,
         [userId]
     );
 

@@ -61,6 +61,13 @@ import 'features/playlist_detail/presentation/bloc/detail_bloc.dart';
 import 'core/services/audio_service.dart';
 import 'features/player/presentation/bloc/player_cubit.dart';
 
+// Favorites Feature
+import 'features/favorites/data/sources/favorites_api_service.dart';
+import 'features/favorites/data/repositories/favorites_repository_impl.dart';
+import 'features/favorites/domain/repositories/favorites_repository.dart';
+import 'features/favorites/domain/usecases/favorites_usecases.dart';
+import 'features/favorites/presentation/bloc/favorites_bloc.dart';
+
 final sl = GetIt.instance;
 
 Future<void> init() async {
@@ -85,6 +92,7 @@ Future<void> init() async {
   sl.registerLazySingleton<SearchApiService>(() => SearchApiServiceImpl(sl()));
   sl.registerLazySingleton<LibraryApiService>(() => LibraryApiServiceImpl(sl()));
   sl.registerLazySingleton<PlaylistDetailApiService>(() => PlaylistDetailApiServiceImpl(sl()));
+  sl.registerLazySingleton<FavoritesApiService>(() => FavoritesApiServiceImpl(sl()));
 
   // --- Repositories ---
   sl.registerLazySingleton<AuthRepository>(
@@ -98,6 +106,7 @@ Future<void> init() async {
   sl.registerLazySingleton<SearchRepository>(() => SearchRepositoryImpl(sl()));
   sl.registerLazySingleton<LibraryRepository>(() => LibraryRepositoryImpl(sl()));
   sl.registerLazySingleton<PlaylistDetailRepository>(() => PlaylistDetailRepositoryImpl(sl()));
+  sl.registerLazySingleton<FavoritesRepository>(() => FavoritesRepositoryImpl(sl()));
 
   // --- Use Cases ---
   sl.registerLazySingleton(() => LoginUseCase(sl()));
@@ -113,6 +122,9 @@ Future<void> init() async {
   sl.registerLazySingleton(() => RemoveSongFromPlaylistUseCase(sl()));
   sl.registerLazySingleton(() => DeletePlaylistUseCase(sl()));
   sl.registerLazySingleton(() => GetSongsUseCase(sl()));
+  sl.registerLazySingleton(() => GetFavoritesUseCase(sl()));
+  sl.registerLazySingleton(() => AddFavoriteUseCase(sl()));
+  sl.registerLazySingleton(() => RemoveFavoriteUseCase(sl()));
 
   // --- Blocs ---
   sl.registerFactory(() => AuthBloc(
@@ -132,4 +144,5 @@ Future<void> init() async {
   sl.registerFactory(() => LibraryActionBloc(sl(), sl(), sl()));
   sl.registerFactory(() => PlaylistDetailBloc(sl()));
   sl.registerLazySingleton(() => PlayerCubit(sl()));
+  sl.registerLazySingleton(() => FavoritesBloc(sl(), sl(), sl()));
 }

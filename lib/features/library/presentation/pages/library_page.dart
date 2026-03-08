@@ -5,6 +5,8 @@ import '../bloc/library_event.dart';
 import '../bloc/library_state.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../playlist_detail/presentation/pages/playlist_detail_page.dart';
+import '../../../favorites/presentation/bloc/favorites_bloc.dart';
+import '../../../favorites/presentation/bloc/favorites_state.dart';
 
 class LibraryPage extends StatelessWidget {
   const LibraryPage({super.key});
@@ -37,7 +39,7 @@ class _LibraryViewState extends State<LibraryView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black, // O gradient
+      backgroundColor: Colors.black,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -53,6 +55,8 @@ class _LibraryViewState extends State<LibraryView> {
                 ),
               ),
             ),
+            // --- Tarjeta especial: Mis Favoritos ---
+            _buildFavoritesCard(context),
             Expanded(
               child: BlocBuilder<LibraryBloc, LibraryState>(
                 builder: (context, state) {
@@ -72,6 +76,71 @@ class _LibraryViewState extends State<LibraryView> {
       ),
     );
   }
+
+  Widget _buildFavoritesCard(BuildContext context) {
+    return BlocBuilder<FavoritesBloc, FavoritesState>(
+      builder: (context, state) {
+        final count = state is FavoritesLoaded ? state.songs.length : 0;
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: GestureDetector(
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const PlaylistDetailPage(
+                  id: 'favorites',
+                  title: 'Mis Favoritos',
+                  type: 'favorites',
+                ),
+              ),
+            ),
+            child: Container(
+              margin: const EdgeInsets.only(bottom: 16),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF4A0E8F), Color(0xFF1A0A3A)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 54,
+                    height: 54,
+                    decoration: BoxDecoration(
+                      color: Colors.deepPurple.shade800,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(Icons.star, color: Colors.amber, size: 30),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Mis Favoritos',
+                          style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          '$count ${count == 1 ? 'canción' : 'canciones'}',
+                          style: const TextStyle(color: Colors.white60, fontSize: 13),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Icon(Icons.chevron_right, color: Colors.white54),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }   // ← cierre de _buildFavoritesCard
 
   Widget _buildGrid(List<dynamic> playlists) {
     // Si la lista está vacía mostramos un mensaje amigable

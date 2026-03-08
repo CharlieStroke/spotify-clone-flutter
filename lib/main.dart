@@ -4,11 +4,13 @@ import 'injection_container.dart' as di;
 import 'core/theme/app_theme.dart';
 import 'core/routes/app_routes.dart'; // Importamos las rutas
 import 'features/auth/presentation/bloc/auth_bloc.dart';
-import 'features/auth/data/sources/auth_local_services.dart'; // Importamos el servicio local
+import 'features/auth/data/sources/auth_local_services.dart';
 import 'features/main_navigation/presentation/cubit/main_navigation_cubit.dart';
 import 'features/profile/presentation/bloc/profile_bloc.dart';
 import 'features/player/presentation/bloc/player_cubit.dart';
 import 'features/library/presentation/bloc/library_bloc.dart';
+import 'features/favorites/presentation/bloc/favorites_bloc.dart';
+import 'features/favorites/presentation/bloc/favorites_event.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -45,6 +47,12 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (_) => di.sl<ProfileBloc>()),
         BlocProvider(create: (_) => di.sl<PlayerCubit>()),
         BlocProvider(create: (_) => di.sl<LibraryBloc>()),
+        BlocProvider(create: (_) {
+          final bloc = di.sl<FavoritesBloc>();
+          // Solo cargar si hay token (usuario logueado)
+          bloc.add(LoadFavoritesEvent());
+          return bloc;
+        }),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

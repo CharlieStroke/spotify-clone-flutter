@@ -27,4 +27,14 @@ class PlaylistDetailRepositoryImpl implements PlaylistDetailRepository {
       return Left(e.toString());
     }
   }
+
+  @override
+  Future<Either<String, List<SongEntity>>> getSongsFromFavorites() async {
+    try {
+      final songs = await _apiService.getSongsFromFavorites();
+      return Right(songs);
+    } catch (e) {
+      return Left(e.toString());
+    }
+  }
 }
