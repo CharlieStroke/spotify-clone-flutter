@@ -12,7 +12,7 @@ class AlbumModel extends AlbumEntity {
     return AlbumModel(
       id: json['album_id'] ?? 0,
       title: json['title'] ?? '',
-      coverUrl: json['cover_url'] ?? '',
+      coverUrl: (json['cover_url'] ?? '').toString().trim(),
       artistName: json['artist_name'] ?? 'Artista desconocido',
     );
   }

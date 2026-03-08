@@ -26,7 +26,7 @@ const uploadFile = async (fileBuffer, objectName, contentType) => {
         .from(supabaseBucket)
         .getPublicUrl(objectName);
 
-    return publicUrlData.publicUrl;
+    return publicUrlData.publicUrl.trim();
 };
 
 module.exports = { uploadFile };
