@@ -55,6 +55,10 @@ import 'features/playlist_detail/domain/repository/detail_repository.dart';
 import 'features/playlist_detail/domain/usecases/get_songs_usecase.dart';
 import 'features/playlist_detail/presentation/bloc/detail_bloc.dart';
 
+// Player Feature
+import 'core/services/audio_service.dart';
+import 'features/player/presentation/bloc/player_cubit.dart';
+
 final sl = GetIt.instance;
 
 Future<void> init() async {
@@ -62,6 +66,11 @@ Future<void> init() async {
   final sharedPreferences = await SharedPreferences.getInstance();
   sl.registerLazySingleton(() => sharedPreferences);
   sl.registerLazySingleton(() => ApiClient(sl()));
+
+  // Inicializar Motor de Audio Global
+  final audioService = AudioService();
+  await audioService.init();
+  sl.registerLazySingleton(() => audioService);
 
   // --- Data Sources ---
   // ASEGÚRATE DE QUE ESTAS LÍNEAS ESTÉN SOLO UNA VEZ
@@ -118,4 +127,5 @@ Future<void> init() async {
   sl.registerFactory(() => LibraryBloc(sl()));
   sl.registerFactory(() => LibraryActionBloc(sl()));
   sl.registerFactory(() => PlaylistDetailBloc(sl()));
+  sl.registerLazySingleton(() => PlayerCubit(sl()));
 }

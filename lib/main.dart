@@ -7,6 +7,8 @@ import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/auth/data/sources/auth_local_services.dart'; // Importamos el servicio local
 import 'features/main_navigation/presentation/cubit/main_navigation_cubit.dart';
 import 'features/profile/presentation/bloc/profile_bloc.dart';
+import 'features/player/presentation/bloc/player_cubit.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
@@ -40,6 +42,7 @@ class MyApp extends StatelessWidget {
         // no está logueado, la app hará crash pidiendo el token. 
         // El evento se lanzará cuando se entre a la pantalla principal protegida.
         BlocProvider(create: (_) => di.sl<ProfileBloc>()),
+        BlocProvider(create: (_) => di.sl<PlayerCubit>()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
