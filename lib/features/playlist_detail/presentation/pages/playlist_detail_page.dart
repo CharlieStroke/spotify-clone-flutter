@@ -5,6 +5,8 @@ import '../bloc/detail_bloc.dart';
 import '../bloc/detail_event.dart';
 import '../bloc/detail_state.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../library/presentation/widgets/add_to_playlist_sheet.dart';
+import '../../../library/presentation/widgets/search_song_to_add_sheet.dart';
 
 class PlaylistDetailPage extends StatelessWidget {
   final String id;
@@ -24,17 +26,24 @@ class PlaylistDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => sl<PlaylistDetailBloc>()..add(LoadPlaylistDetailEvent(id: id, type: type)),
-      child: PlaylistDetailView(title: title, type: type, coverUrl: coverUrl),
+      child: PlaylistDetailView(id: id, title: title, type: type, coverUrl: coverUrl),
     );
   }
 }
 
 class PlaylistDetailView extends StatelessWidget {
+  final String id;
   final String title;
   final String type;
   final String? coverUrl;
 
-  const PlaylistDetailView({super.key, required this.title, required this.type, this.coverUrl});
+  const PlaylistDetailView({
+    super.key, 
+    required this.id, 
+    required this.title, 
+    required this.type, 
+    this.coverUrl
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -106,11 +115,35 @@ class PlaylistDetailView extends StatelessWidget {
                       ),
                     ],
                   ),
+                  // Botón Agregar Canciones
+                  if (type == 'playlist') ...[
+                    const SizedBox(height: 24),
+                    Center(
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white24,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                        ),
+                        onPressed: () {
+                          SearchSongToAddSheet.show(context, id);
+                        },
+                        icon: const Icon(Icons.add, size: 20),
+                        label: const Text(
+                          'Añadir canciones',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
             
-            const SizedBox(height: 20),
+            const SizedBox(height: 10),
 
             // --- LISTA DE CANCIONES BLOC ---
             BlocBuilder<PlaylistDetailBloc, PlaylistDetailState>(
@@ -146,8 +179,8 @@ class PlaylistDetailView extends StatelessWidget {
                           width: 50,
                           height: 50,
                           color: const Color(0xFF6A2C50),
-                          child: song.coverUrl != null
-                              ? Image.network(song.coverUrl!, fit: BoxFit.cover)
+                          child: song.coverUrl.isNotEmpty
+                              ? Image.network(song.coverUrl, fit: BoxFit.cover)
                               : const Icon(Icons.photo_outlined, color: Colors.white),
                         ),
                         title: Text(
@@ -157,12 +190,17 @@ class PlaylistDetailView extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                         subtitle: Text(
-                          song.artistName ?? 'Artista', // Si no llega el nombre del artista, ponemos default
+                          song.album.isNotEmpty ? song.album : 'Desconocido', // album en vez de artistName
                           style: const TextStyle(color: Colors.white70),
                           maxLines: 1, 
                           overflow: TextOverflow.ellipsis,
                         ),
-                        trailing: const Icon(Icons.more_vert, color: Colors.white),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.more_vert, color: Colors.white),
+                          onPressed: () {
+                            AddToPlaylistSheet.show(context, song);
+                          },
+                        ),
                         onTap: () {
                           // Play individual song
                         },

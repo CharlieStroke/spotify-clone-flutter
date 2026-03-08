@@ -5,6 +5,7 @@ import '../../../home/data/models/playlist_model.dart';
 
 abstract class LibraryApiService {
   Future<Map<String, List<dynamic>>> getUserLibrary();
+  Future<void> addSongToPlaylist(String playlistId, String songId);
 }
 
 class LibraryApiServiceImpl implements LibraryApiService {
@@ -48,6 +49,27 @@ class LibraryApiServiceImpl implements LibraryApiService {
       throw Exception(msg);
     } catch (e) {
       throw Exception('Library unexpected error: $e');
+    }
+  }
+
+  @override
+  Future<void> addSongToPlaylist(String playlistId, String songId) async {
+    try {
+      final response = await _apiClient.dio.post(
+        '/playlists/$playlistId/add/$songId',
+      );
+
+      if (response.data == null || response.data['success'] != true) {
+        throw Exception(response.data?['message'] ?? 'Error desconocido al añadir canción');
+      }
+    } on DioException catch (e) {
+      String msg = 'No se pudo añadir la canción';
+      if (e.response?.data is Map) {
+        msg = e.response?.data['message'] ?? msg;
+      }
+      throw Exception(msg);
+    } catch (e) {
+      throw Exception('Error inesperado: $e');
     }
   }
 }

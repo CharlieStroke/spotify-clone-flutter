@@ -16,4 +16,14 @@ class LibraryRepositoryImpl implements LibraryRepository {
       return Left(e.toString());
     }
   }
+
+  @override
+  Future<Either<String, void>> addSongToPlaylist(String playlistId, String songId) async {
+    try {
+      await _apiService.addSongToPlaylist(playlistId, songId);
+      return const Right(null);
+    } catch (e) {
+      return Left(e.toString());
+    }
+  }
 }

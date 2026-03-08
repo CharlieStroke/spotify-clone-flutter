@@ -1,8 +1,6 @@
 import 'package:dio/dio.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../home/data/models/song_model.dart';
-import '../../../home/data/models/playlist_model.dart';
-import '../../../home/data/models/album_model.dart';
 
 abstract class PlaylistDetailApiService {
   Future<List<SongModel>> getSongsFromPlaylist(String playlistId);

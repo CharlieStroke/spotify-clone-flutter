@@ -44,7 +44,9 @@ import 'features/library/data/sources/library_api_service.dart';
 import 'features/library/domain/repository/library_repository.dart';
 import 'features/library/data/repository/library_repository_impl.dart';
 import 'features/library/domain/usecases/get_library_usecase.dart';
+import 'features/library/domain/usecases/add_song_usecase.dart';
 import 'features/library/presentation/bloc/library_bloc.dart';
+import 'features/library/presentation/bloc/library_action_bloc.dart';
 
 // Playlist/Album Detail Feature
 import 'features/playlist_detail/data/sources/detail_api_service.dart';
@@ -96,6 +98,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => CreatePlaylistUseCase(sl()));
   sl.registerLazySingleton(() => SearchUseCase(sl()));
   sl.registerLazySingleton(() => GetLibraryUseCase(sl()));
+  sl.registerLazySingleton(() => AddSongToPlaylistUseCase(sl()));
   sl.registerLazySingleton(() => GetSongsUseCase(sl()));
 
   // --- Blocs ---
@@ -113,5 +116,6 @@ Future<void> init() async {
   sl.registerFactory(() => CreatePlaylistBloc(sl()));
   sl.registerFactory(() => SearchBloc(sl()));
   sl.registerFactory(() => LibraryBloc(sl()));
+  sl.registerFactory(() => LibraryActionBloc(sl()));
   sl.registerFactory(() => PlaylistDetailBloc(sl()));
 }

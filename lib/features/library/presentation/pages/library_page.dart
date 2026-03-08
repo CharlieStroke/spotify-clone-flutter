@@ -5,7 +5,7 @@ import '../bloc/library_bloc.dart';
 import '../bloc/library_event.dart';
 import '../bloc/library_state.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../playlist_detail/presentation/pages/playlist_detail_page.dart';
+import '../../../playlist_detail/presentation/pages/playlist_detail_page.dart';
 
 class LibraryPage extends StatelessWidget {
   const LibraryPage({super.key});
@@ -157,7 +157,7 @@ class _LibraryViewState extends State<LibraryView> {
           ),
         );
       },
-    );
-  }
+    ),
+  );
 }
-
+}
