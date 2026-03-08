@@ -11,7 +11,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     on<SearchQueryChanged>(_onSearchQueryChanged, transformer: _debounceTransformer());
   }
 
-  EventTransformer<SearchQueryChanged> _debounceTransformer<SearchQueryChanged>() {
+  EventTransformer<E> _debounceTransformer<E>() {
     return (events, mapper) => events.debounceTime(const Duration(milliseconds: 500)).switchMap(mapper);
   }
 

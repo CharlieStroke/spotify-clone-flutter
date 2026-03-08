@@ -6,7 +6,6 @@ import '../../../create/presentation/pages/create_page.dart';
 import '../../../library/presentation/pages/library_page.dart';
 import '../../../profile/presentation/pages/profile_page.dart';
 import '../cubit/main_navigation_cubit.dart';
-import '../../../../core/theme/app_theme.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../profile/presentation/bloc/profile_bloc.dart';
 import '../../../profile/presentation/bloc/profile_event.dart';
@@ -51,7 +50,7 @@ class _MainPageState extends State<MainPage> {
                     end: Alignment.topCenter,
                     colors: [
                     Colors.black,
-                    Colors.black.withOpacity(0.8),
+                    Colors.black.withValues(alpha: 0.3),
                     ],
                 ),
                 ),

@@ -8,7 +8,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:spotify_clone/main.dart';
 import 'package:spotify_clone/core/routes/app_routes.dart';
 
 void main() {

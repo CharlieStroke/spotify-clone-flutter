@@ -9,7 +9,6 @@ import '../../../search/presentation/bloc/search_state.dart';
 import '../bloc/library_action_bloc.dart';
 import '../bloc/library_action_event.dart';
 import '../bloc/library_action_state.dart';
-import '../../../home/domain/entities/song_entity.dart';
 
 class SearchSongToAddSheet extends StatefulWidget {
   final String playlistId;

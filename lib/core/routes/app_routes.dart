@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../../features/auth/presentation/pages/login.dart';
 import '../../features/auth/presentation/pages/register.dart';
 import '../../features/auth/presentation/pages/login_or_register.dart';
-import '../../features/home/presentation/pages/home.dart';
 import '../../features/main_navigation/presentation/pages/main_page.dart';
 
 class AppRoutes {

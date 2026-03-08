@@ -6,7 +6,6 @@ import '../bloc/home_bloc.dart';
 import '../bloc/home_event.dart';
 import '../bloc/home_state.dart';
 import '../../domain/entities/album_entity.dart';
-import '../../domain/entities/playlist_entity.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -129,7 +128,7 @@ class HomePage extends StatelessWidget {
                                       image: DecorationImage(
                                         image: NetworkImage(album.coverUrl),
                                         fit: BoxFit.cover,
-                                        onError: (_, __) => const Icon(Icons.album, size: 60, color: Colors.white),
+                                        onError: (error, stackTrace) => const Icon(Icons.album, size: 60, color: Colors.white),
                                       )
                                     ),
                                   ),
@@ -178,7 +177,7 @@ class HomePage extends StatelessWidget {
                           scrollDirection: Axis.horizontal,
                           itemCount: recientes.length > 5 ? 5 : recientes.length,
                           itemBuilder: (context, index) {
-                            final item = recientes[index];
+                            final dynamic item = recientes[index];
                             final isAlbum = item is AlbumEntity;
 
                             return Container(
@@ -195,7 +194,7 @@ class HomePage extends StatelessWidget {
                                       color: const Color(0xFF6A2E44), 
                                       borderRadius: BorderRadius.circular(8),
                                       image: isAlbum ? DecorationImage(
-                                        image: NetworkImage((item as AlbumEntity).coverUrl),
+                                        image: NetworkImage(item.coverUrl),
                                         fit: BoxFit.cover,
                                       ) : null,
                                     ),
@@ -207,7 +206,7 @@ class HomePage extends StatelessWidget {
                                     style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
                                   ),
                                   Text(
-                                    isAlbum ? (item as AlbumEntity).title : (item as PlaylistEntity).name,
+                                    isAlbum ? item.title : item.name,
                                     style: const TextStyle(color: Colors.white70, fontSize: 12),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
