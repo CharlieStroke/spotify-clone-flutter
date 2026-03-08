@@ -138,10 +138,46 @@ const getAllAlbums = asyncHandler(async (req, res) => {
 
 
 
+// =============================
+// OBTENER CANCIONES DE UN ÁLBUM (NUEVO)
+// =============================
+const getAlbumSongs = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+
+    // Verificar si el álbum existe
+    const albumResult = await pool.query(
+        'SELECT * FROM albums WHERE album_id = $1',
+        [id]
+    );
+
+    if (albumResult.rows.length === 0) {
+        return res.status(404).json({
+            success: false,
+            message: 'Álbum no encontrado'
+        });
+    }
+
+    // Obtener las canciones que pertenecen al álbum
+    const songsResult = await pool.query(
+        `SELECT song_id, title, duration, audio_url, cover_url 
+         FROM songs 
+         WHERE album_id = $1
+         ORDER BY created_at ASC`,
+        [id]
+    );
+
+    res.status(200).json({
+        success: true,
+        message: 'Canciones del álbum obtenidas exitosamente',
+        songs: songsResult.rows
+    });
+});
+
 module.exports = {
     createAlbum,
     getAlbums,
     deleteAlbum,
     updateAlbumName,
-    getAllAlbums
+    getAllAlbums,
+    getAlbumSongs
 };
