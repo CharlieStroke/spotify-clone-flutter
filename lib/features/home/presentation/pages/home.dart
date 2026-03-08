@@ -141,18 +141,17 @@ class HomePage extends StatelessWidget {
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          Container(
-                                            height: 150,
-                                            width: 150,
-                                            decoration: BoxDecoration(
-                                              color: Colors.deepPurple,
-                                              borderRadius: BorderRadius.circular(8),
-                                              image: DecorationImage(
-                                                image: NetworkImage(album.coverUrl),
-                                                fit: BoxFit.cover,
-                                                onError: (error, stackTrace) => const Icon(Icons.album, size: 60, color: Colors.white),
-                                              ),
-                                            ),
+                                          ClipRRect(
+                                            borderRadius: BorderRadius.circular(8),
+                                            child: album.coverUrl.isNotEmpty
+                                                ? Image.network(
+                                                    album.coverUrl,
+                                                    width: 150,
+                                                    height: 150,
+                                                    fit: BoxFit.cover,
+                                                    errorBuilder: (e, s, t) => _albumFallback(),
+                                                  )
+                                                : _albumFallback(),
                                           ),
                                           const SizedBox(height: 8),
                                           const Text(
@@ -221,22 +220,17 @@ class HomePage extends StatelessWidget {
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          Container(
-                                            height: 130,
-                                            width: 130,
-                                            decoration: BoxDecoration(
-                                              color: const Color(0xFF6A2E44),
-                                              borderRadius: BorderRadius.circular(8),
-                                              image: isAlbum
-                                                  ? DecorationImage(
-                                                      image: NetworkImage(item.coverUrl),
-                                                      fit: BoxFit.cover,
-                                                    )
-                                                  : null,
-                                            ),
-                                            child: !isAlbum
-                                                ? const Icon(Icons.queue_music, size: 50, color: Colors.white54)
-                                                : null,
+                                          ClipRRect(
+                                            borderRadius: BorderRadius.circular(8),
+                                            child: isAlbum && item.coverUrl.isNotEmpty
+                                                ? Image.network(
+                                                    item.coverUrl,
+                                                    width: 130,
+                                                    height: 130,
+                                                    fit: BoxFit.cover,
+                                                    errorBuilder: (e, s, t) => _playlistFallback(130, 130),
+                                                  )
+                                                : _playlistFallback(130, 130),
                                           ),
                                           const SizedBox(height: 8),
                                           Text(
@@ -272,6 +266,24 @@ class HomePage extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _albumFallback() {
+    return Container(
+      width: 150,
+      height: 150,
+      color: Colors.deepPurple,
+      child: const Icon(Icons.album, size: 60, color: Colors.white54),
+    );
+  }
+
+  Widget _playlistFallback(double w, double h) {
+    return Container(
+      width: w,
+      height: h,
+      color: const Color(0xFF6A2E44),
+      child: const Icon(Icons.queue_music, size: 50, color: Colors.white54),
     );
   }
 }
