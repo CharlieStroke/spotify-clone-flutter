@@ -10,6 +10,8 @@ class AudioState {
   final Duration bufferedPosition;
   final Duration totalDuration;
   final SongEntity? currentSong;
+  final String? playlistName;
+  final String? playlistType; // 'playlist' o 'album'
 
   AudioState({
     required this.isPlaying,
@@ -18,6 +20,8 @@ class AudioState {
     required this.bufferedPosition,
     required this.totalDuration,
     this.currentSong,
+    this.playlistName,
+    this.playlistType,
   });
 
   factory AudioState.initial() => AudioState(
@@ -35,6 +39,8 @@ class AudioState {
     Duration? bufferedPosition,
     Duration? totalDuration,
     SongEntity? currentSong,
+    String? playlistName,
+    String? playlistType,
   }) {
     return AudioState(
       isPlaying: isPlaying ?? this.isPlaying,
@@ -43,6 +49,8 @@ class AudioState {
       bufferedPosition: bufferedPosition ?? this.bufferedPosition,
       totalDuration: totalDuration ?? this.totalDuration,
       currentSong: currentSong ?? this.currentSong,
+      playlistName: playlistName ?? this.playlistName,
+      playlistType: playlistType ?? this.playlistType,
     );
   }
 }
@@ -51,6 +59,8 @@ class AudioService {
   late final AudioPlayer _player;
   List<SongEntity> _currentPlaylist = [];
   int _currentIndex = 0;
+  String _playlistName = '';
+  String _playlistType = 'playlist';
   SongEntity? get _currentSong => _currentPlaylist.isNotEmpty && _currentIndex >= 0 && _currentIndex < _currentPlaylist.length 
       ? _currentPlaylist[_currentIndex] 
       : null;
@@ -81,6 +91,8 @@ class AudioService {
           bufferedPosition: bufferedPosition,
           totalDuration: _player.duration ?? Duration.zero,
           currentSong: _currentSong,
+          playlistName: _playlistName,
+          playlistType: _playlistType,
         );
       },
     ).listen((state) {
@@ -96,11 +108,13 @@ class AudioService {
     });
   }
 
-  Future<void> playPlaylist(List<SongEntity> songs, {int initialIndex = 0}) async {
+  Future<void> playPlaylist(List<SongEntity> songs, {int initialIndex = 0, String playlistName = '', String playlistType = 'playlist'}) async {
     if (songs.isEmpty) return;
     
     _currentPlaylist = songs;
     _currentIndex = initialIndex;
+    _playlistName = playlistName;
+    _playlistType = playlistType;
 
     // Emit immediate update with current song to show Mini-Player immediately
     _audioStateSubject.add(AudioState(
@@ -110,6 +124,8 @@ class AudioService {
       bufferedPosition: Duration.zero,
       totalDuration: Duration.zero,
       currentSong: _currentSong,
+      playlistName: _playlistName,
+      playlistType: _playlistType,
     ));
 
     try {

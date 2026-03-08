@@ -198,8 +198,10 @@ class PlaylistDetailView extends StatelessWidget {
                       ),
                     ],
                   ),
-                  // Botón Agregar Canciones
-                  if (type == 'playlist') ...[
+                  // Botón Agregar Canciones — solo visible para el dueño de la playlist
+                  if (type == 'playlist' &&
+                      context.read<ProfileBloc>().state is ProfileLoaded &&
+                      (context.read<ProfileBloc>().state as ProfileLoaded).user.userId == ownerId) ...[ 
                     const SizedBox(height: 24),
                     Center(
                       child: ElevatedButton.icon(
@@ -324,7 +326,12 @@ class PlaylistDetailView extends StatelessWidget {
                         ),
                         onTap: () {
                           // Play full playlist starting from this index
-                          context.read<PlayerCubit>().playPlaylist(state.songs, initialIndex: index);
+                          context.read<PlayerCubit>().playPlaylist(
+                            state.songs,
+                            initialIndex: index,
+                            playlistName: title,
+                            playlistType: type,
+                          );
                           // Abrir el reproductor grande
                           Navigator.push(
                             context,

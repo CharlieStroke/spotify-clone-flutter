@@ -18,8 +18,8 @@ class PlayerCubit extends Cubit<PlayerState> {
     });
   }
 
-  void playPlaylist(List<SongEntity> songs, {int initialIndex = 0}) {
-    _audioService.playPlaylist(songs, initialIndex: initialIndex);
+  void playPlaylist(List<SongEntity> songs, {int initialIndex = 0, String playlistName = '', String playlistType = 'playlist'}) {
+    _audioService.playPlaylist(songs, initialIndex: initialIndex, playlistName: playlistName, playlistType: playlistType);
   }
 
   void play() => _audioService.play();

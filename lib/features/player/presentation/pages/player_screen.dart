@@ -46,12 +46,16 @@ class PlayerScreen extends StatelessWidget {
                       ),
                       Column(
                         children: [
-                          const Text(
-                            'REPRODUCIENDO DESDE PLAYLIST',
-                            style: TextStyle(color: Colors.white70, fontSize: 10, letterSpacing: 1.5, fontWeight: FontWeight.bold),
+                          Text(
+                            audioState.playlistType == 'album' 
+                              ? 'REPRODUCIENDO DESDE ÁLBUM'
+                              : 'REPRODUCIENDO DESDE PLAYLIST',
+                            style: const TextStyle(color: Colors.white70, fontSize: 10, letterSpacing: 1.5, fontWeight: FontWeight.bold),
                           ),
                           Text(
-                            song.album.isNotEmpty ? song.album : 'Desconocido',
+                            audioState.playlistName?.isNotEmpty == true 
+                              ? audioState.playlistName!
+                              : (song.album.isNotEmpty ? song.album : 'Desconocido'),
                             style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
                           ),
                         ],
