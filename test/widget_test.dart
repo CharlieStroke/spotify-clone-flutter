@@ -9,12 +9,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:spotify_clone/main.dart';
+import 'package:spotify_clone/core/routes/app_routes.dart';
 
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
-
+    await tester.pumpWidget(MaterialApp(
+      initialRoute: AppRoutes.initial, // o '/'
+      routes: AppRoutes.routes,
+    ));
     // Verify that our counter starts at 0.
     expect(find.text('0'), findsOneWidget);
     expect(find.text('1'), findsNothing);
