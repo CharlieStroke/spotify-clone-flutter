@@ -62,10 +62,13 @@ const getallSongs = asyncHandler(async (req, res) => {
     const totalItems = parseInt(totalResult.rows[0].count);
 
     const result = await pool.query(
-        `SELECT song_id, album_id, title, duration, audio_url, cover_url 
-        FROM songs 
-        ORDER BY created_at DESC 
-        LIMIT $1 OFFSET $2`,
+        `SELECT s.song_id, s.album_id, s.title, s.duration, s.audio_url, s.cover_url,
+                ar.stage_name AS artist_name
+         FROM songs s
+         LEFT JOIN albums al ON s.album_id = al.album_id
+         LEFT JOIN artists ar ON al.artist_id = ar.artist_id
+         ORDER BY s.created_at DESC 
+         LIMIT $1 OFFSET $2`,
         [limit, offset]
     );
 
