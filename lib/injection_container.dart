@@ -39,6 +39,13 @@ import 'features/search/data/repository/search_repository_impl.dart';
 import 'features/search/domain/usecases/search_usecase.dart';
 import 'features/search/presentation/bloc/search_bloc.dart';
 
+// Library Feature
+import 'features/library/data/sources/library_api_service.dart';
+import 'features/library/domain/repository/library_repository.dart';
+import 'features/library/data/repository/library_repository_impl.dart';
+import 'features/library/domain/usecases/get_library_usecase.dart';
+import 'features/library/presentation/bloc/library_bloc.dart';
+
 final sl = GetIt.instance;
 
 Future<void> init() async {
@@ -56,6 +63,7 @@ Future<void> init() async {
   sl.registerLazySingleton<ProfileApiService>(() => ProfileApiServiceImpl(apiClient: sl(), sharedPreferences: sl()));
   sl.registerLazySingleton<CreateApiService>(() => CreateApiServiceImpl(sl()));
   sl.registerLazySingleton<SearchApiService>(() => SearchApiServiceImpl(sl()));
+  sl.registerLazySingleton<LibraryApiService>(() => LibraryApiServiceImpl(sl()));
 
   // --- Repositories ---
   sl.registerLazySingleton<AuthRepository>(
@@ -67,6 +75,7 @@ Future<void> init() async {
   sl.registerLazySingleton<ProfileRepository>(() => ProfileRepositoryImpl(profileApiService: sl()));
   sl.registerLazySingleton<CreateRepository>(() => CreateRepositoryImpl(sl()));
   sl.registerLazySingleton<SearchRepository>(() => SearchRepositoryImpl(sl()));
+  sl.registerLazySingleton<LibraryRepository>(() => LibraryRepositoryImpl(sl()));
 
   // --- Use Cases ---
   sl.registerLazySingleton(() => LoginUseCase(sl()));
@@ -77,6 +86,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => GetUserProfileUseCase(repository: sl()));
   sl.registerLazySingleton(() => CreatePlaylistUseCase(sl()));
   sl.registerLazySingleton(() => SearchUseCase(sl()));
+  sl.registerLazySingleton(() => GetLibraryUseCase(sl()));
 
   // --- Blocs ---
   sl.registerFactory(() => AuthBloc(
@@ -92,4 +102,5 @@ Future<void> init() async {
   sl.registerFactory(() => ProfileBloc(getUserProfileUseCase: sl()));
   sl.registerFactory(() => CreatePlaylistBloc(sl()));
   sl.registerFactory(() => SearchBloc(sl()));
+  sl.registerFactory(() => LibraryBloc(sl()));
 }
