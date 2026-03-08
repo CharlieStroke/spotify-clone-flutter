@@ -10,6 +10,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../library/presentation/widgets/add_to_playlist_sheet.dart';
 import '../../../library/presentation/widgets/search_song_to_add_sheet.dart';
 import '../../../../features/player/presentation/bloc/player_cubit.dart';
+import '../../../../features/player/presentation/widgets/mini_player.dart';
 import '../../../library/presentation/bloc/library_action_bloc.dart';
 import '../../../library/presentation/bloc/library_action_event.dart';
 import '../../../library/presentation/bloc/library_action_state.dart';
@@ -130,9 +131,9 @@ class PlaylistDetailView extends StatelessWidget {
               ),
           ],
         ),
-      extendBodyBehindAppBar: true, // Para que el gradiente o fondo suba
-      body: SingleChildScrollView(
-        child: Column(
+        extendBodyBehindAppBar: true, // Para que el gradiente o fondo suba
+        body: SingleChildScrollView(
+          child: Column(
           children: [
             const SizedBox(height: 80), // AppBar padding
             
@@ -305,13 +306,14 @@ class PlaylistDetailView extends StatelessWidget {
               },
             ),
             
-            const SizedBox(height: 50), // Margen final
-          ],
+              const SizedBox(height: 50), // Margen final
+            ],
+          ),
         ),
+        bottomNavigationBar: const MiniPlayer(),
       ),
-    ),
-  );
-}
+    );
+  }
 
   Widget _buildCoverSpace() {
     return Center(
