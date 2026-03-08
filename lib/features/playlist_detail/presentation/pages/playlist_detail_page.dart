@@ -10,6 +10,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../library/presentation/widgets/add_to_playlist_sheet.dart';
 import '../../../library/presentation/widgets/search_song_to_add_sheet.dart';
 import '../../../../features/player/presentation/bloc/player_cubit.dart';
+import '../../../../features/player/presentation/pages/player_screen.dart';
 import '../../../../features/player/presentation/widgets/mini_player.dart';
 import '../../../library/presentation/bloc/library_action_bloc.dart';
 import '../../../library/presentation/bloc/library_action_event.dart';
@@ -297,6 +298,14 @@ class PlaylistDetailView extends StatelessWidget {
                         onTap: () {
                           // Play full playlist starting from this index
                           context.read<PlayerCubit>().playPlaylist(state.songs, initialIndex: index);
+                          // Abrir el reproductor grande
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const PlayerScreen(),
+                              fullscreenDialog: true,
+                            ),
+                          );
                         },
                       );
                     },

@@ -11,11 +11,12 @@ class SongModel extends SongEntity {
   });
 
   factory SongModel.fromJson(Map<String, dynamic> json) {
+    // Tomamos artist_name si existe, si no intentamos con album_name o el título del álbum
+    final String artistName = json['artist_name'] ?? json['album_name'] ?? '';
     return SongModel(
       id: json['song_id']?.toString() ?? '1',
-      // Mapeamos exactamente lo que llega
       title: json['title'] ?? 'Sin Título',
-      album: 'ID Álbum: ${json['album_id']}', // Mostramos el ID mientras el backend no mande el nombre
+      album: artistName,
       duration: json['duration']?.toString() ?? '0',
       coverUrl: json['cover_url'] ?? '',
       audioUrl: json['audio_url'] ?? '',
