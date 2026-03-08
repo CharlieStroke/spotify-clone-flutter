@@ -8,6 +8,7 @@ import 'features/auth/data/sources/auth_local_services.dart'; // Importamos el s
 import 'features/main_navigation/presentation/cubit/main_navigation_cubit.dart';
 import 'features/profile/presentation/bloc/profile_bloc.dart';
 import 'features/player/presentation/bloc/player_cubit.dart';
+import 'features/library/presentation/bloc/library_bloc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -43,6 +44,7 @@ class MyApp extends StatelessWidget {
         // El evento se lanzará cuando se entre a la pantalla principal protegida.
         BlocProvider(create: (_) => di.sl<ProfileBloc>()),
         BlocProvider(create: (_) => di.sl<PlayerCubit>()),
+        BlocProvider(create: (_) => di.sl<LibraryBloc>()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

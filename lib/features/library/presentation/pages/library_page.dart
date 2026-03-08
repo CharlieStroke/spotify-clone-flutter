@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../injection_container.dart';
 import '../bloc/library_bloc.dart';
 import '../bloc/library_event.dart';
 import '../bloc/library_state.dart';
@@ -12,10 +11,7 @@ class LibraryPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => sl<LibraryBloc>()..add(LoadLibraryEvent()),
-      child: const LibraryView(),
-    );
+    return const LibraryView();
   }
 }
 
@@ -27,6 +23,15 @@ class LibraryView extends StatefulWidget {
 }
 
 class _LibraryViewState extends State<LibraryView> {
+  @override
+  void initState() {
+    super.initState();
+    final bloc = context.read<LibraryBloc>();
+    if (bloc.state is LibraryInitial) {
+      bloc.add(LoadLibraryEvent());
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

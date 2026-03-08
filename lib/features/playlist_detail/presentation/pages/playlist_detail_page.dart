@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../injection_container.dart';
+import '../../../library/presentation/bloc/library_bloc.dart';
+import '../../../library/presentation/bloc/library_event.dart';
 import '../bloc/detail_bloc.dart';
 import '../bloc/detail_event.dart';
 import '../bloc/detail_state.dart';
@@ -8,6 +10,9 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../library/presentation/widgets/add_to_playlist_sheet.dart';
 import '../../../library/presentation/widgets/search_song_to_add_sheet.dart';
 import '../../../../features/player/presentation/bloc/player_cubit.dart';
+import '../../../library/presentation/bloc/library_action_bloc.dart';
+import '../../../library/presentation/bloc/library_action_event.dart';
+import '../../../library/presentation/bloc/library_action_state.dart';
 
 class PlaylistDetailPage extends StatelessWidget {
   final String id;
@@ -25,8 +30,11 @@ class PlaylistDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => sl<PlaylistDetailBloc>()..add(LoadPlaylistDetailEvent(id: id, type: type)),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => sl<PlaylistDetailBloc>()..add(LoadPlaylistDetailEvent(id: id, type: type))),
+        BlocProvider(create: (_) => sl<LibraryActionBloc>()),
+      ],
       child: PlaylistDetailView(id: id, title: title, type: type, coverUrl: coverUrl),
     );
   }
@@ -46,18 +54,82 @@ class PlaylistDetailView extends StatelessWidget {
     this.coverUrl
   });
 
+  void _showDeleteDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFF282828),
+          title: const Text('Eliminar playlist', style: TextStyle(color: Colors.white)),
+          content: Text('¿Estás seguro de que quieres eliminar "$title"?', style: const TextStyle(color: Colors.white70)),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('Cancelar', style: TextStyle(color: Colors.white54)),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(dialogContext); // Cerrar dialogo
+                context.read<LibraryActionBloc>().add(DeletePlaylistEvent(id));
+              },
+              child: const Text('Eliminar', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
+    return BlocListener<LibraryActionBloc, LibraryActionState>(
+      listener: (context, state) {
+        if (state is LibraryActionSuccess) {
+          if (state.message.contains('eliminada')) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.message, style: const TextStyle(color: Colors.white)), backgroundColor: Colors.redAccent)
+            );
+            // Refrescar biblioteca global 
+            context.read<LibraryBloc>().add(LoadLibraryEvent());
+            // Retrocoder al home
+            Navigator.of(context).popUntil((route) => route.isFirst);
+          } else if (state.message.contains('removida')) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.message, style: const TextStyle(color: Colors.white)), backgroundColor: const Color(0xFF1DB954)) // AppColors.primary
+            );
+            // Refrescar vista actual
+            context.read<PlaylistDetailBloc>().add(LoadPlaylistDetailEvent(id: id, type: type));
+          }
+        }
+      },
+      child: Scaffold(
+        backgroundColor: Colors.black,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+            onPressed: () => Navigator.pop(context),
+          ),
+          actions: [
+            if (type == 'playlist')
+              PopupMenuButton<String>(
+                icon: const Icon(Icons.more_vert, color: Colors.white),
+                color: const Color(0xFF282828),
+                onSelected: (value) {
+                  if (value == 'delete') {
+                    _showDeleteDialog(context);
+                  }
+                },
+                itemBuilder: (context) => [
+                  const PopupMenuItem(
+                    value: 'delete',
+                    child: Text('Eliminar playlist', style: TextStyle(color: Colors.redAccent)),
+                  ),
+                ],
+              ),
+          ],
         ),
-      ),
       extendBodyBehindAppBar: true, // Para que el gradiente o fondo suba
       body: SingleChildScrollView(
         child: Column(
@@ -130,7 +202,8 @@ class PlaylistDetailView extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                         ),
                         onPressed: () {
-                          SearchSongToAddSheet.show(context, id);
+                          final bloc = context.read<PlaylistDetailBloc>();
+                          SearchSongToAddSheet.show(context, id, detailBloc: bloc);
                         },
                         icon: const Icon(Icons.add, size: 20),
                         label: const Text(
@@ -196,11 +269,29 @@ class PlaylistDetailView extends StatelessWidget {
                           maxLines: 1, 
                           overflow: TextOverflow.ellipsis,
                         ),
-                        trailing: IconButton(
+                        trailing: PopupMenuButton<String>(
                           icon: const Icon(Icons.more_vert, color: Colors.white),
-                          onPressed: () {
-                            AddToPlaylistSheet.show(context, song);
+                          color: const Color(0xFF282828),
+                          onSelected: (value) {
+                            if (value == 'add') {
+                              AddToPlaylistSheet.show(context, song);
+                            } else if (value == 'remove') {
+                              context.read<LibraryActionBloc>().add(
+                                RemoveSongEvent(playlistId: id, songId: song.id),
+                              );
+                            }
                           },
+                          itemBuilder: (context) => [
+                            const PopupMenuItem(
+                              value: 'add',
+                              child: Text('Añadir a otra playlist', style: TextStyle(color: Colors.white)),
+                            ),
+                            if (type == 'playlist')
+                              const PopupMenuItem(
+                                value: 'remove',
+                                child: Text('Quitar de esta playlist', style: TextStyle(color: Colors.redAccent)),
+                              ),
+                          ],
                         ),
                         onTap: () {
                           // Play full playlist starting from this index
@@ -218,8 +309,9 @@ class PlaylistDetailView extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildCoverSpace() {
     return Center(

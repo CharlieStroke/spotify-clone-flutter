@@ -5,6 +5,9 @@ import '../bloc/create_playlist_bloc.dart';
 import '../bloc/create_playlist_event.dart';
 import '../bloc/create_playlist_state.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../library/presentation/bloc/library_bloc.dart';
+import '../../../library/presentation/bloc/library_event.dart';
+import '../../../playlist_detail/presentation/pages/playlist_detail_page.dart';
 
 class CreatePage extends StatelessWidget {
   const CreatePage({super.key});
@@ -119,6 +122,20 @@ class _CreatePlaylistViewState extends State<CreatePlaylistView> {
               content: Text('Playlist "${state.playlist.name}" creada con éxito'),
               backgroundColor: AppColors.primary,
               duration: const Duration(seconds: 3),
+            ),
+          );
+          // Actualizamos la biblioteca
+          context.read<LibraryBloc>().add(LoadLibraryEvent());
+          // Navegamos al detalle de la playlist
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => PlaylistDetailPage(
+                id: state.playlist.id.toString(),
+                title: state.playlist.name,
+                type: 'playlist',
+                coverUrl: null,
+              ),
             ),
           );
         } else if (state is CreatePlaylistFailure) {

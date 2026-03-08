@@ -5,7 +5,10 @@ import '../../../home/data/models/playlist_model.dart';
 
 abstract class LibraryApiService {
   Future<Map<String, List<dynamic>>> getUserLibrary();
+  Future<void> createPlaylist(String name, String description);
+  Future<void> deletePlaylist(String playlistId);
   Future<void> addSongToPlaylist(String playlistId, String songId);
+  Future<void> removeSongFromPlaylist(String playlistId, String songId);
 }
 
 class LibraryApiServiceImpl implements LibraryApiService {
@@ -64,6 +67,71 @@ class LibraryApiServiceImpl implements LibraryApiService {
       }
     } on DioException catch (e) {
       String msg = 'No se pudo añadir la canción';
+      if (e.response?.data is Map) {
+        msg = e.response?.data['message'] ?? msg;
+      }
+      throw Exception(msg);
+    } catch (e) {
+      throw Exception('Error inesperado: $e');
+    }
+  }
+
+  @override
+  Future<void> createPlaylist(String name, String description) async {
+    try {
+      final response = await _apiClient.dio.post(
+        '/playlists/create',
+        data: {
+          'name': name,
+          'description': description,
+        },
+      );
+
+      if (response.data == null || response.data['success'] != true) {
+        throw Exception(response.data?['message'] ?? 'Error al crear playlist');
+      }
+    } on DioException catch (e) {
+      String msg = 'No se pudo crear la playlist';
+      if (e.response?.data is Map) {
+        msg = e.response?.data['message'] ?? msg;
+      }
+      throw Exception(msg);
+    } catch (e) {
+      throw Exception('Error inesperado al crear: $e');
+    }
+  }
+
+  @override
+  Future<void> deletePlaylist(String playlistId) async {
+    try {
+      final response = await _apiClient.dio.delete('/playlists/$playlistId');
+
+      if (response.data == null || response.data['success'] != true) {
+        throw Exception(response.data?['message'] ?? 'Error al eliminar playlist');
+      }
+    } on DioException catch (e) {
+      String msg = 'No se pudo eliminar la playlist';
+      if (e.response?.data is Map) {
+        msg = e.response?.data['message'] ?? msg;
+      }
+      throw Exception(msg);
+    } catch (e) {
+      throw Exception('Error inesperado al eliminar: $e');
+    }
+  }
+
+  @override
+  Future<void> removeSongFromPlaylist(String playlistId, String songId) async {
+    try {
+      final response = await _apiClient.dio.delete(
+        '/playlists/$playlistId/remove/$songId',
+      );
+
+      if (response.data == null || response.data['success'] != true) {
+        throw Exception(response.data?['message'] ?? 'Error desconocido al remover canción');
+      }
+    } on DioException catch (e) {
+      String msg = 'No se pudo remover la canción';
       if (e.response?.data is Map) {
         msg = e.response?.data['message'] ?? msg;
       }
