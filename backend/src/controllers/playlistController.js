@@ -36,7 +36,7 @@ const getUserPlaylists = asyncHandler(async (req, res) => {
 
 
     const playlists = await pool.query(
-        `SELECT playlist_id, name, description 
+        `SELECT playlist_id, name, description, user_id 
         FROM playlists WHERE user_id = $1 
         ORDER BY created_at DESC`,
         [userId]
@@ -186,12 +186,12 @@ const getPlaylistSongs = asyncHandler(async (req, res) => {
     const { playlistId } = req.params;
     const userId = req.user.userId;
 
-    // Verificar que la playlist exista y pertenezca al usuario
+    // Verificar que la playlist exista
     const playlistResult = await pool.query(
         `SELECT * 
         FROM playlists 
-        WHERE playlist_id = $1 AND user_id = $2`,
-        [playlistId, userId]
+        WHERE playlist_id = $1`,
+        [playlistId]
     );
 
     if (playlistResult.rows.length === 0) {

@@ -19,6 +19,10 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
        _playlistsUseCase = getPlaylistsUseCase,
        super(HomeLoading()) {
     
+    on<ResetHomeEvent>((event, emit) {
+      emit(HomeLoading());
+    });
+
     on<GetSongsEvent>((event, emit) async {
       emit(HomeLoading());
       

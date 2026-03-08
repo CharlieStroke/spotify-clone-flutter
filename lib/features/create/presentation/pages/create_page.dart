@@ -135,6 +135,7 @@ class _CreatePlaylistViewState extends State<CreatePlaylistView> {
                 title: state.playlist.name,
                 type: 'playlist',
                 coverUrl: null,
+                ownerId: state.playlist.userId,
               ),
             ),
           );

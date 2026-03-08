@@ -37,7 +37,7 @@ const searchSongs = asyncHandler(async (req, res) => {
         ),
         pool.query(
             // Asumiendo que las playlists globales son las que no son privadas (si tuvieras campo) o simplemente buscamos por nombre
-            `SELECT playlist_id, name, description 
+            `SELECT playlist_id, name, description, user_id 
             FROM playlists 
             WHERE name ILIKE $1
             ORDER BY created_at DESC 

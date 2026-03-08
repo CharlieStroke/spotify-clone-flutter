@@ -7,6 +7,10 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
   final GetLibraryUseCase _getLibraryUseCase;
 
   LibraryBloc(this._getLibraryUseCase) : super(LibraryInitial()) {
+    on<ResetLibraryEvent>((event, emit) {
+      emit(LibraryInitial());
+    });
+
     on<LoadLibraryEvent>((event, emit) async {
       emit(LibraryLoading());
 

@@ -5,6 +5,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../injection_container.dart' as di;
 import '../bloc/profile_bloc.dart';
 import '../bloc/profile_state.dart';
+import '../../../home/presentation/bloc/home_bloc.dart' as di;
+import '../../../home/presentation/bloc/home_event.dart' as di;
+import '../../../library/presentation/bloc/library_bloc.dart' as di;
+import '../../../library/presentation/bloc/library_event.dart' as di;
+
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -120,7 +125,12 @@ class ProfilePage extends StatelessWidget {
                         onPressed: () async {
                           final prefs = di.sl<SharedPreferences>();
                           await prefs.remove('token');
+                          
                           if (context.mounted) {
+                            // Limpiamos los BLoCs globales para que no quede info del otro perfil
+                            di.sl<di.HomeBloc>().add(di.ResetHomeEvent());
+                            di.sl<di.LibraryBloc>().add(di.ResetLibraryEvent());
+
                             // Limpiamos el stack de navegación
                             Navigator.pushNamedAndRemoveUntil(
                               context, 

@@ -15,12 +15,15 @@ import '../../../../features/player/presentation/widgets/mini_player.dart';
 import '../../../library/presentation/bloc/library_action_bloc.dart';
 import '../../../library/presentation/bloc/library_action_event.dart';
 import '../../../library/presentation/bloc/library_action_state.dart';
+import '../../../../features/profile/presentation/bloc/profile_bloc.dart';
+import '../../../../features/profile/presentation/bloc/profile_state.dart';
 
 class PlaylistDetailPage extends StatelessWidget {
   final String id;
   final String title;
   final String type; // 'playlist' o 'album'
   final String? coverUrl;
+  final int? ownerId;
 
   const PlaylistDetailPage({
     super.key,
@@ -28,6 +31,7 @@ class PlaylistDetailPage extends StatelessWidget {
     required this.title,
     required this.type,
     this.coverUrl,
+    this.ownerId,
   });
 
   @override
@@ -37,7 +41,7 @@ class PlaylistDetailPage extends StatelessWidget {
         BlocProvider(create: (_) => sl<PlaylistDetailBloc>()..add(LoadPlaylistDetailEvent(id: id, type: type))),
         BlocProvider(create: (_) => sl<LibraryActionBloc>()),
       ],
-      child: PlaylistDetailView(id: id, title: title, type: type, coverUrl: coverUrl),
+      child: PlaylistDetailView(id: id, title: title, type: type, coverUrl: coverUrl, ownerId: ownerId),
     );
   }
 }
@@ -47,13 +51,15 @@ class PlaylistDetailView extends StatelessWidget {
   final String title;
   final String type;
   final String? coverUrl;
+  final int? ownerId;
 
   const PlaylistDetailView({
     super.key, 
     required this.id, 
     required this.title, 
     required this.type, 
-    this.coverUrl
+    this.coverUrl,
+    this.ownerId,
   });
 
   void _showDeleteDialog(BuildContext context) {
@@ -114,7 +120,9 @@ class PlaylistDetailView extends StatelessWidget {
             onPressed: () => Navigator.pop(context),
           ),
           actions: [
-            if (type == 'playlist')
+            if (type == 'playlist' &&
+                context.read<ProfileBloc>().state is ProfileLoaded &&
+                (context.read<ProfileBloc>().state as ProfileLoaded).user.userId == ownerId)
               PopupMenuButton<String>(
                 icon: const Icon(Icons.more_vert, color: Colors.white),
                 color: const Color(0xFF282828),
@@ -271,27 +279,46 @@ class PlaylistDetailView extends StatelessWidget {
                           maxLines: 1, 
                           overflow: TextOverflow.ellipsis,
                         ),
-                        trailing: PopupMenuButton<String>(
-                          icon: const Icon(Icons.more_vert, color: Colors.white),
-                          color: const Color(0xFF282828),
-                          onSelected: (value) {
-                            if (value == 'add') {
-                              AddToPlaylistSheet.show(context, song);
-                            } else if (value == 'remove') {
-                              context.read<LibraryActionBloc>().add(
-                                RemoveSongEvent(playlistId: id, songId: song.id),
-                              );
-                            }
-                          },
-                          itemBuilder: (context) => [
-                            const PopupMenuItem(
-                              value: 'add',
-                              child: Text('Añadir a otra playlist', style: TextStyle(color: Colors.white)),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            PopupMenuButton<String>(
+                              icon: const Icon(Icons.more_vert, color: Colors.white),
+                              color: const Color(0xFF282828),
+                              onSelected: (value) {
+                                if (value == 'add') {
+                                  AddToPlaylistSheet.show(context, song);
+                                }
+                              },
+                              itemBuilder: (context) => [
+                                const PopupMenuItem(
+                                  value: 'add',
+                                  child: Text('Añadir a otra playlist', style: TextStyle(color: Colors.white)),
+                                ),
+                              ],
                             ),
-                            if (type == 'playlist')
-                              const PopupMenuItem(
-                                value: 'remove',
-                                child: Text('Quitar de esta playlist', style: TextStyle(color: Colors.redAccent)),
+                            if (type == 'playlist' &&
+                                context.read<ProfileBloc>().state is ProfileLoaded &&
+                                (context.read<ProfileBloc>().state as ProfileLoaded).user.userId == ownerId)
+                              PopupMenuButton<String>(
+                                icon: const Icon(Icons.more_vert, color: Colors.white54),
+                                color: const Color(0xFF282828),
+                                onSelected: (value) {
+                                  if (value == 'remove') {
+                                    context.read<LibraryActionBloc>().add(
+                                      RemoveSongEvent(
+                                        playlistId: id,
+                                        songId: song.id.toString()
+                                      )
+                                    );
+                                  }
+                                },
+                                itemBuilder: (context) => [
+                                  const PopupMenuItem(
+                                    value: 'remove',
+                                    child: Text('Quitar de esta playlist', style: TextStyle(color: Colors.white)),
+                                  ),
+                                ],
                               ),
                           ],
                         ),
