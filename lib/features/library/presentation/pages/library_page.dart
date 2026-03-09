@@ -40,42 +40,48 @@ class _LibraryViewState extends State<LibraryView> {
       title: 'Biblioteca',
       useScroll: false,
       padding: EdgeInsets.zero,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // ── Tarjeta Mis Favoritos ──────────────────────────────────────
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: FavoritesCard(
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const PlaylistDetailPage(
-                    id: 'favorites',
-                    title: 'Mis Favoritos',
-                    type: 'favorites',
+      child: RefreshIndicator(
+        onRefresh: () async {
+          context.read<LibraryBloc>().add(LoadLibraryEvent());
+        },
+        color: AppColors.primary,
+        backgroundColor: const Color(0xFF282828),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ── Tarjeta Mis Favoritos ──────────────────────────────────────
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: FavoritesCard(
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const PlaylistDetailPage(
+                      id: 'favorites',
+                      title: 'Mis Favoritos',
+                      type: 'favorites',
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-          const SizedBox(height: 10),
-          // ── Grid de playlists del usuario ─────────────────────────────
-          Expanded(
-            child: BlocBuilder<LibraryBloc, LibraryState>(
-              builder: (context, state) {
-                if (state is LibraryLoading) {
-                  return const Center(child: CircularProgressIndicator(color: AppColors.primary));
-                } else if (state is LibraryFailure) {
-                  return Center(child: Text(state.error, style: const TextStyle(color: Colors.red)));
-                } else if (state is LibraryLoaded) {
-                  return _buildGrid(context, state.playlists);
-                }
-                return const SizedBox.shrink();
-              },
+            // ── Grid de playlists del usuario ─────────────────────────────
+            Expanded(
+              child: BlocBuilder<LibraryBloc, LibraryState>(
+                builder: (context, state) {
+                  if (state is LibraryLoading) {
+                    return const Center(child: CircularProgressIndicator(color: AppColors.primary));
+                  } else if (state is LibraryFailure) {
+                    return Center(child: Text(state.error, style: const TextStyle(color: Colors.red)));
+                  } else if (state is LibraryLoaded) {
+                    return _buildGrid(context, state.playlists);
+                  }
+                  return const SizedBox.shrink();
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

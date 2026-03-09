@@ -395,47 +395,51 @@ class HomePlaylistChip extends StatelessWidget {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: const Color(0xFF3D1F6E),
-          borderRadius: BorderRadius.circular(4),
+          color: const Color.fromARGB(20, 255, 255, 255), // Sutilmente blanco
+          borderRadius: BorderRadius.circular(6),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
+        clipBehavior: Clip.antiAlias,
         child: Row(
           children: [
-            // Thumbnail cuadrada
-            Container(
-              width: 50,
-              decoration: const BoxDecoration(
-                color: Colors.black45,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(4),
-                  bottomLeft: Radius.circular(4),
+            // Thumbnail cuadrada más grande
+            AspectRatio(
+              aspectRatio: 1,
+              child: Container(
+                decoration: const BoxDecoration(
+                  color: Colors.white10,
                 ),
-              ),
-              child: (coverUrl != null && coverUrl!.isNotEmpty)
-                  ? ClipRRect(
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(4),
-                        bottomLeft: Radius.circular(4),
-                      ),
-                      child: Image.network(
+                child: (coverUrl != null && coverUrl!.isNotEmpty)
+                    ? Image.network(
                         coverUrl!.trim(),
                         fit: BoxFit.cover,
                         errorBuilder: (e, s, t) =>
-                            const Center(child: Icon(Icons.queue_music, color: Colors.white54)),
-                      ),
-                    )
-                  : const Center(child: Icon(Icons.queue_music, color: Colors.white54)),
+                            const Center(child: Icon(Icons.music_note, color: Colors.white38)),
+                      )
+                    : const Center(child: Icon(Icons.music_note, color: Colors.white38)),
+              ),
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: 12),
             Expanded(
-              child: Text(
-                name,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
+                child: Text(
+                  name,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 13,
+                    letterSpacing: -0.2,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
