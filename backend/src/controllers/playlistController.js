@@ -20,8 +20,7 @@ const createPlaylist = asyncHandler(async (req, res) => {
     // Subir imagen a Supabase si existe
     if (req.file) {
         try {
-            const uploadResult = await supabaseStorage.uploadFile(req.file, 'playlists/covers');
-            coverUrl = uploadResult.publicUrl;
+            coverUrl = await supabaseStorage.uploadFile(req.file, 'playlists/covers');
         } catch (uploadError) {
             console.error('Error al subir la portada de la playlist:', uploadError);
             // Podríamos continuar sin imagen o lanzar error. 
