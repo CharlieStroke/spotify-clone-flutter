@@ -8,6 +8,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../library/presentation/bloc/library_bloc.dart';
 import '../../../library/presentation/bloc/library_event.dart';
 import '../../../playlist_detail/presentation/pages/playlist_detail_page.dart';
+import '../../../../core/widgets/page_layout.dart';
 
 class CreatePage extends StatelessWidget {
   const CreatePage({super.key});
@@ -148,51 +149,41 @@ class _CreatePlaylistViewState extends State<CreatePlaylistView> {
           );
         }
       },
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Crear Playlist', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24, color: Colors.white)),
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          centerTitle: false,
-        ),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.queue_music, size: 80, color: Colors.grey.shade700),
-              const SizedBox(height: 20),
-              const Text(
-                'Crea tu primera playlist',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
-              ),
-              const SizedBox(height: 10),
-              const Text(
-                'Es muy fácil, te ayudaremos.',
-                style: TextStyle(color: Colors.grey),
-              ),
-              const SizedBox(height: 30),
-              BlocBuilder<CreatePlaylistBloc, CreatePlaylistState>(
-                builder: (context, state) {
-                  if (state is CreatePlaylistLoading) {
-                    return const CircularProgressIndicator(color: AppColors.primary);
-                  }
-                  
-                  return ElevatedButton(
-                    onPressed: () => _showCreateDialog(context),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: Colors.black,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 12),
+      child: PageLayout(
+        title: 'Crear Playlist',
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const SizedBox(height: 50),
+            Icon(Icons.queue_music, size: 80, color: Colors.grey.shade700),
+            const SizedBox(height: 20),
+            const Text(
+              'Crea tu primera playlist',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+            ),          
+            const SizedBox(height: 30),
+            BlocBuilder<CreatePlaylistBloc, CreatePlaylistState>(
+              builder: (context, state) {
+                if (state is CreatePlaylistLoading) {
+                  return const CircularProgressIndicator(color: AppColors.primary);
+                }
+                
+                return ElevatedButton(
+                  onPressed: () => _showCreateDialog(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.black,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
                     ),
-                    child: const Text('Crear playlist', style: TextStyle(fontWeight: FontWeight.bold)),
-                  );
-                },
-              )
-            ],
-          ),
+                    padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 12),
+                  ),
+                  child: const Text('Crear playlist', style: TextStyle(fontWeight: FontWeight.bold)),
+                );
+              },
+            ),
+            const SizedBox(height: 50),
+          ],
         ),
       ),
     );

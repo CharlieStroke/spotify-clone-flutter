@@ -11,6 +11,7 @@ import '../../../home/presentation/bloc/home_state.dart';
 import '../../../playlist_detail/presentation/pages/playlist_detail_page.dart';
 import '../../../home/domain/entities/song_entity.dart';
 import '../../../../core/widgets/song_widgets.dart';
+import '../../../../core/widgets/page_layout.dart';
 
 class SearchPage extends StatelessWidget {
   const SearchPage({super.key});
@@ -45,65 +46,55 @@ class _SearchViewState extends State<SearchView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 20),
-              const Text(
-                'Buscar',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                ),
+    return PageLayout(
+      title: 'Buscar',
+      useScroll: false,
+      padding: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Search Input Box
+            Container(
+              height: 50,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
               ),
-              const SizedBox(height: 20),
-              // Search Input Box
-              Container(
-                height: 50,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(8),
+              child: TextField(
+                controller: _searchController,
+                style: const TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold),
+                decoration: const InputDecoration(
+                  hintText: '¿Qué quieres escuchar?',
+                  hintStyle: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold),
+                  prefixIcon: Icon(Icons.search, color: Colors.black, size: 28),
+                  border: InputBorder.none,
+                  contentPadding: EdgeInsets.symmetric(vertical: 12),
                 ),
-                child: TextField(
-                  controller: _searchController,
-                  style: const TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.bold),
-                  decoration: const InputDecoration(
-                    hintText: '¿Qué quieres escuchar?',
-                    hintStyle: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold),
-                    prefixIcon: Icon(Icons.search, color: Colors.black, size: 28),
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(vertical: 12),
-                  ),
-                  onChanged: (query) {
-                    context.read<SearchBloc>().add(SearchQueryChanged(query));
-                  },
-                ),
+                onChanged: (query) {
+                  context.read<SearchBloc>().add(SearchQueryChanged(query));
+                },
               ),
-              const SizedBox(height: 25),
-              Expanded(
-                child: BlocBuilder<SearchBloc, SearchState>(
-                  builder: (context, state) {
-                    if (state is SearchInitial) {
-                      return _buildDiscoverGrid(context);
-                    } else if (state is SearchLoading) {
-                      return const Center(child: CircularProgressIndicator(color: AppColors.primary));
-                    } else if (state is SearchFailure) {
-                      return Center(child: Text(state.error, style: const TextStyle(color: Colors.red)));
-                    } else if (state is SearchLoaded) {
-                      return _buildSearchResults(state);
-                    }
-                    return const SizedBox.shrink();
-                  },
-                ),
+            ),
+            const SizedBox(height: 25),
+            Expanded(
+              child: BlocBuilder<SearchBloc, SearchState>(
+                builder: (context, state) {
+                  if (state is SearchInitial) {
+                    return _buildDiscoverGrid(context);
+                  } else if (state is SearchLoading) {
+                    return const Center(child: CircularProgressIndicator(color: AppColors.primary));
+                  } else if (state is SearchFailure) {
+                    return Center(child: Text(state.error, style: const TextStyle(color: Colors.red)));
+                  } else if (state is SearchLoaded) {
+                    return _buildSearchResults(state);
+                  }
+                  return const SizedBox.shrink();
+                },
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
