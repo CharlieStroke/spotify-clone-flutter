@@ -163,7 +163,7 @@ class _SearchViewState extends State<SearchView> {
                                   child: Image.network(
                                     album.coverUrl,
                                     fit: BoxFit.cover,
-                                    errorBuilder: (_, __, ___) => const SizedBox(),
+                                    errorBuilder: (e, s, t) => const SizedBox(),
                                   ),
                                 ),
                               Positioned(
