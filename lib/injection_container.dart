@@ -148,9 +148,10 @@ Future<void> init() async {
   ));
   sl.registerFactory(() => MainNavigationCubit());
   sl.registerFactory(() => ProfileBloc(
-    getUserProfileUseCase: sl(),
-    updateProfileUseCase: sl(),
-  ));
+        getUserProfileUseCase: sl(),
+        updateProfileUseCase: sl(),
+        artistRepository: sl(),
+      ));
   sl.registerFactory(() => CreatePlaylistBloc(sl()));
   sl.registerFactory(() => SearchBloc(sl()));
   sl.registerFactory(() => LibraryBloc(sl()));

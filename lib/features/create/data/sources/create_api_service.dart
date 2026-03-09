@@ -21,9 +21,9 @@ class CreateApiServiceImpl implements CreateApiService {
         data = FormData.fromMap({
           'name': name,
           'description': description,
-          'cover_image': await MultipartFile.fromFile(
-            image.path,
-            filename: image.path.split('/').last,
+          'cover_image': MultipartFile.fromBytes(
+            await image.readAsBytes(),
+            filename: image.path.split(RegExp(r'[\\/]')).last,
           ),
         });
       } else {

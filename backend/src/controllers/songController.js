@@ -41,7 +41,7 @@ const createSong = asyncHandler(async (req, res) => {
         `INSERT INTO songs (title, album_id, duration, audio_url, cover_url)
         VALUES ($1, $2, $3, $4, $5)
         RETURNING *`,
-        [title, album_id, duration, songUrl, coverUrl]
+        [title, parseInt(album_id), duration ? parseInt(duration) : null, songUrl, coverUrl]
     );
 
     console.log(req.files);

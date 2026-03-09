@@ -68,6 +68,7 @@ class ArtistRepositoryImpl implements ArtistRepository {
     required int albumId,
     required File audio,
     required File cover,
+    int? duration,
   }) async {
     try {
       final song = await _apiService.uploadSong(
@@ -75,6 +76,7 @@ class ArtistRepositoryImpl implements ArtistRepository {
         albumId: albumId,
         audio: audio,
         cover: cover,
+        duration: duration,
       );
       return Right(song);
     } catch (e) {

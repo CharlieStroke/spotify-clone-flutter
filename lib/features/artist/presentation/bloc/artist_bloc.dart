@@ -64,6 +64,7 @@ class ArtistBloc extends Bloc<ArtistEvent, ArtistState> {
       albumId: event.albumId,
       audio: event.audio,
       cover: event.cover,
+      duration: event.duration,
     );
     result.fold(
       (error) => emit(ArtistFailure(error)),

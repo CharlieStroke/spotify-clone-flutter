@@ -1,4 +1,5 @@
 import '../../domain/entities/user_entity.dart';
+import '../../../artist/domain/entities/artist_entity.dart';
 
 abstract class ProfileState {}
 
@@ -8,8 +9,9 @@ class ProfileLoading extends ProfileState {}
 
 class ProfileLoaded extends ProfileState {
   final UserEntity user;
+  final ArtistEntity? artist;
 
-  ProfileLoaded({required this.user});
+  ProfileLoaded({required this.user, this.artist});
 }
 
 class ProfileError extends ProfileState {

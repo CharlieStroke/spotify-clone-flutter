@@ -42,14 +42,16 @@ class UploadSongEvent extends ArtistEvent {
   final int albumId;
   final File audio;
   final File cover;
+  final int? duration;
 
   const UploadSongEvent({
     required this.title,
     required this.albumId,
     required this.audio,
     required this.cover,
+    this.duration,
   });
 
   @override
-  List<Object?> get props => [title, albumId, audio, cover];
+  List<Object?> get props => [title, albumId, audio, cover, duration];
 }
