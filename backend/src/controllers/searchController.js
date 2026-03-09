@@ -19,28 +19,31 @@ const searchSongs = asyncHandler(async (req, res) => {
     // Ejecutamos las 3 búsquedas globales de manera concurrente
     const [songsResult, albumsResult, playlistsResult] = await Promise.all([
         pool.query(
-            `SELECT song_id, album_id, title, duration, audio_url, cover_url 
-            FROM songs 
-            WHERE title ILIKE $1
-            ORDER BY created_at DESC 
+            `SELECT s.song_id, s.album_id, s.title, s.duration, s.audio_url, s.cover_url,
+                    ar.stage_name as artist_name 
+            FROM songs s
+            LEFT JOIN albums al ON s.album_id = al.album_id
+            LEFT JOIN artists ar ON al.artist_id = ar.artist_id
+            WHERE s.title ILIKE $1
+            ORDER BY s.created_at DESC 
             LIMIT $2 OFFSET $3`,
             [searchQuery, limit, offset]
         ),
         pool.query(
-            `SELECT a.album_id, a.title, a.cover_url, u.username as artist_name 
+            `SELECT a.album_id, a.title, a.cover_url, ar.stage_name as artist_name 
             FROM albums a 
-            JOIN users u ON a.artist_id = u.user_id 
+            JOIN artists ar ON a.artist_id = ar.artist_id 
             WHERE a.title ILIKE $1
             ORDER BY a.created_at DESC 
             LIMIT $2 OFFSET $3`,
             [searchQuery, limit, offset]
         ),
         pool.query(
-            // Asumiendo que las playlists globales son las que no son privadas (si tuvieras campo) o simplemente buscamos por nombre
-            `SELECT playlist_id, name, description, user_id 
-            FROM playlists 
-            WHERE name ILIKE $1
-            ORDER BY created_at DESC 
+            `SELECT p.playlist_id, p.name, p.description, p.user_id, u.username as creator_name
+            FROM playlists p
+            JOIN users u ON p.user_id = u.user_id
+            WHERE p.name ILIKE $1
+            ORDER BY p.created_at DESC 
             LIMIT $2 OFFSET $3`,
             [searchQuery, limit, offset]
         )

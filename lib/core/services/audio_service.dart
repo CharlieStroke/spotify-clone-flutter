@@ -1,6 +1,7 @@
 import 'package:just_audio/just_audio.dart';
 import 'package:audio_session/audio_session.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 import '../../features/home/domain/entities/song_entity.dart';
 
 class AudioState {
@@ -129,10 +130,23 @@ class AudioService {
     ));
 
     try {
-      final audioSource = ConcatenatingAudioSource(
-        children: songs.map((song) => AudioSource.uri(Uri.parse(song.audioUrl))).toList(),
+      final playlist = ConcatenatingAudioSource(
+        useLazyPreparation: true,
+        children: songs.map((song) {
+          return AudioSource.uri(
+            Uri.parse(song.audioUrl),
+            tag: MediaItem(
+              id: song.id,
+              album: song.album,
+              title: song.title,
+              artist: song.artistName,
+              artUri: Uri.tryParse(song.coverUrl),
+            ),
+          );
+        }).toList(),
       );
-      await _player.setAudioSource(audioSource, initialIndex: initialIndex);
+      
+      await _player.setAudioSource(playlist, initialIndex: initialIndex, initialPosition: Duration.zero);
       await _player.play();
     } catch (e) {
       // Handle error accordingly, maybe emit failure state

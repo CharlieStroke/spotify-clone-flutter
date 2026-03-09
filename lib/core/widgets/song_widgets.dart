@@ -58,7 +58,7 @@ class SongListTile extends StatelessWidget {
         overflow: TextOverflow.ellipsis,
       ),
       subtitle: Text(
-        song.album.isNotEmpty ? song.album : 'Desconocido',
+        song.artistName.isNotEmpty ? song.artistName : (song.album.isNotEmpty ? song.album : 'Desconocido'),
         style: const TextStyle(color: Colors.white70, fontSize: 12),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
@@ -175,7 +175,7 @@ class SongListTileWithHeart extends StatelessWidget {
       title: Text(song.title,
           style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
           maxLines: 1, overflow: TextOverflow.ellipsis),
-      subtitle: Text(song.album.isNotEmpty ? song.album : 'Desconocido',
+      subtitle: Text(song.artistName.isNotEmpty ? song.artistName : (song.album.isNotEmpty ? song.album : 'Desconocido'),
           style: const TextStyle(color: Colors.white70, fontSize: 12),
           maxLines: 1, overflow: TextOverflow.ellipsis),
       trailing: Row(
@@ -273,13 +273,19 @@ class PlaylistCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 6),
-          Text(subtitle,
-            style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
-            maxLines: 1, overflow: TextOverflow.ellipsis),
+          Text(
+            title,
+            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
           const SizedBox(height: 2),
-          Text(title,
-            style: const TextStyle(color: Colors.white70, fontSize: 12),
-            maxLines: 1, overflow: TextOverflow.ellipsis),
+          Text(
+            subtitle,
+            style: const TextStyle(color: Colors.white54, fontSize: 11),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
         ],
       ),
     );

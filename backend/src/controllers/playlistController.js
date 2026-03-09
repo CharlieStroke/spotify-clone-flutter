@@ -36,9 +36,11 @@ const getUserPlaylists = asyncHandler(async (req, res) => {
 
 
     const playlists = await pool.query(
-        `SELECT playlist_id, name, description, user_id 
-        FROM playlists WHERE user_id = $1 
-        ORDER BY created_at DESC`,
+        `SELECT p.playlist_id, p.name, p.description, p.user_id, u.username as creator_name
+        FROM playlists p
+        JOIN users u ON p.user_id = u.user_id
+        WHERE p.user_id = $1 
+        ORDER BY p.created_at DESC`,
         [userId]
     );
 
