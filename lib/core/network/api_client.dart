@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../constants/api_constants.dart';
+import '../routes/app_routes.dart';
 
 class ApiClient {
   final Dio _dio;
@@ -27,6 +28,19 @@ class ApiClient {
           options.headers['Authorization'] = 'Bearer $token';
         }
         return handler.next(options);
+      },
+      onError: (DioException e, handler) async {
+        if (e.response?.statusCode == 401) {
+          // Token expirado o inválido
+          await _prefs.remove('token'); // Limpiar token
+          
+          // Redirigir al Login elegantemente
+          AppRoutes.navigatorKey.currentState?.pushNamedAndRemoveUntil(
+            AppRoutes.initial, 
+            (route) => false,
+          );
+        }
+        return handler.next(e);
       },
     ));
   }

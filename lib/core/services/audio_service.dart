@@ -130,23 +130,20 @@ class AudioService {
     ));
 
     try {
-      final playlist = ConcatenatingAudioSource(
-        useLazyPreparation: true,
-        children: songs.map((song) {
-          return AudioSource.uri(
-            Uri.parse(song.audioUrl),
-            tag: MediaItem(
-              id: song.id,
-              album: song.album,
-              title: song.title,
-              artist: song.artistName,
-              artUri: Uri.tryParse(song.coverUrl),
-            ),
-          );
-        }).toList(),
-      );
+      final sources = songs.map((song) {
+        return AudioSource.uri(
+          Uri.parse(song.audioUrl),
+          tag: MediaItem(
+            id: song.id,
+            album: song.album,
+            title: song.title,
+            artist: song.artistName,
+            artUri: Uri.tryParse(song.coverUrl),
+          ),
+        );
+      }).toList();
       
-      await _player.setAudioSource(playlist, initialIndex: initialIndex, initialPosition: Duration.zero);
+      await _player.setAudioSources(sources, initialIndex: initialIndex, initialPosition: Duration.zero);
       await _player.play();
     } catch (e) {
       // Handle error accordingly, maybe emit failure state

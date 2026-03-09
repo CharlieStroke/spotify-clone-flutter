@@ -58,6 +58,7 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (_) => di.sl<FavoritesBloc>()), // evento se dispara en MainPage.initState
       ],
       child: MaterialApp(
+        navigatorKey: AppRoutes.navigatorKey, // Permite navegación sin context
         debugShowCheckedModeBanner: false,
         theme: AppTheme.darkTheme,
         initialRoute: initialRoute, // Usamos la ruta decidida

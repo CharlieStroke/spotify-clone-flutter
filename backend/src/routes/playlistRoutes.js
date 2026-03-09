@@ -1,11 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const verifyToken = require('../middleware/authMiddleware');
+const upload = require('../middleware/uploadMiddleware');
 const { createPlaylist, getUserPlaylists, addSongToPlaylist, deletePlaylist, deletesongFromPlaylist, getPlaylistSongs } = require('../controllers/playlistController');
 
 router.use(verifyToken);
 
-router.post('/create', createPlaylist);
+router.post('/create', upload.single('cover_image'), createPlaylist);
 
 router.get('/', getUserPlaylists);
 

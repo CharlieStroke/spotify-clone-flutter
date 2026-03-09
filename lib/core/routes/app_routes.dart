@@ -5,6 +5,9 @@ import '../../features/auth/presentation/pages/login_or_register.dart';
 import '../../features/main_navigation/presentation/pages/main_page.dart';
 
 class AppRoutes {
+  // Clave global para navegar sin context (usada por Interceptores)
+  static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
   // Nombres de las rutas como constantes para evitar errores de tipeo
   static const String initial = '/';
   static const String signup = '/signup';

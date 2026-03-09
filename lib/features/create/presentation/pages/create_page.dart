@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../../../injection_container.dart';
 import '../bloc/create_playlist_bloc.dart';
 import '../bloc/create_playlist_event.dart';
@@ -30,10 +32,24 @@ class CreatePlaylistView extends StatefulWidget {
 }
 
 class _CreatePlaylistViewState extends State<CreatePlaylistView> {
+  File? _selectedImage;
+
+  Future<void> _pickImage(StateSetter setStateDialog) async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+    
+    if (image != null) {
+      setStateDialog(() {
+        _selectedImage = File(image.path);
+      });
+    }
+  }
+
   void _showCreateDialog(BuildContext context) {
     final nameController = TextEditingController();
     final descController = TextEditingController();
     final bloc = context.read<CreatePlaylistBloc>();
+    _selectedImage = null; // Reset al abrir
 
     showModalBottomSheet(
       context: context,
@@ -43,71 +59,110 @@ class _CreatePlaylistViewState extends State<CreatePlaylistView> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (BuildContext bottomSheetContext) {
-        return Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(bottomSheetContext).viewInsets.bottom,
-            left: 20,
-            right: 20,
-            top: 20,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Nombra tu playlist',
-                style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+        return StatefulBuilder(
+          builder: (context, setStateDialog) {
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(bottomSheetContext).viewInsets.bottom,
+                left: 20,
+                right: 20,
+                top: 20,
               ),
-              const SizedBox(height: 15),
-              TextField(
-                controller: nameController,
-                autofocus: true,
-                style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
-                decoration: const InputDecoration(
-                  hintText: 'Ej. Canciones tristes para llorar',
-                  hintStyle: TextStyle(color: Colors.grey, fontSize: 18),
-                  border: InputBorder.none,
-                ),
-              ),
-              const Divider(color: Colors.grey),
-              TextField(
-                controller: descController,
-                style: const TextStyle(color: Colors.white70),
-                decoration: const InputDecoration(
-                  hintText: 'Agrega una descripción opcional...',
-                  hintStyle: TextStyle(color: Colors.grey),
-                  border: InputBorder.none,
-                ),
-              ),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center, // Centrado para la imagen
                 children: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(bottomSheetContext),
-                    child: const Text('Cancelar', style: TextStyle(color: Colors.white)),
+                  const Text(
+                    'Nombra tu playlist',
+                    style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                   ),
-                  const SizedBox(width: 10),
-                  ElevatedButton(
-                    onPressed: () {
-                      final name = nameController.text.trim();
-                      if (name.isNotEmpty) {
-                        bloc.add(SubmitPlaylistEvent(name: name, description: descController.text.trim()));
-                        Navigator.pop(bottomSheetContext);
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: Colors.black,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  const SizedBox(height: 20),
+                  
+                  // Selector de Imagen de Portada
+                  GestureDetector(
+                    onTap: () => _pickImage(setStateDialog),
+                    child: Container(
+                      width: 150,
+                      height: 150,
+                      decoration: BoxDecoration(
+                        color: Colors.white10,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.white24),
+                        image: _selectedImage != null 
+                          ? DecorationImage(image: FileImage(_selectedImage!), fit: BoxFit.cover)
+                          : null,
+                      ),
+                      child: _selectedImage == null 
+                        ? const Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.add_a_photo, color: Colors.white54, size: 40),
+                              SizedBox(height: 8),
+                              Text('Elegir portada', style: TextStyle(color: Colors.white54, fontSize: 12)),
+                            ],
+                          )
+                        : null,
                     ),
-                    child: const Text('Crear', style: TextStyle(fontWeight: FontWeight.bold)),
                   ),
+                  
+                  const SizedBox(height: 20),
+                  TextField(
+                    controller: nameController,
+                    autofocus: true,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+                    decoration: const InputDecoration(
+                      hintText: 'Nombre de la playlist',
+                      hintStyle: TextStyle(color: Colors.grey, fontSize: 18),
+                      border: InputBorder.none,
+                    ),
+                  ),
+                  const Divider(color: Colors.grey),
+                  TextField(
+                    controller: descController,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(color: Colors.white70),
+                    decoration: const InputDecoration(
+                      hintText: 'Descripción (opcional)',
+                      hintStyle: TextStyle(color: Colors.grey),
+                      border: InputBorder.none,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(bottomSheetContext),
+                        child: const Text('Cancelar', style: TextStyle(color: Colors.white)),
+                      ),
+                      const SizedBox(width: 10),
+                      ElevatedButton(
+                        onPressed: () {
+                          final name = nameController.text.trim();
+                          if (name.isNotEmpty) {
+                            bloc.add(SubmitPlaylistEvent(
+                              name: name, 
+                              description: descController.text.trim(),
+                              image: _selectedImage,
+                            ));
+                            Navigator.pop(bottomSheetContext);
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: Colors.black,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        ),
+                        child: const Text('Crear', style: TextStyle(fontWeight: FontWeight.bold)),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
                 ],
               ),
-              const SizedBox(height: 20),
-            ],
-          ),
+            );
+          }
         );
       },
     );
@@ -135,7 +190,7 @@ class _CreatePlaylistViewState extends State<CreatePlaylistView> {
                 id: state.playlist.id.toString(),
                 title: state.playlist.name,
                 type: 'playlist',
-                coverUrl: null,
+                coverUrl: state.playlist.coverUrl,
                 ownerId: state.playlist.userId,
               ),
             ),

@@ -54,6 +54,7 @@ class HomePage extends StatelessWidget {
                               final playlist = playlists[index];
                               return HomePlaylistChip(
                                 name: playlist.name,
+                                coverUrl: playlist.coverUrl,
                                 onTap: () => Navigator.push(
                                   context,
                                   MaterialPageRoute(
@@ -61,7 +62,7 @@ class HomePage extends StatelessWidget {
                                       id: playlist.id.toString(),
                                       title: playlist.name,
                                       type: 'playlist',
-                                      coverUrl: null,
+                                      coverUrl: playlist.coverUrl,
                                       ownerId: playlist.userId,
                                     ),
                                   ),
@@ -131,7 +132,7 @@ class HomePage extends StatelessWidget {
                                 return AlbumCard(
                                   title: isAlbum ? item.title : item.name,
                                   artistName: isAlbum ? item.artistName : 'Playlist',
-                                  coverUrl: isAlbum ? item.coverUrl : null,
+                                  coverUrl: isAlbum ? item.coverUrl : item.coverUrl,
                                   width: 130,
                                   imageSize: 130,
                                   onTap: () => Navigator.push(
@@ -141,7 +142,7 @@ class HomePage extends StatelessWidget {
                                         id: item.id.toString(),
                                         title: isAlbum ? item.title : item.name,
                                         type: isAlbum ? 'album' : 'playlist',
-                                        coverUrl: isAlbum ? item.coverUrl : null,
+                                        coverUrl: isAlbum ? item.coverUrl : item.coverUrl,
                                         ownerId: isAlbum ? null : item.userId,
                                       ),
                                     ),

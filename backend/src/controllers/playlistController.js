@@ -1,6 +1,7 @@
 const pool = require('../config/db');
 const asyncHandler = require('../utils/asyncHandler');
 const { createPlaylistSchema } = require('../validators/playlistValidator');
+const supabaseStorage = require('../services/supabaseStorageService');
 
 // =============================
 // CREATE PLAYLIST
@@ -14,12 +15,28 @@ const createPlaylist = asyncHandler(async (req, res) => {
 
     const { name, description } = req.body;
     const userId = req.user.userId;
+    let coverUrl = null;
+
+    // Subir imagen a Supabase si existe
+    if (req.file) {
+        try {
+            const uploadResult = await supabaseStorage.uploadFile(req.file, 'playlists/covers');
+            coverUrl = uploadResult.publicUrl;
+        } catch (uploadError) {
+            console.error('Error al subir la portada de la playlist:', uploadError);
+            // Podríamos continuar sin imagen o lanzar error. 
+            // Para playlists, suele ser mejor lanzar error si el usuario intentó subir una.
+            const err = new Error('Error al subir la portada');
+            err.statusCode = 500;
+            throw err;
+        }
+    }
 
     const newPlaylist = await pool.query(
-        `INSERT INTO playlists (name, description, user_id) 
-        VALUES ($1, $2, $3) 
+        `INSERT INTO playlists (name, description, user_id, cover_url) 
+        VALUES ($1, $2, $3, $4) 
         RETURNING *`,
-        [name, description, userId]
+        [name, description, userId, coverUrl]
     );
 
     res.status(201).json({
@@ -36,7 +53,7 @@ const getUserPlaylists = asyncHandler(async (req, res) => {
 
 
     const playlists = await pool.query(
-        `SELECT p.playlist_id, p.name, p.description, p.user_id, u.username as creator_name
+        `SELECT p.playlist_id, p.name, p.description, p.user_id, p.cover_url, u.username as creator_name
         FROM playlists p
         JOIN users u ON p.user_id = u.user_id
         WHERE p.user_id = $1 

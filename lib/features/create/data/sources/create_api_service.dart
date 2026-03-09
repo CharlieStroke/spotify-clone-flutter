@@ -1,9 +1,10 @@
+import 'dart:io';
 import 'package:dio/dio.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../home/data/models/playlist_model.dart'; // Reutilizaremos este modelo para la respuesta
 
 abstract class CreateApiService {
-  Future<PlaylistModel> createPlaylist(String name, String description);
+  Future<PlaylistModel> createPlaylist(String name, String description, File? image);
 }
 
 class CreateApiServiceImpl implements CreateApiService {
@@ -12,14 +13,32 @@ class CreateApiServiceImpl implements CreateApiService {
   CreateApiServiceImpl(this._apiClient);
 
   @override
-  Future<PlaylistModel> createPlaylist(String name, String description) async {
+  Future<PlaylistModel> createPlaylist(String name, String description, File? image) async {
     try {
-      final response = await _apiClient.dio.post(
-        '/playlists/create',
-        data: {
+      dynamic data;
+      
+      if (image != null) {
+        data = FormData.fromMap({
           'name': name,
           'description': description,
-        },
+          'cover_image': await MultipartFile.fromFile(
+            image.path,
+            filename: image.path.split('/').last,
+          ),
+        });
+      } else {
+        data = {
+          'name': name,
+          'description': description,
+        };
+      }
+
+      final response = await _apiClient.dio.post(
+        '/playlists/create',
+        data: data,
+        options: Options(
+          headers: image != null ? {'Content-Type': 'multipart/form-data'} : null,
+        ),
       );
 
       if (response.data != null && response.data['success'] == true) {

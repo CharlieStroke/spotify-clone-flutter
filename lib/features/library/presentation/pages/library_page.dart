@@ -111,6 +111,7 @@ class _LibraryViewState extends State<LibraryView> {
           return PlaylistCard(
             title: playlist.name,
             subtitle: 'Playlist',
+            coverUrl: playlist.coverUrl,
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(
@@ -118,7 +119,7 @@ class _LibraryViewState extends State<LibraryView> {
                   id: playlist.id.toString(),
                   title: playlist.name,
                   type: 'playlist',
-                  coverUrl: null,
+                  coverUrl: playlist.coverUrl,
                   ownerId: playlist.userId,
                 ),
               ),
