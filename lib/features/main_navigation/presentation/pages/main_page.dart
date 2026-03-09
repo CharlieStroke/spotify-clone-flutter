@@ -10,6 +10,8 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../profile/presentation/bloc/profile_bloc.dart';
 import '../../../profile/presentation/bloc/profile_event.dart';
 import '../../../../features/player/presentation/widgets/mini_player.dart';
+import '../../../../features/favorites/presentation/bloc/favorites_bloc.dart';
+import '../../../../features/favorites/presentation/bloc/favorites_event.dart';
 
 class MainPage extends StatefulWidget {
     const MainPage({super.key});
@@ -30,9 +32,9 @@ class _MainPageState extends State<MainPage> {
     @override
     void initState() {
         super.initState();
-        // Disparamos la carga del perfil aquí, una vez que el usuario ya ha aterrizado
-        // en una pantalla que requiere estar autenticado.
+        // Dispara carga de perfil Y favoritos ya que aquí el usuario ya está autenticado
         context.read<ProfileBloc>().add(LoadProfileEvent());
+        context.read<FavoritesBloc>().add(LoadFavoritesEvent());
     }
 
     @override
