@@ -3,11 +3,17 @@ const multer = require('multer');
 const allowedAudioTypes = [
     'audio/mpeg',
     'audio/mp3',
+    'audio/mp4',
     'audio/wave',
     'audio/wav',
     'audio/x-wav',
     'audio/x-pn-wav',
-    'audio/webm'
+    'audio/webm',
+    'audio/ogg',
+    'audio/aac',
+    'audio/x-m4a',
+    'video/mp4', // Android sometimes sends mp3 as video/mp4
+    'application/octet-stream' // Generic binary, allow and let the backend handle it
 ];
 
 const allowedImageTypes = [

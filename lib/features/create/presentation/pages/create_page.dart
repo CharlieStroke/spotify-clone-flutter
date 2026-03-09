@@ -465,9 +465,16 @@ class _CreatePlaylistViewState extends State<CreatePlaylistView> {
               context.read<ArtistBloc>().add(CheckArtistStatusEvent());
             } else if (state is CreateAlbumSuccess) {
               ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Álbum "${state.album.title}" creado'), backgroundColor: AppColors.primary));
-              context.read<ArtistBloc>().add(LoadArtistAlbumsEvent()); // Recargar álbumes
+              context.read<ArtistBloc>().add(LoadArtistAlbumsEvent());
             } else if (state is UploadSongSuccess) {
               ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Canción "${state.song.title}" subida'), backgroundColor: AppColors.primary));
+              context.read<ArtistBloc>().add(LoadArtistAlbumsEvent()); // recargar para mantener estado artista
+            } else if (state is UploadSongFailure) {
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error al subir: ${state.message}'), backgroundColor: Colors.red));
+              context.read<ArtistBloc>().add(LoadArtistAlbumsEvent()); // volver a estado artista
+            } else if (state is CreateAlbumFailure) {
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: ${state.message}'), backgroundColor: Colors.red));
+              context.read<ArtistBloc>().add(CheckArtistStatusEvent()); // volver a estado artista
             } else if (state is ArtistFailure) {
               ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.message), backgroundColor: Colors.red));
             }

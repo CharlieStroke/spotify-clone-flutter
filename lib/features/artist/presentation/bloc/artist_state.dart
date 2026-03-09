@@ -63,3 +63,20 @@ class UploadSongSuccess extends ArtistState {
   @override
   List<Object?> get props => [song];
 }
+
+// Estados de error específicos — NO resetean el estado de artista en la UI
+class UploadSongFailure extends ArtistState {
+  final String message;
+  const UploadSongFailure(this.message);
+
+  @override
+  List<Object?> get props => [message];
+}
+
+class CreateAlbumFailure extends ArtistState {
+  final String message;
+  const CreateAlbumFailure(this.message);
+
+  @override
+  List<Object?> get props => [message];
+}
