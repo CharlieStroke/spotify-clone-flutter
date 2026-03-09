@@ -6,8 +6,12 @@ const { uploadFile } = require('../services/supabaseStorageService');
 const createSong = asyncHandler(async (req, res) => {
 
     const { title, album_id, duration } = req.body;
-    const audio = req.files?.audio?.[0]; // Assuming the song is uploaded using multer and available in req.files.audio
-    const cover = req.files?.cover?.[0]; // Assuming the cover is uploaded using multer and available in req.files.cover
+    const audio = req.files?.audio?.[0];
+    const cover = req.files?.cover?.[0];
+
+    console.log('[CreateSong] Body:', { title, album_id, duration });
+    console.log('[CreateSong] Files:', { audio: audio?.mimetype, cover: cover?.mimetype });
+    console.log('[CreateSong] Artist:', req.artist);
 
     if (!audio) {
         const err = new Error('Archivo de canción es requerido');

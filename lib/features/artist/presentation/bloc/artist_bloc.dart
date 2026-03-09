@@ -52,7 +52,7 @@ class ArtistBloc extends Bloc<ArtistEvent, ArtistState> {
       cover: event.cover,
     );
     result.fold(
-      (error) => emit(ArtistFailure(error)),
+      (error) => emit(CreateAlbumFailure(error)),
       (album) => emit(CreateAlbumSuccess(album)),
     );
   }
@@ -67,7 +67,7 @@ class ArtistBloc extends Bloc<ArtistEvent, ArtistState> {
       duration: event.duration,
     );
     result.fold(
-      (error) => emit(ArtistFailure(error)),
+      (error) => emit(UploadSongFailure(error)),
       (song) => emit(UploadSongSuccess(song)),
     );
   }
