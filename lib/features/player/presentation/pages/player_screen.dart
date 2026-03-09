@@ -4,9 +4,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../bloc/player_cubit.dart';
 import '../bloc/player_state.dart';
 import 'package:just_audio/just_audio.dart' hide PlayerState;
-import '../../../../features/favorites/presentation/bloc/favorites_bloc.dart';
-import '../../../../features/favorites/presentation/bloc/favorites_event.dart';
-import '../../../../features/favorites/presentation/bloc/favorites_state.dart';
+import '../../../../core/widgets/heart_button.dart';
 
 class PlayerScreen extends StatelessWidget {
   const PlayerScreen({super.key});
@@ -121,27 +119,8 @@ class PlayerScreen extends StatelessWidget {
                           ],
                         ),
                       ),
-                      // Corazón de Favoritos
-                      BlocBuilder<FavoritesBloc, FavoritesState>(
-                        builder: (context, favState) {
-                          final isFav = favState is FavoritesLoaded && favState.isFavorite(song.id);
-                          return IconButton(
-                            icon: Icon(
-                              isFav ? Icons.favorite : Icons.favorite_border,
-                              color: isFav ? Colors.red : Colors.white70,
-                              size: 28,
-                            ),
-                            onPressed: () {
-                              final favBloc = context.read<FavoritesBloc>();
-                              if (isFav) {
-                                favBloc.add(RemoveFavoriteEvent(song.id));
-                              } else {
-                                favBloc.add(AddFavoriteEvent(song.id));
-                              }
-                            },
-                          );
-                        },
-                      ),
+                      // Corazón de Favoritos (widget reutilizable con animación y optimistic update)
+                      HeartButton(song: song, size: 28),
                     ],
                   ),
                   const SizedBox(height: 16),

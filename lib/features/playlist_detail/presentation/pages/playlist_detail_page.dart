@@ -7,16 +7,16 @@ import '../bloc/detail_bloc.dart';
 import '../bloc/detail_event.dart';
 import '../bloc/detail_state.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../library/presentation/widgets/add_to_playlist_sheet.dart';
 import '../../../library/presentation/widgets/search_song_to_add_sheet.dart';
-import '../../../../features/player/presentation/bloc/player_cubit.dart';
-import '../../../../features/player/presentation/pages/player_screen.dart';
 import '../../../../features/player/presentation/widgets/mini_player.dart';
 import '../../../library/presentation/bloc/library_action_bloc.dart';
 import '../../../library/presentation/bloc/library_action_event.dart';
 import '../../../library/presentation/bloc/library_action_state.dart';
 import '../../../../features/profile/presentation/bloc/profile_bloc.dart';
 import '../../../../features/profile/presentation/bloc/profile_state.dart';
+import '../../../../features/favorites/presentation/bloc/favorites_bloc.dart';
+import '../../../../features/favorites/presentation/bloc/favorites_event.dart';
+import '../../../../core/widgets/song_widgets.dart';
 
 class PlaylistDetailPage extends StatelessWidget {
   final String id;
@@ -251,96 +251,41 @@ class PlaylistDetailView extends StatelessWidget {
                       child: Center(child: Text('Aún no hay canciones.', style: TextStyle(color: Colors.white))),
                     );
                   }
-                  
+                  final isOwner = type == 'playlist' &&
+                      context.read<ProfileBloc>().state is ProfileLoaded &&
+                      (context.read<ProfileBloc>().state as ProfileLoaded).user.userId == ownerId;
+
                   return ListView.builder(
                     padding: EdgeInsets.zero,
                     shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(), // Evitar scroll anidado
+                    physics: const NeverScrollableScrollPhysics(),
                     itemCount: state.songs.length,
                     itemBuilder: (context, index) {
                       final song = state.songs[index];
-                      return ListTile(
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-                        leading: Container(
-                          width: 50,
-                          height: 50,
-                          color: const Color(0xFF6A2C50),
-                          child: song.coverUrl.isNotEmpty
-                              ? Image.network(song.coverUrl, fit: BoxFit.cover)
-                              : const Icon(Icons.photo_outlined, color: Colors.white),
-                        ),
-                        title: Text(
-                          song.title,
-                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                          maxLines: 1, 
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        subtitle: Text(
-                          song.album.isNotEmpty ? song.album : 'Desconocido', // album en vez de artistName
-                          style: const TextStyle(color: Colors.white70),
-                          maxLines: 1, 
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            PopupMenuButton<String>(
-                              icon: const Icon(Icons.more_vert, color: Colors.white),
-                              color: const Color(0xFF282828),
-                              onSelected: (value) {
-                                if (value == 'add') {
-                                  AddToPlaylistSheet.show(context, song);
-                                }
-                              },
-                              itemBuilder: (context) => [
-                                const PopupMenuItem(
-                                  value: 'add',
-                                  child: Text('Añadir a otra playlist', style: TextStyle(color: Colors.white)),
-                                ),
-                              ],
-                            ),
-                            if (type == 'playlist' &&
-                                context.read<ProfileBloc>().state is ProfileLoaded &&
-                                (context.read<ProfileBloc>().state as ProfileLoaded).user.userId == ownerId)
-                              PopupMenuButton<String>(
-                                icon: const Icon(Icons.more_vert, color: Colors.white54),
-                                color: const Color(0xFF282828),
-                                onSelected: (value) {
-                                  if (value == 'remove') {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: SongListTileWithHeart(
+                          song: song,
+                          queue: state.songs,
+                          indexInQueue: index,
+                          playlistName: title,
+                          playlistType: type,
+                          isFavoritesView: type == 'favorites',
+                          onRemoveFromPlaylist: (isOwner || type == 'favorites')
+                              ? () {
+                                  if (type == 'favorites') {
+                                    context.read<FavoritesBloc>().add(RemoveFavoriteEvent(song.id));
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('Eliminado de Mis Favoritos'), backgroundColor: Colors.grey, duration: Duration(seconds: 2)),
+                                    );
+                                  } else {
                                     context.read<LibraryActionBloc>().add(
-                                      RemoveSongEvent(
-                                        playlistId: id,
-                                        songId: song.id.toString()
-                                      )
+                                      RemoveSongEvent(playlistId: id, songId: song.id.toString()),
                                     );
                                   }
-                                },
-                                itemBuilder: (context) => [
-                                  const PopupMenuItem(
-                                    value: 'remove',
-                                    child: Text('Quitar de esta playlist', style: TextStyle(color: Colors.white)),
-                                  ),
-                                ],
-                              ),
-                          ],
+                                }
+                              : null,
                         ),
-                        onTap: () {
-                          // Play full playlist starting from this index
-                          context.read<PlayerCubit>().playPlaylist(
-                            state.songs,
-                            initialIndex: index,
-                            playlistName: title,
-                            playlistType: type,
-                          );
-                          // Abrir el reproductor grande
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const PlayerScreen(),
-                              fullscreenDialog: true,
-                            ),
-                          );
-                        },
                       );
                     },
                   );

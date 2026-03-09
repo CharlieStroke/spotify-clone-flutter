@@ -9,6 +9,8 @@ import '../../../home/presentation/bloc/home_bloc.dart';
 import '../../../home/presentation/bloc/home_event.dart';
 import '../../../home/presentation/bloc/home_state.dart';
 import '../../../playlist_detail/presentation/pages/playlist_detail_page.dart';
+import '../../../home/domain/entities/song_entity.dart';
+import '../../../../core/widgets/song_widgets.dart';
 
 class SearchPage extends StatelessWidget {
   const SearchPage({super.key});
@@ -298,18 +300,18 @@ class _SearchViewState extends State<SearchView> {
       children: [
         if (state.songs.isNotEmpty) _buildSectionTitle('Canciones'),
         if (state.songs.isNotEmpty)
-          ...state.songs.map((song) => ListTile(
-            leading: ClipRRect(
-              borderRadius: BorderRadius.circular(4),
-              child: song.coverUrl.isNotEmpty
-                  ? Image.network(song.coverUrl, width: 50, height: 50, fit: BoxFit.cover,
-                      errorBuilder: (e, s, t) => _iconBox(Icons.music_note))
-                  : _iconBox(Icons.music_note),
-            ),
-            title: Text(song.title, style: const TextStyle(color: Colors.white)),
-            subtitle: Text(song.album.isNotEmpty ? song.album : 'Canción', style: const TextStyle(color: Colors.grey)),
-            onTap: () {},
-          )),
+          ...state.songs.cast<SongEntity>().asMap().entries.map((entry) {
+            final index = entry.key;
+            final song = entry.value;
+            final songs = state.songs.cast<SongEntity>().toList();
+            return SongListTileWithHeart(
+              song: song,
+              queue: songs,
+              indexInQueue: index,
+              playlistName: 'Resultados de búsqueda',
+              playlistType: 'playlist',
+            );
+          }),
 
         if (state.albums.isNotEmpty) _buildSectionTitle('Álbumes'),
         if (state.albums.isNotEmpty)

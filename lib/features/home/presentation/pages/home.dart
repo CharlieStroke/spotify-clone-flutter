@@ -7,6 +7,7 @@ import '../bloc/home_event.dart';
 import '../bloc/home_state.dart';
 import '../../domain/entities/album_entity.dart';
 import '../../../playlist_detail/presentation/pages/playlist_detail_page.dart';
+import '../../../../core/widgets/song_widgets.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -49,7 +50,8 @@ class HomePage extends StatelessWidget {
                               itemCount: playlists.length > 8 ? 8 : playlists.length,
                               itemBuilder: (context, index) {
                                 final playlist = playlists[index];
-                                return GestureDetector(
+                                return HomePlaylistChip(
+                                  name: playlist.name,
                                   onTap: () => Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -60,42 +62,6 @@ class HomePage extends StatelessWidget {
                                         coverUrl: null,
                                         ownerId: playlist.userId,
                                       ),
-                                    ),
-                                  ),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: AppColors.primary,
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        Container(
-                                          width: 50,
-                                          decoration: const BoxDecoration(
-                                            color: Colors.black45,
-                                            borderRadius: BorderRadius.only(
-                                              topLeft: Radius.circular(4),
-                                              bottomLeft: Radius.circular(4),
-                                            ),
-                                          ),
-                                          child: const Center(
-                                            child: Icon(Icons.queue_music, color: Colors.white54),
-                                          ),
-                                        ),
-                                        const SizedBox(width: 10),
-                                        Expanded(
-                                          child: Text(
-                                            playlist.name,
-                                            style: const TextStyle(
-                                              color: Colors.black,
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 12,
-                                            ),
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
-                                      ],
                                     ),
                                   ),
                                 );
@@ -109,11 +75,7 @@ class HomePage extends StatelessWidget {
                           // --- Sección 2: Explora tu música ---
                           const Text(
                             'Explora tu música',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 15),
                           if (albums.isNotEmpty)
@@ -124,7 +86,10 @@ class HomePage extends StatelessWidget {
                                 itemCount: albums.length,
                                 itemBuilder: (context, index) {
                                   final album = albums[index];
-                                  return GestureDetector(
+                                  return AlbumCard(
+                                    title: album.title,
+                                    artistName: album.artistName,
+                                    coverUrl: album.coverUrl,
                                     onTap: () => Navigator.push(
                                       context,
                                       MaterialPageRoute(
@@ -134,57 +99,6 @@ class HomePage extends StatelessWidget {
                                           type: 'album',
                                           coverUrl: album.coverUrl,
                                         ),
-                                      ),
-                                    ),
-                                    child: Container(
-                                      width: 150,
-                                      margin: const EdgeInsets.only(right: 15),
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          ClipRRect(
-                                            borderRadius: BorderRadius.circular(8),
-                                            child: album.coverUrl.isNotEmpty
-                                                ? Image.network(
-                                                    album.coverUrl,
-                                                    width: 150,
-                                                    height: 150,
-                                                    fit: BoxFit.cover,
-                                                    loadingBuilder: (ctx, child, progress) {
-                                                      if (progress == null) return child;
-                                                      return Container(
-                                                        width: 150,
-                                                        height: 150,
-                                                        color: Colors.white10,
-                                                        child: const Center(child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white54)),
-                                                      );
-                                                    },
-                                                    errorBuilder: (ctx, error, stack) {
-                                                      // ignore: avoid_print
-                                                      print('❌ Error cargando imagen: $error\nURL: ${album.coverUrl}');
-                                                      return _albumFallback();
-                                                    },
-                                                  )
-                                                : _albumFallback(),
-                                          ),
-                                          const SizedBox(height: 8),
-                                          const Text(
-                                            'Álbum',
-                                            style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
-                                          ),
-                                          Text(
-                                            album.title,
-                                            style: const TextStyle(color: Colors.white, fontSize: 12),
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                          Text(
-                                            album.artistName,
-                                            style: const TextStyle(color: Colors.white70, fontSize: 12),
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ],
                                       ),
                                     ),
                                   );
@@ -199,11 +113,7 @@ class HomePage extends StatelessWidget {
                           // --- Sección 3: Recientes ---
                           const Text(
                             'Recientes',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 15),
                           if (recientes.isNotEmpty)
@@ -216,7 +126,12 @@ class HomePage extends StatelessWidget {
                                   final dynamic item = recientes[index];
                                   final isAlbum = item is AlbumEntity;
 
-                                  return GestureDetector(
+                                  return AlbumCard(
+                                    title: isAlbum ? item.title : item.name,
+                                    artistName: isAlbum ? item.artistName : 'Playlist',
+                                    coverUrl: isAlbum ? item.coverUrl : null,
+                                    width: 130,
+                                    imageSize: 130,
                                     onTap: () => Navigator.push(
                                       context,
                                       MaterialPageRoute(
@@ -227,38 +142,6 @@ class HomePage extends StatelessWidget {
                                           coverUrl: isAlbum ? item.coverUrl : null,
                                           ownerId: isAlbum ? null : item.userId,
                                         ),
-                                      ),
-                                    ),
-                                    child: Container(
-                                      width: 130,
-                                      margin: const EdgeInsets.only(right: 15),
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          ClipRRect(
-                                            borderRadius: BorderRadius.circular(8),
-                                            child: isAlbum && item.coverUrl.isNotEmpty
-                                                ? Image.network(
-                                                    item.coverUrl,
-                                                    width: 130,
-                                                    height: 130,
-                                                    fit: BoxFit.cover,
-                                                    errorBuilder: (e, s, t) => _playlistFallback(130, 130),
-                                                  )
-                                                : _playlistFallback(130, 130),
-                                          ),
-                                          const SizedBox(height: 8),
-                                          Text(
-                                            isAlbum ? 'Álbum' : 'Playlist',
-                                            style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
-                                          ),
-                                          Text(
-                                            isAlbum ? item.title : item.name,
-                                            style: const TextStyle(color: Colors.white70, fontSize: 12),
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ],
                                       ),
                                     ),
                                   );
@@ -281,24 +164,6 @@ class HomePage extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _albumFallback() {
-    return Container(
-      width: 150,
-      height: 150,
-      color: Colors.deepPurple,
-      child: const Icon(Icons.album, size: 60, color: Colors.white54),
-    );
-  }
-
-  Widget _playlistFallback(double w, double h) {
-    return Container(
-      width: w,
-      height: h,
-      color: const Color(0xFF6A2E44),
-      child: const Icon(Icons.queue_music, size: 50, color: Colors.white54),
     );
   }
 }

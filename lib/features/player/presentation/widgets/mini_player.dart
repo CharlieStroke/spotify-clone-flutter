@@ -4,6 +4,7 @@ import '../bloc/player_cubit.dart';
 import '../bloc/player_state.dart';
 import '../pages/player_screen.dart';
 import 'package:just_audio/just_audio.dart' hide PlayerState;
+import '../../../../core/widgets/heart_button.dart';
 
 class MiniPlayer extends StatelessWidget {
   const MiniPlayer({super.key});
@@ -13,30 +14,28 @@ class MiniPlayer extends StatelessWidget {
     return BlocBuilder<PlayerCubit, PlayerState>(
       builder: (context, state) {
         if (state is! PlayerUpdate || state.audioState.currentSong == null) {
-          return const SizedBox.shrink(); 
+          return const SizedBox.shrink();
         }
 
         final audioState = state.audioState;
         final song = audioState.currentSong!;
-        
-        final double progress = audioState.totalDuration.inMilliseconds > 0 
-            ? audioState.position.inMilliseconds / audioState.totalDuration.inMilliseconds 
+
+        final double progress = audioState.totalDuration.inMilliseconds > 0
+            ? audioState.position.inMilliseconds / audioState.totalDuration.inMilliseconds
             : 0.0;
 
         return GestureDetector(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const PlayerScreen(),
-                fullscreenDialog: true,
-              ),
-            );
-          },
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const PlayerScreen(),
+              fullscreenDialog: true,
+            ),
+          ),
           child: Container(
             margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: const Color(0xFF2C2C2C), // Gris oscuro como en Spotify
+              color: const Color(0xFF2C2C2C),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Column(
@@ -50,13 +49,13 @@ class MiniPlayer extends StatelessWidget {
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(4),
                       color: const Color(0xFF6A2C50),
-                      image: song.coverUrl.isNotEmpty 
-                        ? DecorationImage(image: NetworkImage(song.coverUrl), fit: BoxFit.cover)
-                        : null,
+                      image: song.coverUrl.isNotEmpty
+                          ? DecorationImage(image: NetworkImage(song.coverUrl.trim()), fit: BoxFit.cover)
+                          : null,
                     ),
-                    child: song.coverUrl.isEmpty 
-                      ? const Icon(Icons.music_note, color: Colors.white) 
-                      : null,
+                    child: song.coverUrl.isEmpty
+                        ? const Icon(Icons.music_note, color: Colors.white)
+                        : null,
                   ),
                   title: Text(
                     song.title,
@@ -73,10 +72,9 @@ class MiniPlayer extends StatelessWidget {
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      IconButton(
-                        icon: const Icon(Icons.favorite_border, color: Colors.white),
-                        onPressed: () {},
-                      ),
+                      // ❤️ Heart button reutilizable (con optimistic update)
+                      HeartButton(song: song, size: 22, showSnackBar: false),
+                      // ▶/⏸ Play/Pause
                       IconButton(
                         icon: Icon(
                           audioState.isPlaying ? Icons.pause : Icons.play_arrow,
@@ -96,7 +94,7 @@ class MiniPlayer extends StatelessWidget {
                     ],
                   ),
                 ),
-                // Barra de progreso miniatura interactiva
+                // Barra de progreso miniatura
                 LinearProgressIndicator(
                   value: progress,
                   backgroundColor: Colors.transparent,
