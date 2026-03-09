@@ -9,20 +9,10 @@ import '../../../home/presentation/bloc/home_bloc.dart';
 import '../../../home/presentation/bloc/home_event.dart';
 import '../../../library/presentation/bloc/library_bloc.dart';
 import '../../../library/presentation/bloc/library_event.dart';
-
+import 'edit_profile_page.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
-
-  void _showComingSoonSnackBar(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('La edición de perfil estará disponible próximamente.'),
-        backgroundColor: Colors.purple,
-        duration: Duration(seconds: 2),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,10 +48,15 @@ class ProfilePage extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const CircleAvatar(
+                      CircleAvatar(
                         radius: 50,
                         backgroundColor: Colors.white24,
-                        child: Icon(Icons.person, size: 50, color: Colors.white),
+                        backgroundImage: (state.user.profileImageUrl != null && state.user.profileImageUrl!.isNotEmpty)
+                            ? NetworkImage(state.user.profileImageUrl!)
+                            : null,
+                        child: (state.user.profileImageUrl == null || state.user.profileImageUrl!.isEmpty)
+                            ? const Icon(Icons.person, size: 50, color: Colors.white)
+                            : null,
                       ),
                       const SizedBox(height: 16),
                       Text(
@@ -75,7 +70,14 @@ class ProfilePage extends StatelessWidget {
                       const SizedBox(height: 8),
                       // Editar Nombre
                       OutlinedButton.icon(
-                        onPressed: () => _showComingSoonSnackBar(context),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => EditProfilePage(user: state.user),
+                            ),
+                          );
+                        },
                         icon: const Icon(Icons.edit, size: 16, color: Colors.white70),
                         label: const Text(
                           'Editar nombre',
@@ -111,7 +113,14 @@ class ProfilePage extends StatelessWidget {
                               children: [
                                 const Text('********', style: TextStyle(color: Colors.white, fontSize: 16)),
                                 TextButton(
-                                  onPressed: () => _showComingSoonSnackBar(context),
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => EditProfilePage(user: state.user),
+                                      ),
+                                    );
+                                  },
                                   child: const Text('Editar', style: TextStyle(color: Colors.greenAccent)),
                                 ),
                               ],

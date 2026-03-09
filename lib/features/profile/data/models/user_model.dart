@@ -5,6 +5,7 @@ class UserModel extends UserEntity {
     required super.userId,
     required super.email,
     required super.username,
+    super.profileImageUrl,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -12,6 +13,7 @@ class UserModel extends UserEntity {
       userId: json['user_id'] as int,
       email: json['email'] as String,
       username: json['username'] as String,
+      profileImageUrl: json['profile_image_url'] as String?,
     );
   }
 
@@ -20,6 +22,7 @@ class UserModel extends UserEntity {
       'user_id': userId,
       'email': email,
       'username': username,
+      'profile_image_url': profileImageUrl,
     };
   }
 }

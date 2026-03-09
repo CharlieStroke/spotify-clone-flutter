@@ -23,6 +23,7 @@ import 'features/profile/data/sources/profile_api_service.dart';
 import 'features/profile/domain/repositories/profile_repository.dart';
 import 'features/profile/data/repositories/profile_repository_impl.dart';
 import 'features/profile/domain/usecases/get_user_profile_usecase.dart';
+import 'features/profile/domain/usecases/update_profile_usecase.dart';
 import 'features/profile/presentation/bloc/profile_bloc.dart';
 
 // Create Feature
@@ -115,6 +116,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => GetAlbumsUseCase(sl()));
   sl.registerLazySingleton(() => GetPlaylistsUseCase(sl()));
   sl.registerLazySingleton(() => GetUserProfileUseCase(repository: sl()));
+  sl.registerLazySingleton(() => UpdateProfileUseCase(sl()));
   sl.registerLazySingleton(() => CreatePlaylistUseCase(sl()));
   sl.registerLazySingleton(() => SearchUseCase(sl()));
   sl.registerLazySingleton(() => GetLibraryUseCase(sl()));
@@ -137,7 +139,10 @@ Future<void> init() async {
     getPlaylistsUseCase: sl(),
   ));
   sl.registerFactory(() => MainNavigationCubit());
-  sl.registerFactory(() => ProfileBloc(getUserProfileUseCase: sl()));
+  sl.registerFactory(() => ProfileBloc(
+    getUserProfileUseCase: sl(),
+    updateProfileUseCase: sl(),
+  ));
   sl.registerFactory(() => CreatePlaylistBloc(sl()));
   sl.registerFactory(() => SearchBloc(sl()));
   sl.registerFactory(() => LibraryBloc(sl()));

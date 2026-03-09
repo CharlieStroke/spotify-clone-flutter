@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const asyncHandler = require('../utils/asyncHandler');
 const { registerSchema, loginSchema } = require('../validators/authValidator');
+const supabaseStorage = require('../services/supabaseStorageService');
 
 
 // =============================
@@ -111,7 +112,7 @@ const MyUserInfo = asyncHandler(async (req, res) => {
     const userId = req.user.userId;
 
     const userResult = await pool.query(
-        'SELECT user_id, email, username FROM users WHERE user_id = $1',
+        'SELECT user_id, email, username, profile_image_url FROM users WHERE user_id = $1',
         [userId]
     );
     if (userResult.rows.length === 0) {
@@ -190,11 +191,36 @@ const updateProfile = asyncHandler(async (req, res) => {
         paramIndex++;
     }
 
+    // Actualizar foto de perfil (si viene file en la request gracias a multer)
+    if (req.file) {
+        try {
+            const uploadedUrl = await supabaseStorage.uploadFile(
+                req.file,
+                'media-content',
+                `users/avatars`
+            );
+
+            updateFields.push(`profile_image_url = $${paramIndex}`);
+            queryValues.push(uploadedUrl);
+            paramIndex++;
+        } catch (uploadError) {
+            console.error('Error uploading profile image:', uploadError);
+            const err = new Error('Error al subir la imagen de perfil');
+            err.statusCode = 500;
+            throw err;
+        }
+    }
+
     if (updateFields.length === 0) {
         return res.json({
             success: true,
             message: 'Sin cambios',
-            user: { user_id: user.user_id, email: user.email, username: user.username }
+            user: {
+                user_id: user.user_id,
+                email: user.email,
+                username: user.username,
+                profile_image_url: user.profile_image_url
+            }
         });
     }
 
@@ -202,7 +228,7 @@ const updateProfile = asyncHandler(async (req, res) => {
         UPDATE users 
         SET ${updateFields.join(', ')}
         WHERE user_id = $${paramIndex}
-        RETURNING user_id, email, username
+        RETURNING user_id, email, username, profile_image_url
     `;
     queryValues.push(userId);
 

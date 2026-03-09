@@ -17,4 +17,23 @@ class ProfileRepositoryImpl implements ProfileRepository {
       return Left(e.toString());
     }
   }
+  @override
+  Future<Either<String, UserEntity>> updateProfile({
+    String? username,
+    String? oldPassword,
+    String? newPassword,
+    String? imagePath,
+  }) async {
+    try {
+      final user = await profileApiService.updateProfile(
+        username: username,
+        oldPassword: oldPassword,
+        newPassword: newPassword,
+        imagePath: imagePath,
+      );
+      return Right(user);
+    } catch (e) {
+      return Left(e.toString());
+    }
+  }
 }

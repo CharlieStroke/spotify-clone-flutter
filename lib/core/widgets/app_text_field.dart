@@ -9,7 +9,8 @@ class AppTextField extends StatelessWidget {
   final TextInputType keyboardType;
   final TextInputAction textInputAction;
   final void Function(String)? onSubmitted;
-  final Widget? prefixIcon;
+  final IconData? prefixIcon;
+  final bool enabled;
 
   const AppTextField({
     super.key,
@@ -21,6 +22,7 @@ class AppTextField extends StatelessWidget {
     this.textInputAction = TextInputAction.next,
     this.onSubmitted,
     this.prefixIcon,
+    this.enabled = true,
   });
 
   @override
@@ -45,12 +47,13 @@ class AppTextField extends StatelessWidget {
             keyboardType: keyboardType,
             textInputAction: textInputAction,
             onSubmitted: onSubmitted,
+            enabled: enabled,
             style: const TextStyle(color: Colors.white),
             decoration: InputDecoration(
               hintText: hintText,
               hintStyle: const TextStyle(color: Colors.white54, fontSize: 14),
               contentPadding: const EdgeInsets.symmetric(horizontal: 20),
-              prefixIcon: prefixIcon,
+              prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(30),
                 borderSide: const BorderSide(color: AppColors.primary),
