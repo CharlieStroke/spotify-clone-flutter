@@ -26,6 +26,7 @@ abstract class ArtistApiService {
     required int albumId,
     required File audio,
     required File cover,
+    int? duration,
   });
 }
 
@@ -59,9 +60,9 @@ class ArtistApiServiceImpl implements ArtistApiService {
     final formData = FormData.fromMap({
       'stage_name': stageName,
       'bio': bio,
-      'image': await MultipartFile.fromFile(
-        image.path,
-        filename: image.path.split('/').last,
+      'image': MultipartFile.fromBytes(
+        await image.readAsBytes(),
+        filename: image.path.split(RegExp(r'[\\/]')).last,
       ),
     });
 
@@ -94,9 +95,9 @@ class ArtistApiServiceImpl implements ArtistApiService {
   }) async {
     final formData = FormData.fromMap({
       'title': title,
-      'cover': await MultipartFile.fromFile(
-        cover.path,
-        filename: cover.path.split('/').last,
+      'cover': MultipartFile.fromBytes(
+        await cover.readAsBytes(),
+        filename: cover.path.split(RegExp(r'[\\/]')).last,
       ),
     });
 
@@ -118,17 +119,19 @@ class ArtistApiServiceImpl implements ArtistApiService {
     required int albumId,
     required File audio,
     required File cover,
+    int? duration,
   }) async {
     final formData = FormData.fromMap({
       'title': title,
-      'albumId': albumId,
-      'audio': await MultipartFile.fromFile(
-        audio.path,
-        filename: audio.path.split('/').last,
+      'album_id': albumId,
+      if (duration != null) ...{'duration': duration},
+      'audio': MultipartFile.fromBytes(
+        await audio.readAsBytes(),
+        filename: audio.path.split(RegExp(r'[\\/]')).last,
       ),
-      'cover': await MultipartFile.fromFile(
-        cover.path,
-        filename: cover.path.split('/').last,
+      'cover': MultipartFile.fromBytes(
+        await cover.readAsBytes(),
+        filename: cover.path.split(RegExp(r'[\\/]')).last,
       ),
     });
 
@@ -138,8 +141,6 @@ class ArtistApiServiceImpl implements ArtistApiService {
     );
 
     if (response.data != null && response.data['success'] == true) {
-      // El backend devuelve { success, message, song }
-      // El modelo SongModel.fromJson espera el objeto canción
       return SongModel.fromJson(response.data['song'] ?? {});
     } else {
       throw Exception(response.data['message'] ?? 'Error al subir canción');

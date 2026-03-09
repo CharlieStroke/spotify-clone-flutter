@@ -25,5 +25,6 @@ abstract class ArtistRepository {
     required int albumId,
     required File audio,
     required File cover,
+    int? duration,
   });
 }

@@ -9,8 +9,9 @@ class AlbumModel extends AlbumEntity {
   });
 
   factory AlbumModel.fromJson(Map<String, dynamic> json) {
+    final rawId = json['album_id'];
     return AlbumModel(
-      id: json['album_id'] ?? 0,
+      id: rawId is int ? rawId : int.tryParse(rawId.toString()) ?? 0,
       title: json['title'] ?? '',
       coverUrl: (json['cover_url'] ?? '').toString().trim(),
       artistName: json['artist_name'] ?? 'Artista desconocido',

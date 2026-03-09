@@ -1,16 +1,19 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../domain/usecases/get_user_profile_usecase.dart';
 import '../../domain/usecases/update_profile_usecase.dart';
+import '../../../artist/domain/repository/artist_repository.dart';
 import 'profile_event.dart';
 import 'profile_state.dart';
 
 class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   final GetUserProfileUseCase getUserProfileUseCase;
   final UpdateProfileUseCase updateProfileUseCase;
+  final ArtistRepository artistRepository;
 
   ProfileBloc({
     required this.getUserProfileUseCase,
     required this.updateProfileUseCase,
+    required this.artistRepository,
   }) : super(ProfileInitial()) {
     on<LoadProfileEvent>(_onLoadProfile);
     on<UpdateProfileEvent>(_onUpdateProfile);
@@ -24,9 +27,13 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
 
     final failureOrUser = await getUserProfileUseCase();
 
-    failureOrUser.fold(
-      (failureMessage) => emit(ProfileError(message: failureMessage)),
-      (user) => emit(ProfileLoaded(user: user)),
+    await failureOrUser.fold(
+      (failureMessage) async => emit(ProfileError(message: failureMessage)),
+      (user) async {
+        final artistResult = await artistRepository.getMyArtistProfile();
+        final artist = artistResult.fold((_) => null, (a) => a);
+        emit(ProfileLoaded(user: user, artist: artist));
+      },
     );
   }
 

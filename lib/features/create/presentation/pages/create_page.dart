@@ -22,11 +22,8 @@ class CreatePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(create: (_) => sl<CreatePlaylistBloc>()),
-        BlocProvider(create: (_) => sl<ArtistBloc>()..add(CheckArtistStatusEvent())),
-      ],
+    return BlocProvider(
+      create: (_) => sl<CreatePlaylistBloc>(),
       child: const CreatePlaylistView(),
     );
   }
@@ -41,6 +38,18 @@ class CreatePlaylistView extends StatefulWidget {
 
 class _CreatePlaylistViewState extends State<CreatePlaylistView> {
   File? _selectedImage;
+
+  @override
+  void initState() {
+    super.initState();
+    // Disparar verificación de artista cuando la pantalla ya está montada
+    // (el usuario está autenticado en este punto)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.read<ArtistBloc>().add(CheckArtistStatusEvent());
+      }
+    });
+  }
 
   Future<void> _pickImage(StateSetter setStateDialog) async {
     final ImagePicker picker = ImagePicker();
@@ -305,6 +314,7 @@ class _CreatePlaylistViewState extends State<CreatePlaylistView> {
 
   void _showUploadSongDialog(BuildContext context) {
     final titleController = TextEditingController();
+    final durationController = TextEditingController();
     final bloc = context.read<ArtistBloc>();
     _selectedImage = null;
     File? selectedAudio;
@@ -348,6 +358,16 @@ class _CreatePlaylistViewState extends State<CreatePlaylistView> {
                   style: const TextStyle(color: Colors.white),
                   decoration: const InputDecoration(hintText: 'Título de la canción', hintStyle: TextStyle(color: Colors.grey)),
                 ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: durationController,
+                  style: const TextStyle(color: Colors.white),
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    hintText: 'Duración en segundos (ej: 210)',
+                    hintStyle: TextStyle(color: Colors.grey),
+                  ),
+                ),
                 const SizedBox(height: 20),
                 
                 // Selector de Álbum
@@ -382,21 +402,27 @@ class _CreatePlaylistViewState extends State<CreatePlaylistView> {
                     }
                   },
                   icon: const Icon(Icons.audio_file),
-                  label: Text(selectedAudio == null ? 'Seleccionar Audio' : 'Audio: ${selectedAudio!.path.split('/').last}'),
+                  label: Text(selectedAudio == null ? 'Seleccionar Audio' : 'Audio: ${selectedAudio!.path.split(RegExp(r"[\\/]")).last}'),
                   style: ElevatedButton.styleFrom(backgroundColor: Colors.white12, foregroundColor: Colors.white),
                 ),
 
                 const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () {
-                    if (titleController.text.isNotEmpty && selectedAudio != null && _selectedImage != null && selectedAlbumId != null) {
+                    final dur = int.tryParse(durationController.text.trim());
+                    if (titleController.text.isNotEmpty && selectedAudio != null && _selectedImage != null && selectedAlbumId != null && dur != null && dur > 0) {
                       bloc.add(UploadSongEvent(
                         title: titleController.text.trim(),
                         albumId: selectedAlbumId!,
                         audio: selectedAudio!,
                         cover: _selectedImage!,
+                        duration: dur,
                       ));
                       Navigator.pop(context);
+                    } else if (dur == null || dur <= 0) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Ingresa una duración válida en segundos'), backgroundColor: Colors.orange),
+                      );
                     }
                   },
                   style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: Colors.black),
@@ -459,7 +485,10 @@ class _CreatePlaylistViewState extends State<CreatePlaylistView> {
             bool isArtist = false;
             if (artistState is ArtistStatusLoaded) {
               isArtist = artistState.isArtist;
-            } else if (artistState is ArtistRegistrationSuccess) {
+            } else if (artistState is ArtistRegistrationSuccess ||
+                       artistState is ArtistAlbumsLoaded ||
+                       artistState is CreateAlbumSuccess ||
+                       artistState is UploadSongSuccess) {
               isArtist = true;
             }
 
