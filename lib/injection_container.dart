@@ -33,6 +33,12 @@ import 'features/create/data/repository/create_repository_impl.dart';
 import 'features/create/domain/usecases/create_playlist_usecase.dart';
 import 'features/create/presentation/bloc/create_playlist_bloc.dart';
 
+// Artist Feature
+import 'features/artist/data/sources/artist_api_service.dart';
+import 'features/artist/domain/repository/artist_repository.dart';
+import 'features/artist/data/repository/artist_repository_impl.dart';
+import 'features/artist/presentation/bloc/artist_bloc.dart';
+
 // Search Feature
 import 'features/search/data/sources/search_api_service.dart';
 import 'features/search/domain/repository/search_repository.dart';
@@ -94,6 +100,7 @@ Future<void> init() async {
   sl.registerLazySingleton<LibraryApiService>(() => LibraryApiServiceImpl(sl()));
   sl.registerLazySingleton<PlaylistDetailApiService>(() => PlaylistDetailApiServiceImpl(sl()));
   sl.registerLazySingleton<FavoritesApiService>(() => FavoritesApiServiceImpl(sl()));
+  sl.registerLazySingleton<ArtistApiService>(() => ArtistApiServiceImpl(sl()));
 
   // --- Repositories ---
   sl.registerLazySingleton<AuthRepository>(
@@ -108,6 +115,7 @@ Future<void> init() async {
   sl.registerLazySingleton<LibraryRepository>(() => LibraryRepositoryImpl(sl()));
   sl.registerLazySingleton<PlaylistDetailRepository>(() => PlaylistDetailRepositoryImpl(sl()));
   sl.registerLazySingleton<FavoritesRepository>(() => FavoritesRepositoryImpl(sl()));
+  sl.registerLazySingleton<ArtistRepository>(() => ArtistRepositoryImpl(sl()));
 
   // --- Use Cases ---
   sl.registerLazySingleton(() => LoginUseCase(sl()));
@@ -150,4 +158,5 @@ Future<void> init() async {
   sl.registerFactory(() => PlaylistDetailBloc(sl()));
   sl.registerLazySingleton(() => PlayerCubit(sl()));
   sl.registerLazySingleton(() => FavoritesBloc(sl(), sl(), sl()));
+  sl.registerFactory(() => ArtistBloc(sl()));
 }
