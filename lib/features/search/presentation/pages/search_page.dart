@@ -241,7 +241,7 @@ class _SearchViewState extends State<SearchView> {
                           child: const Icon(Icons.queue_music, color: AppColors.primary),
                         ),
                         title: Text(playlist.name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                        subtitle: const Text('Playlist', style: TextStyle(color: Colors.white54, fontSize: 12)),
+                        subtitle: Text('Playlist • ${playlist.creatorName}', style: const TextStyle(color: Colors.white54, fontSize: 12)),
                         onTap: () => Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -344,7 +344,7 @@ class _SearchViewState extends State<SearchView> {
           ...state.playlists.map((playlist) => ListTile(
             leading: _iconBox(Icons.queue_music, color: AppColors.primary),
             title: Text(playlist.name, style: const TextStyle(color: Colors.white)),
-            subtitle: Text(playlist.description ?? 'Playlist', style: const TextStyle(color: Colors.grey)),
+            subtitle: Text('Playlist • ${playlist.creatorName}', style: const TextStyle(color: Colors.grey)),
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(

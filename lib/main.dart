@@ -11,8 +11,17 @@ import 'features/player/presentation/bloc/player_cubit.dart';
 import 'features/library/presentation/bloc/library_bloc.dart';
 import 'features/favorites/presentation/bloc/favorites_bloc.dart';
 
+import 'package:just_audio_background/just_audio_background.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // 0. Inicializar Audio de Fondo (Lock Screen / Notificaciones)
+  await JustAudioBackground.init(
+    androidNotificationChannelId: 'com.ryanheise.bg_demo.channel.audio',
+    androidNotificationChannelName: 'Audio playback',
+    androidNotificationOngoing: true,
+  );
   
   // 1. Inicializamos GetIt (DI)
   await di.init();
