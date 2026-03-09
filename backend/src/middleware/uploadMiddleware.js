@@ -32,7 +32,7 @@ const upload = multer({
 
         }
 
-        if (file.fieldname === 'cover' || file.fieldname === 'image' || file.fieldname === 'profile_image') {
+        if (file.fieldname === 'cover' || file.fieldname === 'image' || file.fieldname === 'profile_image' || file.fieldname === 'cover_image') {
             if (!allowedImageTypes.includes(file.mimetype)) {
                 return cb(new Error('Tipo de imagen no permitido'), false);
             }

@@ -10,7 +10,7 @@ class CreatePlaylistBloc extends Bloc<CreatePlaylistEvent, CreatePlaylistState> 
     on<SubmitPlaylistEvent>((event, emit) async {
       emit(CreatePlaylistLoading());
 
-      final result = await _createPlaylistUseCase(event.name, event.description);
+      final result = await _createPlaylistUseCase(event.name, event.description, event.image);
 
       result.fold(
         (failure) => emit(CreatePlaylistFailure(failure)),
