@@ -67,6 +67,28 @@ const createArtist = asyncHandler(async (req, res) => {
     });
 });
 
+const getMyArtistProfile = asyncHandler(async (req, res) => {
+    const userId = req.user.userId;
+
+    const result = await pool.query(
+        'SELECT * FROM artists WHERE user_id = $1',
+        [userId]
+    );
+
+    if (result.rows.length === 0) {
+        return res.status(404).json({
+            success: false,
+            message: 'El usuario no tiene un perfil de artista'
+        });
+    }
+
+    res.json({
+        success: true,
+        artist: result.rows[0]
+    });
+});
+
 module.exports = {
-    createArtist
+    createArtist,
+    getMyArtistProfile
 };
