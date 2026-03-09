@@ -100,7 +100,7 @@ class PlaylistDetailView extends StatelessWidget {
             // Refrescar biblioteca global 
             context.read<LibraryBloc>().add(LoadLibraryEvent());
             // Retrocoder al home
-            Navigator.of(context).popUntil((route) => route.isFirst);
+            Navigator.of(context).pop();
           } else if (state.message.contains('removida')) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(state.message, style: const TextStyle(color: Colors.white)), backgroundColor: const Color(0xFF1DB954)) // AppColors.primary
