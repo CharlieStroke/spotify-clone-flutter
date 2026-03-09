@@ -47,7 +47,7 @@ class SongListTile extends StatelessWidget {
                 song.coverUrl.trim(),
                 width: 52, height: 52,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => _fallbackIcon(),
+                errorBuilder: (e, s, t) => _fallbackIcon(),
               )
             : _fallbackIcon(),
       ),
@@ -168,7 +168,7 @@ class SongListTileWithHeart extends StatelessWidget {
             ? Image.network(
                 song.coverUrl.trim(),
                 width: 52, height: 52, fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => _fallbackIcon(),
+                errorBuilder: (e, s, t) => _fallbackIcon(),
               )
             : _fallbackIcon(),
       ),
@@ -262,7 +262,7 @@ class PlaylistCard extends StatelessWidget {
                       child: Image.network(
                         coverUrl!.trim(),
                         fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => const Center(
+                        errorBuilder: (e, s, t) => const Center(
                           child: Icon(Icons.photo_outlined, color: Colors.white, size: 40),
                         ),
                       ),
@@ -337,7 +337,7 @@ class AlbumCard extends StatelessWidget {
                           ),
                         );
                       },
-                      errorBuilder: (_, __, ___) => _fallback(),
+                      errorBuilder: (e, s, t) => _fallback(),
                     )
                   : _fallback(),
             ),
@@ -413,7 +413,7 @@ class HomePlaylistChip extends StatelessWidget {
                       child: Image.network(
                         coverUrl!.trim(),
                         fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) =>
+                        errorBuilder: (e, s, t) =>
                             const Center(child: Icon(Icons.queue_music, color: Colors.white54)),
                       ),
                     )

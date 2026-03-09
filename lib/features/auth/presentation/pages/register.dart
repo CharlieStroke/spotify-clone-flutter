@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
 import 'login.dart';
+import '../../../../core/widgets/app_text_field.dart';
+import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_logo.dart';
+import '../../../../core/theme/app_text_styles.dart';
+import '../../../../core/extensions/extensions.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -18,42 +22,25 @@ class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController _email = TextEditingController();
   final TextEditingController _password = TextEditingController();
 
-  Widget _buildTextFieldWithLabel(String label, String hint, TextEditingController controller, {bool isPassword = false}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontSize: 14,
-          ),
-        ),
-        const SizedBox(height: 8),
-        SizedBox(
-          height: 50,
-          child: TextField(
-            controller: controller,
-            obscureText: isPassword,
-            style: const TextStyle(color: Colors.white),
-            decoration: InputDecoration(
-              hintText: hint,
-              hintStyle: const TextStyle(color: Colors.white54, fontSize: 14),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 20),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(30),
-                borderSide: const BorderSide(color: AppColors.primary),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(30),
-                borderSide: const BorderSide(color: AppColors.primary, width: 2),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
+  @override
+  void dispose() {
+    _userName.dispose();
+    _email.dispose();
+    _password.dispose();
+    super.dispose();
+  }
+
+  void _onRegisterPressed(BuildContext context) {
+    FocusScope.of(context).unfocus();
+    if (_userName.text.trimSafe.isEmpty || _email.text.trimSafe.isEmpty || _password.text.isEmpty) {
+      context.showSnack('Por favor, completa todos los campos', color: Colors.orange);
+      return;
+    }
+    context.read<AuthBloc>().add(AuthSignupEvent(
+      username: _userName.text.trimSafe,
+      email: _email.text.trimSafe,
+      password: _password.text,
+    ));
   }
 
   @override
@@ -71,10 +58,12 @@ class _RegisterPageState extends State<RegisterPage> {
             Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
           }
           if (state is AuthFailure) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.message)));
+            context.showSnack(state.message, color: Colors.redAccent);
           }
         },
         builder: (context, state) {
+          final isLoading = state is AuthLoading;
+
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 40),
             child: SingleChildScrollView(
@@ -82,92 +71,57 @@ class _RegisterPageState extends State<RegisterPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const SizedBox(height: 10),
-                  // Logo de la App
-                  ClipOval(
-                    child: Image.asset(
-                      'assets/images/logo.png',
-                      width: 100,
-                      height: 100,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
+                  const AppLogo(size: 100),
                   const SizedBox(height: 30),
                   
-                  // Título principal
                   const Text(
                     'Regístrate para\nempezar a escuchar\ncontenido',
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 22,
-                      color: Colors.white,
-                      height: 1.2,
-                    ),
+                    style: AppTextStyles.heading3,
                   ),
                   const SizedBox(height: 20),
                   
-                  // Campos
-                  _buildTextFieldWithLabel('Nombre', 'Nombre', _userName),
+                  AppTextField(
+                    label: 'Nombre',
+                    hintText: 'Tu nombre de usuario',
+                    controller: _userName,
+                    textInputAction: TextInputAction.next,
+                  ),
                   const SizedBox(height: 20),
-                  _buildTextFieldWithLabel('Email', 'Email', _email),
+                  AppTextField(
+                    label: 'Email',
+                    hintText: 'ejemplo@correo.com',
+                    controller: _email,
+                    keyboardType: TextInputType.emailAddress,
+                    textInputAction: TextInputAction.next,
+                  ),
                   const SizedBox(height: 20),
-                  _buildTextFieldWithLabel('Contraseña', 'Contraseña', _password, isPassword: true),
+                  AppTextField(
+                    label: 'Contraseña',
+                    hintText: 'Tu contraseña secreta',
+                    controller: _password,
+                    isPassword: true,
+                    textInputAction: TextInputAction.done,
+                    onSubmitted: (_) => _onRegisterPressed(context),
+                  ),
                   
                   const SizedBox(height: 20),
 
-                  // Botón
-                  state is AuthLoading
-                      ? const CircularProgressIndicator(color: AppColors.primary)
-                      : SizedBox(
-                          width: double.infinity,
-                          height: 50,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              context.read<AuthBloc>().add(AuthSignupEvent(
-                                    username: _userName.text,
-                                    email: _email.text,
-                                    password: _password.text
-                                  ));
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primary,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30),
-                              ),
-                            ),
-                            child: const Text(
-                              'Regístrate',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ),
+                  AppPrimaryButton(
+                    text: 'Regístrate',
+                    isLoading: isLoading,
+                    onPressed: () => _onRegisterPressed(context),
+                  ),
                   
                   const SizedBox(height: 30),
 
-                  // Link abajo
-                  const Text(
-                    '¿Ya tienes cuenta?',
-                    style: TextStyle(color: Colors.white, fontSize: 14),
-                  ),
+                  const Text('¿Ya tienes cuenta?', style: AppTextStyles.body),
                   TextButton(
-                    onPressed: () {
-                      Navigator.pushReplacement(
-                        context, 
-                        MaterialPageRoute(builder: (context) => const LoginPage())
-                      );
-                    },
-                    child: const Text(
-                      'Iniciar sesión',
-                      style: TextStyle(
-                        color: Colors.white, 
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                      ),
+                    onPressed: () => Navigator.pushReplacement(
+                      context, 
+                      MaterialPageRoute(builder: (context) => const LoginPage())
                     ),
+                    child: const Text('Iniciar sesión', style: AppTextStyles.label),
                   ),
                   const SizedBox(height: 40),
                 ],
