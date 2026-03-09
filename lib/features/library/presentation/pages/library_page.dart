@@ -6,6 +6,7 @@ import '../bloc/library_state.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../playlist_detail/presentation/pages/playlist_detail_page.dart';
 import '../../../../core/widgets/song_widgets.dart';
+import '../../../../core/widgets/page_layout.dart';
 
 class LibraryPage extends StatelessWidget {
   const LibraryPage({super.key});
@@ -35,52 +36,46 @@ class _LibraryViewState extends State<LibraryView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Padding(
-              padding: EdgeInsets.only(left: 20.0, top: 40.0, bottom: 20.0),
-              child: Text(
-                'Tu biblioteca',
-                style: TextStyle(color: Colors.white, fontSize: 38, fontWeight: FontWeight.bold),
-              ),
-            ),
-            // ── Tarjeta Mis Favoritos ──────────────────────────────────────
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: FavoritesCard(
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const PlaylistDetailPage(
-                      id: 'favorites',
-                      title: 'Mis Favoritos',
-                      type: 'favorites',
-                    ),
+    return PageLayout(
+      title: 'Biblioteca',
+      useScroll: false,
+      padding: EdgeInsets.zero,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // ── Tarjeta Mis Favoritos ──────────────────────────────────────
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: FavoritesCard(
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const PlaylistDetailPage(
+                    id: 'favorites',
+                    title: 'Mis Favoritos',
+                    type: 'favorites',
                   ),
                 ),
               ),
             ),
-            // ── Grid de playlists del usuario ─────────────────────────────
-            Expanded(
-              child: BlocBuilder<LibraryBloc, LibraryState>(
-                builder: (context, state) {
-                  if (state is LibraryLoading) {
-                    return const Center(child: CircularProgressIndicator(color: AppColors.primary));
-                  } else if (state is LibraryFailure) {
-                    return Center(child: Text(state.error, style: const TextStyle(color: Colors.red)));
-                  } else if (state is LibraryLoaded) {
-                    return _buildGrid(context, state.playlists);
-                  }
-                  return const SizedBox.shrink();
-                },
-              ),
+          ),
+          const SizedBox(height: 10),
+          // ── Grid de playlists del usuario ─────────────────────────────
+          Expanded(
+            child: BlocBuilder<LibraryBloc, LibraryState>(
+              builder: (context, state) {
+                if (state is LibraryLoading) {
+                  return const Center(child: CircularProgressIndicator(color: AppColors.primary));
+                } else if (state is LibraryFailure) {
+                  return Center(child: Text(state.error, style: const TextStyle(color: Colors.red)));
+                } else if (state is LibraryLoaded) {
+                  return _buildGrid(context, state.playlists);
+                }
+                return const SizedBox.shrink();
+              },
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
