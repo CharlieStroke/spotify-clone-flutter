@@ -196,8 +196,7 @@ const updateProfile = asyncHandler(async (req, res) => {
         try {
             const uploadedUrl = await supabaseStorage.uploadFile(
                 req.file,
-                'media-content',
-                `users/avatars`
+                'users/avatars'
             );
 
             updateFields.push(`profile_image_url = $${paramIndex}`);

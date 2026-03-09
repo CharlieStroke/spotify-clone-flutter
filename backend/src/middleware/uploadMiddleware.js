@@ -18,7 +18,7 @@ const allowedImageTypes = [
     'image/svg+xml',
     'image/bmp',
     'image/tiff'
-]; 
+];
 
 const upload = multer({
     storage: multer.memoryStorage(),
@@ -29,18 +29,18 @@ const upload = multer({
             if (!allowedAudioTypes.includes(file.mimetype)) {
                 return cb(new Error('Tipo de audio no permitido'), false);
             }
-            
+
         }
 
-        if (file.fieldname === 'cover' || file.fieldname === 'image') {
+        if (file.fieldname === 'cover' || file.fieldname === 'image' || file.fieldname === 'profile_image') {
             if (!allowedImageTypes.includes(file.mimetype)) {
                 return cb(new Error('Tipo de imagen no permitido'), false);
             }
         }
 
         cb(null, true);
-        
-    } 
+
+    }
 });
 
 module.exports = upload;
