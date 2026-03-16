@@ -24,4 +24,17 @@ class SongModel extends SongEntity {
       audioUrl: json['audio_url'] ?? '',
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'song_id': id,
+      'title': title,
+      'album_name': album,
+      'artist_name': artistName,
+      'duration': duration,
+      'cover_url': coverUrl,
+      'audio_url': audioUrl,
+    };
+  }
+
 }

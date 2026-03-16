@@ -49,5 +49,7 @@
 	</array>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Esta aplicación requiere autenticación biométrica para proteger tu cuenta y playlists.</string>
 </dict>
 </plist>

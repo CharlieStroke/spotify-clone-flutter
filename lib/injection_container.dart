@@ -1,5 +1,7 @@
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'core/network/network_info.dart';
 import 'core/network/api_client.dart';
 import 'features/auth/data/repository/auth_repository_impl.dart';
 import 'features/auth/data/sources/auth_api_service.dart';
@@ -70,6 +72,7 @@ import 'features/player/presentation/bloc/player_cubit.dart';
 
 // Favorites Feature
 import 'features/favorites/data/sources/favorites_api_service.dart';
+import 'features/favorites/data/sources/favorites_local_data_source.dart';
 import 'features/favorites/data/repositories/favorites_repository_impl.dart';
 import 'features/favorites/domain/repositories/favorites_repository.dart';
 import 'features/favorites/domain/usecases/favorites_usecases.dart';
@@ -88,6 +91,10 @@ Future<void> init() async {
   await audioService.init();
   sl.registerLazySingleton(() => audioService);
 
+  // Connectivity
+  sl.registerLazySingleton(() => Connectivity());
+  sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(sl()));
+
   // --- Data Sources ---
   // ASEGÚRATE DE QUE ESTAS LÍNEAS ESTÉN SOLO UNA VEZ
   sl.registerLazySingleton<AuthApiService>(() => AuthApiServiceImpl(sl()));
@@ -100,6 +107,7 @@ Future<void> init() async {
   sl.registerLazySingleton<LibraryApiService>(() => LibraryApiServiceImpl(sl()));
   sl.registerLazySingleton<PlaylistDetailApiService>(() => PlaylistDetailApiServiceImpl(sl()));
   sl.registerLazySingleton<FavoritesApiService>(() => FavoritesApiServiceImpl(sl()));
+  sl.registerLazySingleton<FavoritesLocalDataSource>(() => FavoritesLocalDataSourceImpl());
   sl.registerLazySingleton<ArtistApiService>(() => ArtistApiServiceImpl(sl()));
 
   // --- Repositories ---
@@ -114,7 +122,7 @@ Future<void> init() async {
   sl.registerLazySingleton<SearchRepository>(() => SearchRepositoryImpl(sl()));
   sl.registerLazySingleton<LibraryRepository>(() => LibraryRepositoryImpl(sl()));
   sl.registerLazySingleton<PlaylistDetailRepository>(() => PlaylistDetailRepositoryImpl(sl()));
-  sl.registerLazySingleton<FavoritesRepository>(() => FavoritesRepositoryImpl(sl()));
+  sl.registerLazySingleton<FavoritesRepository>(() => FavoritesRepositoryImpl(sl(), sl()));
   sl.registerLazySingleton<ArtistRepository>(() => ArtistRepositoryImpl(sl()));
 
   // --- Use Cases ---

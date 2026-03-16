@@ -3,6 +3,7 @@ import '../../features/auth/presentation/pages/login.dart';
 import '../../features/auth/presentation/pages/register.dart';
 import '../../features/auth/presentation/pages/login_or_register.dart';
 import '../../features/main_navigation/presentation/pages/main_page.dart';
+import '../widgets/biometric_guard_page.dart';
 
 class AppRoutes {
   // Clave global para navegar sin context (usada por Interceptores)
@@ -19,6 +20,6 @@ class AppRoutes {
         initial: (context) => const SignupOrSigninPage(),
         signup: (context) => const RegisterPage(),
         signin: (context) => const LoginPage(),
-        home: (context) => const MainPage(),
+        home: (context) => const BiometricGuardPage(child: MainPage()),
       };
 }

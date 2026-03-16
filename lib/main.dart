@@ -13,6 +13,7 @@ import 'features/favorites/presentation/bloc/favorites_bloc.dart';
 import 'features/artist/presentation/bloc/artist_bloc.dart';
 
 import 'package:just_audio_background/just_audio_background.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,6 +24,10 @@ void main() async {
     androidNotificationChannelName: 'Audio playback',
     androidNotificationOngoing: true,
   );
+  
+  // 0.5 Inicializar Hive
+  await Hive.initFlutter();
+  await Hive.openBox('favorites');
   
   // 1. Inicializamos GetIt (DI)
   await di.init();
