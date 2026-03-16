@@ -40,16 +40,19 @@ class SongListTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 0, vertical: 2),
-      leading: ClipRRect(
-        borderRadius: BorderRadius.circular(4),
-        child: song.coverUrl.isNotEmpty
-            ? Image.network(
-                song.coverUrl.trim(),
-                width: 52, height: 52,
-                fit: BoxFit.cover,
-                errorBuilder: (e, s, t) => _fallbackIcon(),
-              )
-            : _fallbackIcon(),
+      leading: Hero(
+        tag: 'song_${song.id}', // Usamos un tag único basado en el ID
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(4),
+          child: song.coverUrl.isNotEmpty
+              ? Image.network(
+                  song.coverUrl.trim(),
+                  width: 52, height: 52,
+                  fit: BoxFit.cover,
+                  errorBuilder: (e, s, t) => _fallbackIcon(),
+                )
+              : _fallbackIcon(),
+        ),
       ),
       title: Text(
         song.title,
@@ -162,15 +165,18 @@ class SongListTileWithHeart extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 0, vertical: 2),
-      leading: ClipRRect(
-        borderRadius: BorderRadius.circular(4),
-        child: song.coverUrl.isNotEmpty
-            ? Image.network(
-                song.coverUrl.trim(),
-                width: 52, height: 52, fit: BoxFit.cover,
-                errorBuilder: (e, s, t) => _fallbackIcon(),
-              )
-            : _fallbackIcon(),
+      leading: Hero(
+        tag: 'song_heart_${song.id}', // Tag único para la vista de favoritos
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(4),
+          child: song.coverUrl.isNotEmpty
+              ? Image.network(
+                  song.coverUrl.trim(),
+                  width: 52, height: 52, fit: BoxFit.cover,
+                  errorBuilder: (e, s, t) => _fallbackIcon(),
+                )
+              : _fallbackIcon(),
+        ),
       ),
       title: Text(song.title,
           style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
@@ -325,27 +331,30 @@ class AlbumCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: (coverUrl != null && coverUrl!.trim().isNotEmpty)
-                  ? Image.network(
-                      coverUrl!.trim(),
-                      width: width,
-                      height: imageSize,
-                      fit: BoxFit.cover,
-                      loadingBuilder: (ctx, child, progress) {
-                        if (progress == null) return child;
-                        return Container(
-                          width: width, height: imageSize,
-                          color: Colors.white10,
-                          child: const Center(
-                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white54),
-                          ),
-                        );
-                      },
-                      errorBuilder: (e, s, t) => _fallback(),
-                    )
-                  : _fallback(),
+            Hero(
+              tag: (coverUrl != null && coverUrl!.trim().isNotEmpty) ? coverUrl!.trim() : title,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: (coverUrl != null && coverUrl!.trim().isNotEmpty)
+                    ? Image.network(
+                        coverUrl!.trim(),
+                        width: width,
+                        height: imageSize,
+                        fit: BoxFit.cover,
+                        loadingBuilder: (ctx, child, progress) {
+                          if (progress == null) return child;
+                          return Container(
+                            width: width, height: imageSize,
+                            color: Colors.white10,
+                            child: const Center(
+                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white54),
+                            ),
+                          );
+                        },
+                        errorBuilder: (e, s, t) => _fallback(),
+                      )
+                    : _fallback(),
+              ),
             ),
             const SizedBox(height: 6),
             Text('Álbum',
@@ -399,7 +408,7 @@ class HomePlaylistChip extends StatelessWidget {
           borderRadius: BorderRadius.circular(6),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.2),
+              color: Colors.black.withValues(alpha: 0.2),
               blurRadius: 8,
               offset: const Offset(0, 4),
             ),

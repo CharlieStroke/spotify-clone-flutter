@@ -71,26 +71,29 @@ class PlayerScreen extends StatelessWidget {
                   // Portada del Álbum
                   Expanded(
                     child: Center(
-                      child: Container(
-                        width: double.infinity,
-                        constraints: const BoxConstraints(maxWidth: 350, maxHeight: 350),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF6A2C50),
-                          borderRadius: BorderRadius.circular(0), // Portada cuadrada como el mockup
-                          image: song.coverUrl.isNotEmpty 
-                            ? DecorationImage(image: NetworkImage(song.coverUrl), fit: BoxFit.cover)
+                      child: Hero(
+                        tag: song.coverUrl.isNotEmpty ? song.coverUrl.trim() : song.title,
+                        child: Container(
+                          width: double.infinity,
+                          constraints: const BoxConstraints(maxWidth: 350, maxHeight: 350),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF6A2C50),
+                            borderRadius: BorderRadius.circular(0), // Portada cuadrada como el mockup
+                            image: song.coverUrl.isNotEmpty 
+                              ? DecorationImage(image: NetworkImage(song.coverUrl), fit: BoxFit.cover)
+                              : null,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.5),
+                                blurRadius: 30,
+                                offset: const Offset(0, 15),
+                              )
+                            ]
+                          ),
+                          child: song.coverUrl.isEmpty 
+                            ? const Icon(Icons.music_note, color: Colors.white, size: 100)
                             : null,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.5),
-                              blurRadius: 30,
-                              offset: const Offset(0, 15),
-                            )
-                          ]
                         ),
-                        child: song.coverUrl.isEmpty 
-                          ? const Icon(Icons.music_note, color: Colors.white, size: 100)
-                          : null,
                       ),
                     ),
                   ),
@@ -167,29 +170,60 @@ class PlayerScreen extends StatelessWidget {
                           context.read<PlayerCubit>().seekToPrevious();
                         },
                       ),
-                      Container(
-                        width: 64,
-                        height: 64,
-                        decoration: const BoxDecoration(
-                          color: AppColors.primary,
-                          shape: BoxShape.circle,
+                      TweenAnimationBuilder<double>(
+                        duration: const Duration(milliseconds: 200),
+                        curve: Curves.easeInOut,
+                        tween: Tween<double>(
+                          begin: 1.0,
+                          end: audioState.isPlaying ? 1.0 : 0.95,
                         ),
-                        child: IconButton(
-                          icon: Icon(
-                            audioState.isPlaying ? Icons.pause : Icons.play_arrow, 
-                            color: Colors.black, 
-                            size: 36
+                        builder: (context, scale, child) {
+                          return Transform.scale(
+                            scale: scale,
+                            child: child,
+                          );
+                        },
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                          width: 64,
+                          height: 64,
+                          decoration: BoxDecoration(
+                            color: audioState.isPlaying ? AppColors.primary : Colors.white,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              if (audioState.isPlaying)
+                                BoxShadow(
+                                  color: AppColors.primary.withValues(alpha: 0.4),
+                                  blurRadius: 12,
+                                  spreadRadius: 2,
+                                )
+                            ],
                           ),
-                          onPressed: () {
-                            if (audioState.isPlaying) {
-                              context.read<PlayerCubit>().pause();
-                            } else {
-                              if (audioState.processingState == ProcessingState.completed) {
-                                context.read<PlayerCubit>().seek(Duration.zero);
+                          child: IconButton(
+                            icon: AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 200),
+                              transitionBuilder: (Widget child, Animation<double> animation) {
+                                return ScaleTransition(scale: animation, child: child);
+                              },
+                              child: Icon(
+                                audioState.isPlaying ? Icons.pause : Icons.play_arrow, 
+                                key: ValueKey<bool>(audioState.isPlaying),
+                                color: Colors.black, 
+                                size: 36
+                              ),
+                            ),
+                            onPressed: () {
+                              if (audioState.isPlaying) {
+                                context.read<PlayerCubit>().pause();
+                              } else {
+                                if (audioState.processingState == ProcessingState.completed) {
+                                  context.read<PlayerCubit>().seek(Duration.zero);
+                                }
+                                context.read<PlayerCubit>().play();
                               }
-                              context.read<PlayerCubit>().play();
-                            }
-                          },
+                            },
+                          ),
                         ),
                       ),
                       IconButton(
