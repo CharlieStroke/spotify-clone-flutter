@@ -33,6 +33,7 @@ void main() async {
   await Hive.openBox(AppConstants.boxFavorites);
   await Hive.openBox(AppConstants.boxHomeCache);
   await Hive.openBox(AppConstants.boxLibraryCache);
+  await Hive.openBox(AppConstants.boxSearchCache);
   
   // 1. Inicializamos GetIt (DI)
   await di.init();

@@ -333,9 +333,6 @@ class PlaylistDetailView extends StatelessWidget {
           height: 250,
           decoration: BoxDecoration(
             color: const Color(0xFF6A2C50), // Color morado del mockup
-            image: coverUrl != null 
-              ? DecorationImage(image: NetworkImage(coverUrl!), fit: BoxFit.cover)
-              : null,
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.5),
@@ -344,9 +341,18 @@ class PlaylistDetailView extends StatelessWidget {
               )
             ]
           ),
-          child: coverUrl == null 
-            ? const Icon(Icons.photo_outlined, color: Colors.white, size: 80)
-            : null,
+          child: coverUrl != null 
+            ? ClipRRect(
+                child: FadeInImage.assetNetwork(
+                  placeholder: 'assets/images/logo.png',
+                  image: coverUrl!,
+                  fit: BoxFit.cover,
+                  imageErrorBuilder: (e, s, t) => const Center(
+                    child: Icon(Icons.photo_outlined, color: Colors.white, size: 80),
+                  ),
+                ),
+              )
+            : const Icon(Icons.photo_outlined, color: Colors.white, size: 80),
         ),
       ),
     );

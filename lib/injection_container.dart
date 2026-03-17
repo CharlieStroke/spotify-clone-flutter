@@ -46,6 +46,9 @@ import 'features/search/domain/repository/search_repository.dart';
 import 'features/search/data/repository/search_repository_impl.dart';
 import 'features/search/domain/usecases/search_usecase.dart';
 import 'features/search/presentation/bloc/search_bloc.dart';
+import 'features/search/data/sources/search_local_data_source.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'core/constants/app_constants.dart';
 
 // Library Feature
 import 'features/library/data/sources/library_api_service.dart';
@@ -102,6 +105,7 @@ Future<void> init() async {
   sl.registerLazySingleton<ProfileApiService>(() => ProfileApiServiceImpl(apiClient: sl(), sharedPreferences: sl()));
   sl.registerLazySingleton<CreateApiService>(() => CreateApiServiceImpl(sl()));
   sl.registerLazySingleton<SearchApiService>(() => SearchApiServiceImpl(sl()));
+  sl.registerLazySingleton<SearchLocalDataSource>(() => SearchLocalDataSourceImpl(Hive.box(AppConstants.boxSearchCache)));
   sl.registerLazySingleton<LibraryApiService>(() => LibraryApiServiceImpl(sl()));
   sl.registerLazySingleton<HomeLocalDataSource>(() => HomeLocalDataSourceImpl());
   sl.registerLazySingleton<LibraryLocalDataSource>(() => LibraryLocalDataSourceImpl());
@@ -164,7 +168,10 @@ Future<void> init() async {
         artistRepository: sl(),
       ));
   sl.registerFactory(() => CreatePlaylistBloc(sl()));
-  sl.registerFactory(() => SearchBloc(sl()));
+  sl.registerFactory(() => SearchBloc(
+    searchUseCase: sl(),
+    localDataSource: sl(),
+  ));
   sl.registerLazySingleton(() => LibraryBloc(sl(), sl()));
   sl.registerFactory(() => LibraryActionBloc(sl(), sl(), sl()));
   sl.registerFactory(() => PlaylistDetailBloc(sl()));

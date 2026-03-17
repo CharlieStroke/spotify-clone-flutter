@@ -191,7 +191,12 @@ class _SearchSongToAddSheetState extends State<SearchSongToAddSheet> {
                               height: 50,
                               color: const Color(0xFF6A2C50),
                               child: coverUrl.isNotEmpty
-                                  ? Image.network(coverUrl, fit: BoxFit.cover)
+                                  ? FadeInImage.assetNetwork(
+                                      placeholder: 'assets/images/logo.png',
+                                      image: coverUrl,
+                                      fit: BoxFit.cover,
+                                      imageErrorBuilder: (e, s, t) => const Icon(Icons.music_note, color: Colors.white),
+                                    )
                                   : const Icon(Icons.music_note, color: Colors.white),
                             ),
                             title: Text(

@@ -4,6 +4,11 @@ class SearchInitial extends SearchState {}
 
 class SearchLoading extends SearchState {}
 
+class SearchRecentLoaded extends SearchState {
+  final List<String> recentSearches;
+  SearchRecentLoaded(this.recentSearches);
+}
+
 class SearchLoaded extends SearchState {
   final List<dynamic> songs;
   final List<dynamic> albums;
