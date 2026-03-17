@@ -11,6 +11,8 @@ import 'features/player/presentation/bloc/player_cubit.dart';
 import 'features/library/presentation/bloc/library_bloc.dart';
 import 'features/favorites/presentation/bloc/favorites_bloc.dart';
 import 'features/artist/presentation/bloc/artist_bloc.dart';
+import 'features/home/presentation/bloc/home_bloc.dart';
+import 'features/search/presentation/bloc/search_bloc.dart';
 
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -61,8 +63,10 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (_) => di.sl<ProfileBloc>()),
         BlocProvider(create: (_) => di.sl<PlayerCubit>()),
         BlocProvider(create: (_) => di.sl<LibraryBloc>()),
-        BlocProvider(create: (_) => di.sl<FavoritesBloc>()), // evento se dispara en MainPage.initState
+        BlocProvider(create: (_) => di.sl<FavoritesBloc>()),
         BlocProvider(create: (_) => di.sl<ArtistBloc>()),
+        BlocProvider(create: (_) => di.sl<HomeBloc>()),
+        BlocProvider(create: (_) => di.sl<SearchBloc>()),
       ],
       child: MaterialApp(
         navigatorKey: AppRoutes.navigatorKey, // Permite navegación sin context

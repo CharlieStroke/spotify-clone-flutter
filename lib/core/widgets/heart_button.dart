@@ -30,8 +30,17 @@ class HeartButton extends StatelessWidget {
           padding: EdgeInsets.zero,
           constraints: const BoxConstraints(),
           icon: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 200),
-            transitionBuilder: (child, anim) => ScaleTransition(scale: anim, child: child),
+            duration: const Duration(milliseconds: 450),
+            transitionBuilder: (child, anim) {
+              return ScaleTransition(
+                scale: CurvedAnimation(
+                  parent: anim,
+                  curve: Curves.elasticOut,
+                  reverseCurve: Curves.easeIn,
+                ),
+                child: child,
+              );
+            },
             child: Icon(
               isFav ? Icons.favorite : Icons.favorite_border,
               key: ValueKey(isFav),

@@ -7,12 +7,10 @@ import '../../../library/presentation/pages/library_page.dart';
 import '../../../profile/presentation/pages/profile_page.dart';
 import '../cubit/main_navigation_cubit.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../profile/presentation/bloc/profile_bloc.dart';
-import '../../../profile/presentation/bloc/profile_event.dart';
 import '../../../../features/player/presentation/widgets/mini_player.dart';
 import '../../../../features/favorites/presentation/bloc/favorites_bloc.dart';
 import '../../../../features/favorites/presentation/bloc/favorites_event.dart';
-import '../../../../core/widgets/offline_banner.dart';
+
 
 class MainPage extends StatefulWidget {
     const MainPage({super.key});
@@ -33,17 +31,18 @@ class _MainPageState extends State<MainPage> {
     @override
     void initState() {
         super.initState();
-        // Dispara carga de perfil Y favoritos ya que aquí el usuario ya está autenticado
-        context.read<ProfileBloc>().add(LoadProfileEvent());
+        // Cargar favoritos globalmente al iniciar la navegación principal
         context.read<FavoritesBloc>().add(LoadFavoritesEvent());
+        
+        // Las cargas individuales se manejan en los initState de cada página 
+        // para evitar disparar todo al mismo tiempo al entrar al MainPage.
     }
 
     @override
     Widget build(BuildContext context) {
         return BlocBuilder<MainNavigationCubit, MainNavigationState>(
         builder: (context, state) {
-            return OfflineBanner(
-              child: Scaffold(
+            return Scaffold(
               body: AnimatedSwitcher(
                 duration: const Duration(milliseconds: 300),
                 transitionBuilder: (child, animation) {
@@ -116,8 +115,7 @@ class _MainPageState extends State<MainPage> {
                   ),
                 ],
               ),
-              ),
-            );
+              );
         },
         );
     }

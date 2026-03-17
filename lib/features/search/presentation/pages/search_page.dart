@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../injection_container.dart';
 import '../bloc/search_bloc.dart';
 import '../bloc/search_event.dart';
 import '../bloc/search_state.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../home/presentation/bloc/home_bloc.dart';
-import '../../../home/presentation/bloc/home_event.dart';
 import '../../../home/presentation/bloc/home_state.dart';
 import '../../../playlist_detail/presentation/pages/playlist_detail_page.dart';
 import '../../../home/domain/entities/song_entity.dart';
@@ -18,13 +16,7 @@ class SearchPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(create: (_) => sl<SearchBloc>()),
-        BlocProvider(create: (_) => sl<HomeBloc>()..add(GetSongsEvent())),
-      ],
-      child: const SearchView(),
-    );
+    return const SearchView();
   }
 }
 

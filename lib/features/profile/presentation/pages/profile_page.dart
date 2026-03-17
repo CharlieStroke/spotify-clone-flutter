@@ -4,6 +4,7 @@ import '../../../../core/routes/app_routes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../injection_container.dart' as di;
 import '../bloc/profile_bloc.dart';
+import '../bloc/profile_event.dart';
 import '../bloc/profile_state.dart';
 import '../../../home/presentation/bloc/home_bloc.dart';
 import '../../../home/presentation/bloc/home_event.dart';
@@ -12,8 +13,22 @@ import '../../../library/presentation/bloc/library_event.dart';
 import '../../../../core/widgets/page_layout.dart';
 import 'edit_profile_page.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  @override
+  void initState() {
+    super.initState();
+    final bloc = context.read<ProfileBloc>();
+    if (bloc.state is ProfileInitial || bloc.state is ProfileError) {
+      bloc.add(LoadProfileEvent());
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

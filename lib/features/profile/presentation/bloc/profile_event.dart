@@ -1,6 +1,11 @@
-abstract class ProfileEvent {}
+abstract class ProfileEvent {
+  final bool forceRefresh;
+  ProfileEvent({this.forceRefresh = false});
+}
 
-class LoadProfileEvent extends ProfileEvent {}
+class LoadProfileEvent extends ProfileEvent {
+  LoadProfileEvent({super.forceRefresh = false});
+}
 
 class UpdateProfileEvent extends ProfileEvent {
   final String? username;
@@ -9,6 +14,7 @@ class UpdateProfileEvent extends ProfileEvent {
   final String? imagePath;
 
   UpdateProfileEvent({
+    super.forceRefresh = false,
     this.username,
     this.oldPassword,
     this.newPassword,

@@ -12,6 +12,10 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
     });
 
     on<LoadLibraryEvent>((event, emit) async {
+      // Evitar llamadas duplicadas si ya hay datos
+      if (state is LibraryLoaded && !event.forceRefresh) return;
+      if (state is LibraryLoading) return;
+
       emit(LibraryLoading());
 
       final result = await _getLibraryUseCase();

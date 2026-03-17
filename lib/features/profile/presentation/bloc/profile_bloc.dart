@@ -23,6 +23,10 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     LoadProfileEvent event,
     Emitter<ProfileState> emit,
   ) async {
+    // Evitar recarga si ya hay datos, a menos que se fuerce
+    if (state is ProfileLoaded && !event.forceRefresh) return;
+    if (state is ProfileLoading) return;
+
     emit(ProfileLoading());
 
     final failureOrUser = await getUserProfileUseCase();

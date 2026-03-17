@@ -17,42 +17,51 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   }) : _songsUseCase = getSongsUseCase,
        _albumsUseCase = getAlbumsUseCase,
        _playlistsUseCase = getPlaylistsUseCase,
-       super(HomeLoading()) {
+       super(HomeInitial()) {
     
     on<ResetHomeEvent>((event, emit) {
       emit(HomeLoading());
     });
 
     on<GetSongsEvent>((event, emit) async {
+      // Si ya está cargado y no pedimos refresco forzado, ignoramos para evitar 429
+      if (state is HomeLoaded && !event.forceRefresh) return;
+      
+      // Si ya estamos cargando, ignoramos peticiones duplicadas
+      if (state is HomeLoading && state is! HomeInitial) return;
+
       emit(HomeLoading());
       
-      // Ejecutamos las tres llamadas en paralelo
-      final results = await Future.wait([
-        _songsUseCase(),
-        _albumsUseCase(),
-        _playlistsUseCase(),
-      ]);
+      try {
+        // Ejecutamos las tres llamadas en paralelo
+        final results = await Future.wait([
+          _songsUseCase(),
+          _albumsUseCase(),
+          _playlistsUseCase(),
+        ]);
 
-      final songsResult = results[0];
-      final albumsResult = results[1];
-      final playlistsResult = results[2];
+        final songsResult = results[0];
+        final albumsResult = results[1];
+        final playlistsResult = results[2];
 
-      bool hasError = false;
-      String errorMessage = '';
+        bool hasError = false;
+        String errorMessage = '';
 
-      songsResult.fold((l) { hasError = true; errorMessage = l; }, (r) => null);
-      albumsResult.fold((l) { hasError = true; errorMessage = l; }, (r) => null);
-      playlistsResult.fold((l) { hasError = true; errorMessage = l; }, (r) => null);
+        songsResult.fold((l) { hasError = true; errorMessage = l; }, (r) => null);
+        albumsResult.fold((l) { hasError = true; errorMessage = l; }, (r) => null);
+        playlistsResult.fold((l) { hasError = true; errorMessage = l; }, (r) => null);
 
-      if (hasError) {
-        emit(HomeFailure(errorMessage: errorMessage));
-      } else {
-        emit(HomeLoaded(
-          // Forzamos los tipos asumiendo que el Right fue exitoso en los tres
-          songs: songsResult.fold((l) => [], (r) => r as dynamic),
-          albums: albumsResult.fold((l) => [], (r) => r as dynamic),
-          playlists: playlistsResult.fold((l) => [], (r) => r as dynamic),
-        ));
+        if (hasError) {
+          emit(HomeFailure(errorMessage: errorMessage));
+        } else {
+          emit(HomeLoaded(
+            songs: songsResult.fold((l) => [], (r) => r as dynamic),
+            albums: albumsResult.fold((l) => [], (r) => r as dynamic),
+            playlists: playlistsResult.fold((l) => [], (r) => r as dynamic),
+          ));
+        }
+      } catch (e) {
+        emit(HomeFailure(errorMessage: 'Error inesperado: $e'));
       }
     });
   }
