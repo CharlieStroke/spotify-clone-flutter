@@ -1,7 +1,5 @@
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
-import 'core/network/network_info.dart';
 import 'core/network/api_client.dart';
 import 'features/auth/data/repository/auth_repository_impl.dart';
 import 'features/auth/data/sources/auth_api_service.dart';
@@ -91,9 +89,6 @@ Future<void> init() async {
   await audioService.init();
   sl.registerLazySingleton(() => audioService);
 
-  // Connectivity
-  sl.registerLazySingleton(() => Connectivity());
-  sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(sl()));
 
   // --- Data Sources ---
   // ASEGÚRATE DE QUE ESTAS LÍNEAS ESTÉN SOLO UNA VEZ
@@ -149,20 +144,20 @@ Future<void> init() async {
     loginUseCase: sl(),
     registerUseCase: sl(),
   ));
-  sl.registerFactory(() => HomeBloc(
+  sl.registerLazySingleton(() => HomeBloc(
     getSongsUseCase: sl(),
     getAlbumsUseCase: sl(),
     getPlaylistsUseCase: sl(),
   ));
   sl.registerFactory(() => MainNavigationCubit());
-  sl.registerFactory(() => ProfileBloc(
+  sl.registerLazySingleton(() => ProfileBloc(
         getUserProfileUseCase: sl(),
         updateProfileUseCase: sl(),
         artistRepository: sl(),
       ));
   sl.registerFactory(() => CreatePlaylistBloc(sl()));
   sl.registerFactory(() => SearchBloc(sl()));
-  sl.registerFactory(() => LibraryBloc(sl()));
+  sl.registerLazySingleton(() => LibraryBloc(sl()));
   sl.registerFactory(() => LibraryActionBloc(sl(), sl(), sl()));
   sl.registerFactory(() => PlaylistDetailBloc(sl()));
   sl.registerLazySingleton(() => PlayerCubit(sl()));

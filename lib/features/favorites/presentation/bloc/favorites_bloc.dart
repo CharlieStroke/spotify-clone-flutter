@@ -33,6 +33,8 @@ class FavoritesBloc extends Bloc<FavoritesEvent, FavoritesState> {
       if (!current.any((s) => s.id == event.songId)) {
         emit(FavoritesLoaded(songs: [event.song!, ...current]));
       }
+    } else if (state is FavoritesInitial && event.song != null) {
+      emit(FavoritesLoaded(songs: [event.song!]));
     }
 
     // 2. Llamar al API en background

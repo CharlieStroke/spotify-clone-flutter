@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../../injection_container.dart' as di;
+
 import '../../../../core/theme/app_colors.dart';
 import '../bloc/home_bloc.dart';
 import '../bloc/home_event.dart';
@@ -10,14 +10,27 @@ import '../../../playlist_detail/presentation/pages/playlist_detail_page.dart';
 import '../../../../core/widgets/song_widgets.dart';
 import '../../../../core/widgets/page_layout.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  @override
+  void initState() {
+    super.initState();
+    final bloc = context.read<HomeBloc>();
+    // Solo cargamos si no se ha cargado previamente para evitar 429
+    if (bloc.state is HomeInitial || bloc.state is HomeFailure) {
+      bloc.add(GetSongsEvent());
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => di.sl<HomeBloc>()..add(GetSongsEvent()),
-      child: PageLayout(
+    return PageLayout(
         title: 'Inicio',
         useScroll: false,
         padding: EdgeInsets.zero,
@@ -185,7 +198,6 @@ class HomePage extends StatelessWidget {
             return const Center(child: Text('Algo salió mal', style: TextStyle(color: Colors.white)));
           },
         ),
-      ),
     );
   }
-}
+}
