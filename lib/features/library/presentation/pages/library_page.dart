@@ -7,6 +7,8 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../playlist_detail/presentation/pages/playlist_detail_page.dart';
 import '../../../../core/widgets/song_widgets.dart';
 import '../../../../core/widgets/page_layout.dart';
+import '../../../../core/widgets/shimmer_skeleton.dart';
+import '../../../../core/widgets/empty_state_widget.dart';
 
 class LibraryPage extends StatelessWidget {
   const LibraryPage({super.key});
@@ -70,7 +72,7 @@ class _LibraryViewState extends State<LibraryView> {
               child: BlocBuilder<LibraryBloc, LibraryState>(
                 builder: (context, state) {
                   if (state is LibraryLoading) {
-                    return const Center(child: CircularProgressIndicator(color: AppColors.primary));
+                    return const LibrarySkeleton();
                   } else if (state is LibraryFailure) {
                     return Center(child: Text(state.error, style: const TextStyle(color: Colors.red)));
                   } else if (state is LibraryLoaded) {
@@ -88,17 +90,16 @@ class _LibraryViewState extends State<LibraryView> {
 
   Widget _buildGrid(BuildContext context, List<dynamic> playlists) {
     if (playlists.isEmpty) {
-      return const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.library_music_outlined, color: Colors.white24, size: 80),
-            SizedBox(height: 16),
-            Text('Aún no tienes playlists', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-            SizedBox(height: 8),
-            Text("Crea tu primera playlist en la pestaña '+'", style: TextStyle(color: Colors.white54, fontSize: 14)),
-          ],
-        ),
+      return EmptyStateWidget(
+        icon: Icons.library_music_outlined,
+        title: 'Aún no tienes playlists',
+        message: "Crea tu primera playlist en la pestaña '+' para empezar a construir tu colección.",
+        buttonText: 'Crear Playlist',
+        onButtonPressed: () {
+          // Navegar a la pestaña de creación (índice 3 en MainPage)
+          // O podrías abrir el diálogo de creación aquí mismo.
+          // Por ahora, solo cerramos el mensaje informativo.
+        },
       );
     }
 

@@ -16,6 +16,7 @@ import 'features/search/presentation/bloc/search_bloc.dart';
 
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'core/constants/app_constants.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,7 +30,9 @@ void main() async {
   
   // 0.5 Inicializar Hive
   await Hive.initFlutter();
-  await Hive.openBox('favorites');
+  await Hive.openBox(AppConstants.boxFavorites);
+  await Hive.openBox(AppConstants.boxHomeCache);
+  await Hive.openBox(AppConstants.boxLibraryCache);
   
   // 1. Inicializamos GetIt (DI)
   await di.init();

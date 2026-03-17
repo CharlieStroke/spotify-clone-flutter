@@ -5,4 +5,6 @@ import '../../domain/entities/playlist_entity.dart';
 abstract class HomeRepository {
   Future<Either<String, List<AlbumEntity>>> getAlbums();
   Future<Either<String, List<PlaylistEntity>>> getPlaylists();
+  Future<List<AlbumEntity>> getCachedAlbums();
+  Future<List<PlaylistEntity>> getCachedPlaylists();
 }

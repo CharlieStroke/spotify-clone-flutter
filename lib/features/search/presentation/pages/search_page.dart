@@ -10,6 +10,8 @@ import '../../../playlist_detail/presentation/pages/playlist_detail_page.dart';
 import '../../../home/domain/entities/song_entity.dart';
 import '../../../../core/widgets/song_widgets.dart';
 import '../../../../core/widgets/page_layout.dart';
+import '../../../../core/widgets/shimmer_skeleton.dart';
+import '../../../../core/widgets/empty_state_widget.dart';
 
 class SearchPage extends StatelessWidget {
   const SearchPage({super.key});
@@ -76,9 +78,17 @@ class _SearchViewState extends State<SearchView> {
                   if (state is SearchInitial) {
                     return _buildDiscoverGrid(context);
                   } else if (state is SearchLoading) {
-                    return const Center(child: CircularProgressIndicator(color: AppColors.primary));
+                    return const PlaylistDetailSkeleton(); // Reuse list skeleton for search results
                   } else if (state is SearchFailure) {
-                    return Center(child: Text(state.error, style: const TextStyle(color: Colors.red)));
+                    return EmptyStateWidget(
+                      icon: Icons.error_outline,
+                      title: 'Error de búsqueda',
+                      message: state.error,
+                      buttonText: 'Reintentar',
+                      onButtonPressed: () {
+                        context.read<SearchBloc>().add(SearchQueryChanged(_searchController.text));
+                      },
+                    );
                   } else if (state is SearchLoaded) {
                     return _buildSearchResults(state);
                   }
@@ -97,7 +107,7 @@ class _SearchViewState extends State<SearchView> {
     return BlocBuilder<HomeBloc, HomeState>(
       builder: (context, state) {
         if (state is HomeLoading) {
-          return const Center(child: CircularProgressIndicator(color: AppColors.primary));
+          return const HomeSkeleton();
         }
 
         if (state is HomeLoaded) {
@@ -276,7 +286,11 @@ class _SearchViewState extends State<SearchView> {
 
   Widget _buildSearchResults(SearchLoaded state) {
     if (state.songs.isEmpty && state.albums.isEmpty && state.playlists.isEmpty) {
-      return const Center(child: Text('No encontramos resultados.', style: TextStyle(color: Colors.white)));
+      return const EmptyStateWidget(
+        icon: Icons.search_off,
+        title: 'No encontramos resultados',
+        message: 'Intenta buscar con otras palabras o revisa la ortografía.',
+      );
     }
 
     return ListView(
