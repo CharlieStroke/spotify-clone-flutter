@@ -45,11 +45,12 @@ class SongListTile extends StatelessWidget {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(4),
           child: song.coverUrl.isNotEmpty
-              ? Image.network(
-                  song.coverUrl.trim(),
+              ? FadeInImage.assetNetwork(
+                  placeholder: 'assets/images/logo.png',
+                  image: song.coverUrl.trim(),
                   width: 52, height: 52,
                   fit: BoxFit.cover,
-                  errorBuilder: (e, s, t) => _fallbackIcon(),
+                  imageErrorBuilder: (e, s, t) => _fallbackIcon(),
                 )
               : _fallbackIcon(),
         ),
@@ -170,10 +171,11 @@ class SongListTileWithHeart extends StatelessWidget {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(4),
           child: song.coverUrl.isNotEmpty
-              ? Image.network(
-                  song.coverUrl.trim(),
+              ? FadeInImage.assetNetwork(
+                  placeholder: 'assets/images/logo.png',
+                  image: song.coverUrl.trim(),
                   width: 52, height: 52, fit: BoxFit.cover,
-                  errorBuilder: (e, s, t) => _fallbackIcon(),
+                  imageErrorBuilder: (e, s, t) => _fallbackIcon(),
                 )
               : _fallbackIcon(),
         ),
@@ -267,10 +269,11 @@ class PlaylistCard extends StatelessWidget {
                 child: coverUrl != null && coverUrl!.isNotEmpty
                     ? ClipRRect(
                         borderRadius: BorderRadius.circular(2),
-                        child: Image.network(
-                          coverUrl!.trim(),
+                        child: FadeInImage.assetNetwork(
+                          placeholder: 'assets/images/logo.png',
+                          image: coverUrl!.trim(),
                           fit: BoxFit.cover,
-                          errorBuilder: (e, s, t) => const Center(
+                          imageErrorBuilder: (e, s, t) => const Center(
                             child: Icon(Icons.photo_outlined, color: Colors.white, size: 40),
                           ),
                         ),
@@ -339,22 +342,13 @@ class AlbumCard extends StatelessWidget {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(8),
                 child: (coverUrl != null && coverUrl!.trim().isNotEmpty)
-                    ? Image.network(
-                        coverUrl!.trim(),
+                    ? FadeInImage.assetNetwork(
+                        placeholder: 'assets/images/logo.png',
+                        image: coverUrl!.trim(),
                         width: width,
                         height: imageSize,
                         fit: BoxFit.cover,
-                        loadingBuilder: (ctx, child, progress) {
-                          if (progress == null) return child;
-                          return Container(
-                            width: width, height: imageSize,
-                            color: Colors.white10,
-                            child: const Center(
-                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white54),
-                            ),
-                          );
-                        },
-                        errorBuilder: (e, s, t) => _fallback(),
+                        imageErrorBuilder: (e, s, t) => _fallback(),
                       )
                     : _fallback(),
               ),
@@ -429,10 +423,11 @@ class HomePlaylistChip extends StatelessWidget {
                     color: Colors.white10,
                   ),
                   child: (coverUrl != null && coverUrl!.isNotEmpty)
-                      ? Image.network(
-                          coverUrl!.trim(),
+                      ? FadeInImage.assetNetwork(
+                          placeholder: 'assets/images/logo.png',
+                          image: coverUrl!.trim(),
                           fit: BoxFit.cover,
-                          errorBuilder: (e, s, t) =>
+                          imageErrorBuilder: (e, s, t) =>
                               const Center(child: Icon(Icons.music_note, color: Colors.white38)),
                         )
                       : const Center(child: Icon(Icons.music_note, color: Colors.white38)),

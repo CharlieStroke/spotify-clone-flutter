@@ -16,4 +16,5 @@ class AppConstants {
   static const String boxFavorites = 'favorites';
   static const String boxHomeCache = 'home_cache';
   static const String boxLibraryCache = 'library_cache';
+  static const String boxSearchCache = 'search_cache';
 }

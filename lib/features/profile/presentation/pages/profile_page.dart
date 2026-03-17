@@ -157,14 +157,19 @@ class _ProfilePageState extends State<ProfilePage> {
                   const SizedBox(height: 30),
                   Stack(
                     children: [
-                      CircleAvatar(
-                        radius: 70,
-                        backgroundColor: Colors.white10,
-                        backgroundImage: (state.artist?.imageUrl != null)
-                            ? NetworkImage(state.artist!.imageUrl)
-                            : (state.user.profileImageUrl != null && state.user.profileImageUrl!.isNotEmpty)
-                                ? NetworkImage(state.user.profileImageUrl!)
-                                : const NetworkImage(AppConstants.defaultProfileImage),
+                      ClipOval(
+                        child: SizedBox(
+                          width: 140,
+                          height: 140,
+                          child: (state.artist?.imageUrl != null || (state.user.profileImageUrl != null && state.user.profileImageUrl!.isNotEmpty))
+                              ? FadeInImage.assetNetwork(
+                                  placeholder: 'assets/images/logo.png',
+                                  image: state.artist?.imageUrl ?? state.user.profileImageUrl!,
+                                  fit: BoxFit.cover,
+                                  imageErrorBuilder: (e, s, t) => Image.network(AppConstants.defaultProfileImage, fit: BoxFit.cover),
+                                )
+                              : Image.network(AppConstants.defaultProfileImage, fit: BoxFit.cover),
+                        ),
                       ),
                       if (state.artist != null)
                         Positioned(

@@ -33,6 +33,12 @@ class _SearchViewState extends State<SearchView> {
   final TextEditingController _searchController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    context.read<SearchBloc>().add(LoadRecentSearches());
+  }
+
+  @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
@@ -75,10 +81,8 @@ class _SearchViewState extends State<SearchView> {
             Expanded(
               child: BlocBuilder<SearchBloc, SearchState>(
                 builder: (context, state) {
-                  if (state is SearchInitial) {
-                    return _buildDiscoverGrid(context);
-                  } else if (state is SearchLoading) {
-                    return const PlaylistDetailSkeleton(); // Reuse list skeleton for search results
+                  if (state is SearchLoading) {
+                    return const PlaylistDetailSkeleton();
                   } else if (state is SearchFailure) {
                     return EmptyStateWidget(
                       icon: Icons.error_outline,
@@ -89,16 +93,63 @@ class _SearchViewState extends State<SearchView> {
                         context.read<SearchBloc>().add(SearchQueryChanged(_searchController.text));
                       },
                     );
+                  } else if (state is SearchRecentLoaded) {
+                    if (state.recentSearches.isEmpty) {
+                      return _buildDiscoverGrid(context);
+                    }
+                    return _buildRecentSearches(state.recentSearches);
                   } else if (state is SearchLoaded) {
                     return _buildSearchResults(state);
                   }
-                  return const SizedBox.shrink();
+                  return _buildDiscoverGrid(context);
                 },
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildRecentSearches(List<String> searches) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'Búsquedas recientes',
+              style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            TextButton(
+              onPressed: () => context.read<SearchBloc>().add(ClearRecentSearches()),
+              child: const Text('Borrar todo', style: TextStyle(color: Colors.grey, fontSize: 13)),
+            ),
+          ],
+        ),
+        Expanded(
+          child: ListView.builder(
+            itemCount: searches.length,
+            itemBuilder: (context, index) {
+              final query = searches[index];
+              return ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.history, color: Colors.grey),
+                title: Text(query, style: const TextStyle(color: Colors.white70)),
+                trailing: IconButton(
+                  icon: const Icon(Icons.close, color: Colors.grey, size: 20),
+                  onPressed: () => context.read<SearchBloc>().add(RemoveRecentSearch(query)),
+                ),
+                onTap: () {
+                  _searchController.text = query;
+                  context.read<SearchBloc>().add(SearchQueryChanged(query));
+                },
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 
@@ -122,7 +173,7 @@ class _SearchViewState extends State<SearchView> {
                   child: Padding(
                     padding: EdgeInsets.only(bottom: 12),
                     child: Text(
-                      'Álbumes',
+                      'Explorar todo',
                       style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
                     ),
                   ),
@@ -145,7 +196,7 @@ class _SearchViewState extends State<SearchView> {
                         ),
                         child: Container(
                           decoration: BoxDecoration(
-                            color: Colors.deepPurple.shade800,
+                            color: Colors.white.withValues(alpha: 0.05),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           clipBehavior: Clip.antiAlias,
@@ -153,10 +204,11 @@ class _SearchViewState extends State<SearchView> {
                             children: [
                               if (album.coverUrl.isNotEmpty)
                                 Positioned.fill(
-                                  child: Image.network(
-                                    album.coverUrl,
+                                  child: FadeInImage.assetNetwork(
+                                    placeholder: 'assets/images/logo.png', // Fallback placeholder
+                                    image: album.coverUrl,
                                     fit: BoxFit.cover,
-                                    errorBuilder: (e, s, t) => const SizedBox(),
+                                    imageErrorBuilder: (e, s, t) => const Icon(Icons.album, color: Colors.white10),
                                   ),
                                 ),
                               Positioned(
@@ -172,23 +224,11 @@ class _SearchViewState extends State<SearchView> {
                                       colors: [Colors.black87, Colors.transparent],
                                     ),
                                   ),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                        album.title,
-                                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      Text(
-                                        album.artistName,
-                                        style: const TextStyle(color: Colors.white70, fontSize: 10),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ],
+                                  child: Text(
+                                    album.title,
+                                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
                               ),
@@ -203,7 +243,7 @@ class _SearchViewState extends State<SearchView> {
                     crossAxisCount: 2,
                     crossAxisSpacing: 12,
                     mainAxisSpacing: 12,
-                    childAspectRatio: 1.2,
+                    childAspectRatio: 1.5,
                   ),
                 ),
               ],
@@ -213,7 +253,7 @@ class _SearchViewState extends State<SearchView> {
                   child: Padding(
                     padding: EdgeInsets.only(top: 20, bottom: 12),
                     child: Text(
-                      'Tus Playlists',
+                      'Para ti',
                       style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
                     ),
                   ),
@@ -225,10 +265,10 @@ class _SearchViewState extends State<SearchView> {
                       return ListTile(
                         contentPadding: EdgeInsets.zero,
                         leading: Container(
-                          width: 56,
-                          height: 56,
+                          width: 50,
+                          height: 50,
                           decoration: BoxDecoration(
-                            color: AppColors.primary.withValues(alpha: 0.3),
+                            color: AppColors.primary.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: const Icon(Icons.queue_music, color: AppColors.primary),
@@ -315,10 +355,18 @@ class _SearchViewState extends State<SearchView> {
           ...state.albums.map((album) => ListTile(
             leading: ClipRRect(
               borderRadius: BorderRadius.circular(4),
-              child: album.coverUrl.isNotEmpty
-                  ? Image.network(album.coverUrl, width: 50, height: 50, fit: BoxFit.cover,
-                      errorBuilder: (e, s, t) => _iconBox(Icons.album))
-                  : _iconBox(Icons.album),
+              child: SizedBox(
+                width: 50,
+                height: 50,
+                child: album.coverUrl.isNotEmpty
+                    ? FadeInImage.assetNetwork(
+                        placeholder: 'assets/images/logo.png',
+                        image: album.coverUrl,
+                        fit: BoxFit.cover,
+                        imageErrorBuilder: (e, s, t) => _iconBox(Icons.album),
+                      )
+                    : _iconBox(Icons.album),
+              ),
             ),
             title: Text(album.title, style: const TextStyle(color: Colors.white)),
             subtitle: Text('Álbum • ${album.artistName}', style: const TextStyle(color: Colors.grey)),
