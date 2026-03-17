@@ -1,233 +1,107 @@
-# 🎵 Spotify Clone Backend
+# 🎵 Full-Stack Spotify Clone
 
-Backend developed as part of a **Semester Project for the Mobile Application Development course**.
+![Flutter](https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white)
+![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-336791?style=for-the-badge&logo=postgresql&logoColor=white)
+![Oracle Cloud](https://img.shields.io/badge/OCI-F80000?style=for-the-badge&logo=oracle&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)
 
-This system replicates the core functionality of Spotify, allowing management of users, artists, albums, songs, playlists, and favorites, including multimedia file uploads to Object Storage.
+A professional, production-ready music streaming platform built with **Flutter** and **Node.js**. This project replicates the core experience of Spotify, featuring high-fidelity UI, offline-first capabilities, and a robust artist ecosystem.
 
 ---
 
-# 🧱 Architecture
+## 🏛 Project Overview
 
-The project follows a **Layered Architecture** with clear separation of responsibilities.
+This repository is split into two main components:
 
+### 1. [📱 High-Fidelity Mobile App](./lib/README.md)
+*   **Built with**: 
+    ![Flutter](https://img.shields.io/badge/Flutter-02569B?style=flat&logo=flutter&logoColor=white)
+    ![Dart](https://img.shields.io/badge/Dart-0175C2?style=flat&logo=dart&logoColor=white)
+    ![BLoC](https://img.shields.io/badge/BLoC-5FB9FF?style=flat&logo=flutter&logoColor=white)
+*   **Key Features**: Premium UI (Hero animations, Shimmers), Offline-First caching (Hive), Gesture-based player, and Artist management.
+*   **Supported Platforms**: Android & iOS.
+
+### 2. [📡 Scalable Backend API](./backend/README.md)
+*   **Built with**: 
+    ![Node.js](https://img.shields.io/badge/Node.js-339933?style=flat&logo=nodedotjs&logoColor=white)
+    ![Express](https://img.shields.io/badge/Express-000000?style=flat&logo=express&logoColor=white)
+    ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-336791?style=flat&logo=postgresql&logoColor=white)
+*   **Key Features**: JWT Security, Multimedia streaming (OCI), Multi-cloud storage integration, and Rate limiting.
+
+---
+
+## 🏗 System Architecture
+
+```mermaid
+graph TD
+    User([User App]) <--> API[Node.js Express API]
+    API <--> DB[(PostgreSQL Database)]
+    API <--> OCI[OCI Object Storage]
+    User <--> Hive[(Local Cache)]
 ```
-src/
- ├── config/        → Database, OCI, and logger configuration
- ├── controllers/   → Business logic
- ├── middleware/    → Authentication, validation, and error handling
- ├── routes/        → API endpoints
- ├── services/      → External services (Object Storage)
- ├── utils/         → Helpers (asyncHandler, pagination)
- ├── validators/    → Request validation using Joi
-```
 
-### Implemented Layers
-
-* **Presentation Layer** → Routes
-* **Application Layer** → Controllers
-* **Service Layer** → Services
-* **Infrastructure Layer** → Config
-* **Cross-cutting Concerns** → Middleware
-
-This structure ensures scalability, maintainability, and clean separation of concerns.
+### Core Workflows
+1.  **Authentication**: Secure JWT flow for users and artists.
+2.  **Streaming**: Songs are served via progressive streaming from OCI.
+3.  **Offline-First**: Favorites and recent searches are cached locally for an "always-available" experience.
+4.  **Artist Ecosystem**: Independent workflow for uploading albums and tracking play counts.
 
 ---
 
-# 🛠 Tech Stack
+## 🚀 Quick Start
 
-* Node.js
-* Express 5
-* PostgreSQL
-* JWT (jsonwebtoken)
-* bcrypt
-* Joi
-* Multer (file uploads)
-* OCI Object Storage
-* Pino (structured logging)
-* Helmet (security headers)
-* CORS
-* Rate Limiting
+### Prerequisites
+- Flutter SDK (Latest Stable)
+- Node.js (v18+)
+- PostgreSQL instance (or Supabase)
 
----
-
-# 🗄 Database
-
-Database Engine: **PostgreSQL**
-
-### Main Tables
-
-* `users`
-* `artists`
-* `albums`
-* `songs`
-* `playlists`
-* `playlist_songs` (many-to-many relationship)
-* `favorites`
-
-### Database Features
-
-* Foreign keys with `ON DELETE CASCADE`
-* Unique constraints
-* CHECK constraints
-* Optimized indexes
-* 1–1, 1–N, and N–N relationships
-
----
-
-# 🔐 Security Features
-
-* JWT-based authentication
-* Password hashing using bcrypt
-* Role-based authorization (artist role)
-* Album ownership validation
-* Helmet security headers
-* CORS configuration
-* Rate limiting
-* File validation:
-
-  * MIME type validation
-  * 20MB size limit
-* Centralized error handler
-* Request validation with Joi
-* Structured logging with Pino
-
----
-
-# 📦 Installation
-
+### 1. Setup Backend
 ```bash
-git clone <repository_url>
 cd backend
 npm install
-```
-
-Create a `.env` file based on `.env.example`:
-
-```
-PORT=
-DB_HOST=
-DB_PORT=
-DB_USER=
-DB_PASSWORD=
-DB_NAME=
-JWT_SECRET=
-```
-
-Run in development mode:
-
-```bash
-npm run dev
-```
-
-Run in production mode:
-
-```bash
+# Configure your .env
 npm start
 ```
 
----
-
-# 📡 Main API Endpoints
-
-## 🔑 Authentication
-
-```
-POST   /api/auth/register
-POST   /api/auth/login
-GET    /api/auth/
-```
-
-## 🎤 Artists
-
-```
-POST   /api/artists/create
-```
-
-## 💿 Albums
-
-```
-POST   /api/albums/create
-GET    /api/albums/
-PUT    /api/albums/update/:id
-DELETE /api/albums/delete/:id
-```
-
-## 🎵 Songs
-
-```
-POST   /api/songs/addsong
-GET    /api/songs/
-GET    /api/songs/all
-PUT    /api/songs/update/:id
-DELETE /api/songs/delete/:id
-PATCH  /api/songs/:id/play
-```
-
-## 📁 Playlists
-
-```
-POST   /api/playlists/create
-GET    /api/playlists/
-POST   /api/playlists/:playlistId/add/:songId
-DELETE /api/playlists/:playlistId
-DELETE /api/playlists/:playlistId/remove/:songId
-GET    /api/playlists/:playlistId/songs
-```
-
-## ❤️ Favorites
-
-```
-POST   /api/favorites/add/:id
-GET    /api/favorites/
-DELETE /api/favorites/remove/:id
+### 2. Setup Frontend
+```bash
+# In the root directory
+flutter pub get
+# Update ApiConstants with your server IP
+flutter run
 ```
 
 ---
 
-# 📂 File Upload System
+## ☁️ Deployment
 
-* Multer with `memoryStorage`
-* MIME type validation
-* 20MB file size limit
-* Upload to OCI Object Storage
-* URLs stored in the database
+### Infrastructure
+- **API**: Deployable via Docker or directly on VPS/Cloud (Railway, Render, OCI).
+- **Database**: PostgreSQL (Supabase recommended for quick setup).
+- **Storage**: Oracle Cloud Infrastructure (OCI) Object Storage or Supabase Storage.
 
----
+### Docker Deployment (Backend)
+```bash
+cd backend
+docker-compose up -d
+```
 
-# 📈 Implemented Features
-
-✔ User registration and login
-✔ Artist profile creation
-✔ Album creation
-✔ Song upload (audio + cover)
-✔ Playlist management
-✔ Favorites system
-✔ Play count increment
-✔ Pagination
-✔ Structured logging
-✔ Advanced security configuration
+### Building Mobile App
+```bash
+# Android
+flutter build apk --release
+# iOS
+flutter build ios --release
+```
 
 ---
 
-# 🧠 Future Improvements
+## 🎨 Visual Preview
 
-* UUID-based file naming
-* Soft delete for songs
-* Audio duration validation
-* Additional strategic indexes
-* Automated testing
-* Swagger/OpenAPI documentation
+| Home Screen | Player & Gestures | Artist Dashboard |
+| :---: | :---: | :---: |
+| ![Home](assets/images/preview_home.png) | ![Player](assets/images/preview_player.png) | ![Artist](assets/images/preview_artist.png) |
 
----
-
-# 🎓 Academic Justification
-
-This backend demonstrates:
-
-* Modular and scalable architecture
-* Clear separation of concerns
-* Secure authentication and authorization
-* Multimedia file handling
-* Integration with external storage services
-* Complete relational database modeling
-* Production-ready middleware structure
+> [!NOTE]
+> For detailed technical documentation of each component, please visit the respective directories listed above.
