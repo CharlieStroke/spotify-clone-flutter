@@ -9,6 +9,8 @@ import '../../domain/entities/album_entity.dart';
 import '../../../playlist_detail/presentation/pages/playlist_detail_page.dart';
 import '../../../../core/widgets/song_widgets.dart';
 import '../../../../core/widgets/page_layout.dart';
+import '../../../../core/widgets/shimmer_skeleton.dart';
+import '../../../../core/widgets/empty_state_widget.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -37,20 +39,14 @@ class _HomePageState extends State<HomePage> {
         child: BlocBuilder<HomeBloc, HomeState>(
           builder: (context, state) {
             if (state is HomeLoading) {
-              return const Center(child: CircularProgressIndicator(color: AppColors.primary));
+              return const HomeSkeleton();
             } else if (state is HomeFailure) {
-              return RefreshIndicator(
-                onRefresh: () async => context.read<HomeBloc>().add(GetSongsEvent()),
-                color: AppColors.primary,
-                backgroundColor: const Color(0xFF282828),
-                child: CustomScrollView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  slivers: [
-                    SliverFillRemaining(
-                      child: Center(child: Text(state.errorMessage, style: const TextStyle(color: Colors.red))),
-                    ),
-                  ],
-                ),
+              return EmptyStateWidget(
+                icon: Icons.wifi_off_rounded,
+                title: 'No pudimos cargar el contenido',
+                message: state.errorMessage,
+                buttonText: 'Reintentar',
+                onButtonPressed: () => context.read<HomeBloc>().add(GetSongsEvent()),
               );
             } else if (state is HomeLoaded) {
               final playlists = state.playlists;

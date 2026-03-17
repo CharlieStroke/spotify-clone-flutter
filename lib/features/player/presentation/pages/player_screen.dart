@@ -33,10 +33,20 @@ class PlayerScreen extends StatelessWidget {
               : 0.0;
 
           return SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              child: Column(
-                children: [
+            child: GestureDetector(
+              onHorizontalDragEnd: (details) {
+                // Si la velocidad es positiva, deslizó a la derecha (Anterior)
+                // Si la velocidad es negativa, deslizó a la izquierda (Siguiente)
+                if (details.primaryVelocity! > 500) {
+                  context.read<PlayerCubit>().seekToPrevious();
+                } else if (details.primaryVelocity! < -500) {
+                  context.read<PlayerCubit>().seekToNext();
+                }
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                child: Column(
+                  children: [
                   const SizedBox(height: 16),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,

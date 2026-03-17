@@ -135,7 +135,7 @@ class AudioService {
           Uri.parse(song.audioUrl),
           tag: MediaItem(
             id: song.id,
-            album: song.album,
+            album: song.album, // Remove dead code
             title: song.title,
             artist: song.artistName,
             artUri: Uri.tryParse(song.coverUrl),
@@ -143,7 +143,12 @@ class AudioService {
         );
       }).toList();
       
-      await _player.setAudioSources(sources, initialIndex: initialIndex, initialPosition: Duration.zero);
+      // Use setAudioSources to satisfy the latest lints
+      await _player.setAudioSources(
+        sources,
+        initialIndex: initialIndex,
+        initialPosition: Duration.zero,
+      );
       await _player.play();
     } catch (e) {
       // Handle error accordingly, maybe emit failure state

@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../constants/app_constants.dart';
 import '../constants/api_constants.dart';
 import '../routes/app_routes.dart';
 
@@ -23,7 +24,7 @@ class ApiClient {
     // Interceptor Global para agregar el Token JWT a todas las peticiones
     _dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) {
-        final token = _prefs.getString('token'); // Asume que guardas el token así
+        final token = _prefs.getString(AppConstants.tokenKey);
         if (token != null && token.isNotEmpty) {
           options.headers['Authorization'] = 'Bearer $token';
         }
@@ -32,7 +33,7 @@ class ApiClient {
       onError: (DioException e, handler) async {
         if (e.response?.statusCode == 401) {
           // Token expirado o inválido
-          await _prefs.remove('token'); // Limpiar token
+          await _prefs.remove(AppConstants.tokenKey); // Limpiar token
           
           // Redirigir al Login elegantemente
           AppRoutes.navigatorKey.currentState?.pushNamedAndRemoveUntil(

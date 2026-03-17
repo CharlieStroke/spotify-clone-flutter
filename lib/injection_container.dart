@@ -18,6 +18,7 @@ import 'features/home/domain/usecases/get_songs_usecase.dart';
 import 'features/home/domain/usecases/get_albums_usecase.dart';
 import 'features/home/domain/usecases/get_playlists_usecase.dart';
 import 'features/home/presentation/bloc/home_bloc.dart';
+import 'features/home/data/sources/home_local_data_source.dart';
 import 'features/main_navigation/presentation/cubit/main_navigation_cubit.dart';
 import 'features/profile/data/sources/profile_api_service.dart';
 import 'features/profile/domain/repositories/profile_repository.dart';
@@ -25,8 +26,8 @@ import 'features/profile/data/repositories/profile_repository_impl.dart';
 import 'features/profile/domain/usecases/get_user_profile_usecase.dart';
 import 'features/profile/domain/usecases/update_profile_usecase.dart';
 import 'features/profile/presentation/bloc/profile_bloc.dart';
-
 // Create Feature
+import 'features/home/domain/usecases/get_cached_home_usecase.dart';
 import 'features/create/data/sources/create_api_service.dart';
 import 'features/create/domain/repository/create_repository.dart';
 import 'features/create/data/repository/create_repository_impl.dart';
@@ -55,7 +56,9 @@ import 'features/library/domain/usecases/add_song_usecase.dart';
 import 'features/library/domain/usecases/remove_song_usecase.dart';
 import 'features/library/domain/usecases/delete_playlist_usecase.dart';
 import 'features/library/presentation/bloc/library_bloc.dart';
+import 'features/library/domain/usecases/get_cached_library_usecase.dart';
 import 'features/library/presentation/bloc/library_action_bloc.dart';
+import 'features/library/data/sources/library_local_data_source.dart';
 
 // Playlist/Album Detail Feature
 import 'features/playlist_detail/data/sources/detail_api_service.dart';
@@ -100,6 +103,8 @@ Future<void> init() async {
   sl.registerLazySingleton<CreateApiService>(() => CreateApiServiceImpl(sl()));
   sl.registerLazySingleton<SearchApiService>(() => SearchApiServiceImpl(sl()));
   sl.registerLazySingleton<LibraryApiService>(() => LibraryApiServiceImpl(sl()));
+  sl.registerLazySingleton<HomeLocalDataSource>(() => HomeLocalDataSourceImpl());
+  sl.registerLazySingleton<LibraryLocalDataSource>(() => LibraryLocalDataSourceImpl());
   sl.registerLazySingleton<PlaylistDetailApiService>(() => PlaylistDetailApiServiceImpl(sl()));
   sl.registerLazySingleton<FavoritesApiService>(() => FavoritesApiServiceImpl(sl()));
   sl.registerLazySingleton<FavoritesLocalDataSource>(() => FavoritesLocalDataSourceImpl());
@@ -111,11 +116,11 @@ Future<void> init() async {
     
   );
   sl.registerLazySingleton<SongRepository>(() => SongRepositoryImpl(sl()));
-  sl.registerLazySingleton<HomeRepository>(() => HomeRepositoryImpl(sl()));
+  sl.registerLazySingleton<HomeRepository>(() => HomeRepositoryImpl(sl(), sl()));
   sl.registerLazySingleton<ProfileRepository>(() => ProfileRepositoryImpl(profileApiService: sl()));
   sl.registerLazySingleton<CreateRepository>(() => CreateRepositoryImpl(sl()));
   sl.registerLazySingleton<SearchRepository>(() => SearchRepositoryImpl(sl()));
-  sl.registerLazySingleton<LibraryRepository>(() => LibraryRepositoryImpl(sl()));
+  sl.registerLazySingleton<LibraryRepository>(() => LibraryRepositoryImpl(sl(), sl()));
   sl.registerLazySingleton<PlaylistDetailRepository>(() => PlaylistDetailRepositoryImpl(sl()));
   sl.registerLazySingleton<FavoritesRepository>(() => FavoritesRepositoryImpl(sl(), sl()));
   sl.registerLazySingleton<ArtistRepository>(() => ArtistRepositoryImpl(sl()));
@@ -126,11 +131,13 @@ Future<void> init() async {
   sl.registerLazySingleton(() => SongUseCase(sl()));
   sl.registerLazySingleton(() => GetAlbumsUseCase(sl()));
   sl.registerLazySingleton(() => GetPlaylistsUseCase(sl()));
+  sl.registerLazySingleton(() => GetCachedHomeUseCase(sl()));
   sl.registerLazySingleton(() => GetUserProfileUseCase(repository: sl()));
   sl.registerLazySingleton(() => UpdateProfileUseCase(sl()));
   sl.registerLazySingleton(() => CreatePlaylistUseCase(sl()));
   sl.registerLazySingleton(() => SearchUseCase(sl()));
   sl.registerLazySingleton(() => GetLibraryUseCase(sl()));
+  sl.registerLazySingleton(() => GetCachedLibraryUseCase(sl()));
   sl.registerLazySingleton(() => AddSongToPlaylistUseCase(sl()));
   sl.registerLazySingleton(() => RemoveSongFromPlaylistUseCase(sl()));
   sl.registerLazySingleton(() => DeletePlaylistUseCase(sl()));
@@ -148,6 +155,7 @@ Future<void> init() async {
     getSongsUseCase: sl(),
     getAlbumsUseCase: sl(),
     getPlaylistsUseCase: sl(),
+    getCachedHomeUseCase: sl(),
   ));
   sl.registerFactory(() => MainNavigationCubit());
   sl.registerLazySingleton(() => ProfileBloc(
@@ -157,7 +165,7 @@ Future<void> init() async {
       ));
   sl.registerFactory(() => CreatePlaylistBloc(sl()));
   sl.registerFactory(() => SearchBloc(sl()));
-  sl.registerLazySingleton(() => LibraryBloc(sl()));
+  sl.registerLazySingleton(() => LibraryBloc(sl(), sl()));
   sl.registerFactory(() => LibraryActionBloc(sl(), sl(), sl()));
   sl.registerFactory(() => PlaylistDetailBloc(sl()));
   sl.registerLazySingleton(() => PlayerCubit(sl()));

@@ -185,74 +185,7 @@ class _CreatePlaylistViewState extends State<CreatePlaylistView> {
     );
   }
 
-  void _showArtistRegistrationDialog(BuildContext context) {
-    final stageNameController = TextEditingController();
-    final bioController = TextEditingController();
-    final bloc = context.read<ArtistBloc>();
-    _selectedImage = null;
 
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: const Color(0xFF282828),
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (context) => StatefulBuilder(
-        builder: (context, setStateDialog) => Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-            left: 20, right: 20, top: 20,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text('Crear perfil de Artista', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 20),
-              GestureDetector(
-                onTap: () => _pickImage(setStateDialog),
-                child: Container(
-                  width: 100, height: 100,
-                  decoration: BoxDecoration(
-                    color: Colors.white10,
-                    shape: BoxShape.circle,
-                    image: _selectedImage != null ? DecorationImage(image: FileImage(_selectedImage!), fit: BoxFit.cover) : null,
-                  ),
-                  child: _selectedImage == null ? const Icon(Icons.camera_alt, color: Colors.white54) : null,
-                ),
-              ),
-              const SizedBox(height: 20),
-              TextField(
-                controller: stageNameController,
-                style: const TextStyle(color: Colors.white),
-                decoration: const InputDecoration(hintText: 'Nombre Artístico', hintStyle: TextStyle(color: Colors.grey)),
-              ),
-              TextField(
-                controller: bioController,
-                maxLines: 3,
-                style: const TextStyle(color: Colors.white),
-                decoration: const InputDecoration(hintText: 'Biografía (breve)', hintStyle: TextStyle(color: Colors.grey)),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  if (stageNameController.text.isNotEmpty && _selectedImage != null) {
-                    bloc.add(RegisterArtistEvent(
-                      stageName: stageNameController.text.trim(),
-                      bio: bioController.text.trim(),
-                      image: _selectedImage!,
-                    ));
-                    Navigator.pop(context);
-                  }
-                },
-                style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: Colors.black),
-                child: const Text('Comenzar mi carrera'),
-              ),
-              const SizedBox(height: 20),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 
   void _showCreateAlbumDialog(BuildContext context) {
     final titleController = TextEditingController();
@@ -530,37 +463,7 @@ class _CreatePlaylistViewState extends State<CreatePlaylistView> {
                       },
                     ),
                   ],
-                  if (!isArtist && artistState is! ArtistLoading) ...[
                     const SizedBox(height: 40),
-                    Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
-                      ),
-                      child: Column(
-                        children: [
-                          const Icon(Icons.star, color: AppColors.primary, size: 40),
-                          const SizedBox(height: 10),
-                          const Text('¿Eres músico?', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-                          const SizedBox(height: 5),
-                          const Text(
-                            'Conviértete en artista para subir tus propias canciones y álbumes a Spotify Clone.',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(color: Colors.white70, fontSize: 13),
-                          ),
-                          const SizedBox(height: 15),
-                          ElevatedButton(
-                            onPressed: () => _showArtistRegistrationDialog(context),
-                            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: Colors.black),
-                            child: const Text('Hacerse Artista', style: TextStyle(fontWeight: FontWeight.bold)),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                  const SizedBox(height: 40),
                 ],
               ),
             );

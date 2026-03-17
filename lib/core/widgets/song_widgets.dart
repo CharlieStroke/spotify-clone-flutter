@@ -61,7 +61,7 @@ class SongListTile extends StatelessWidget {
         overflow: TextOverflow.ellipsis,
       ),
       subtitle: Text(
-        song.artistName.isNotEmpty ? song.artistName : (song.album.isNotEmpty ? song.album : 'Desconocido'),
+        song.artistName.isNotEmpty ? song.artistName : (song.album.isNotEmpty ? song.album : 'Artista Desconocido'),
         style: const TextStyle(color: Colors.white70, fontSize: 12),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
@@ -181,7 +181,7 @@ class SongListTileWithHeart extends StatelessWidget {
       title: Text(song.title,
           style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
           maxLines: 1, overflow: TextOverflow.ellipsis),
-      subtitle: Text(song.artistName.isNotEmpty ? song.artistName : (song.album.isNotEmpty ? song.album : 'Desconocido'),
+      subtitle: Text(song.artistName.isNotEmpty ? song.artistName : (song.album.isNotEmpty ? song.album : 'Artista Desconocido'),
           style: const TextStyle(color: Colors.white70, fontSize: 12),
           maxLines: 1, overflow: TextOverflow.ellipsis),
       trailing: Row(
@@ -256,26 +256,29 @@ class PlaylistCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
-            child: Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: const Color(0xFF6A2C50),
-                borderRadius: BorderRadius.circular(2),
-              ),
-              child: coverUrl != null && coverUrl!.isNotEmpty
-                  ? ClipRRect(
-                      borderRadius: BorderRadius.circular(2),
-                      child: Image.network(
-                        coverUrl!.trim(),
-                        fit: BoxFit.cover,
-                        errorBuilder: (e, s, t) => const Center(
-                          child: Icon(Icons.photo_outlined, color: Colors.white, size: 40),
+            child: Hero(
+              tag: 'playlist_cover_$title',
+              child: Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF6A2C50),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+                child: coverUrl != null && coverUrl!.isNotEmpty
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.circular(2),
+                        child: Image.network(
+                          coverUrl!.trim(),
+                          fit: BoxFit.cover,
+                          errorBuilder: (e, s, t) => const Center(
+                            child: Icon(Icons.photo_outlined, color: Colors.white, size: 40),
+                          ),
                         ),
+                      )
+                    : const Center(
+                        child: Icon(Icons.photo_outlined, color: Colors.white, size: 40),
                       ),
-                    )
-                  : const Center(
-                      child: Icon(Icons.photo_outlined, color: Colors.white, size: 40),
-                    ),
+              ),
             ),
           ),
           const SizedBox(height: 6),
@@ -332,7 +335,7 @@ class AlbumCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Hero(
-              tag: (coverUrl != null && coverUrl!.trim().isNotEmpty) ? coverUrl!.trim() : title,
+              tag: 'album_cover_$title',
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(8),
                 child: (coverUrl != null && coverUrl!.trim().isNotEmpty)
@@ -417,21 +420,23 @@ class HomePlaylistChip extends StatelessWidget {
         clipBehavior: Clip.antiAlias,
         child: Row(
           children: [
-            // Thumbnail cuadrada más grande
-            AspectRatio(
-              aspectRatio: 1,
-              child: Container(
-                decoration: const BoxDecoration(
-                  color: Colors.white10,
+            Hero(
+              tag: 'playlist_cover_$name',
+              child: AspectRatio(
+                aspectRatio: 1,
+                child: Container(
+                  decoration: const BoxDecoration(
+                    color: Colors.white10,
+                  ),
+                  child: (coverUrl != null && coverUrl!.isNotEmpty)
+                      ? Image.network(
+                          coverUrl!.trim(),
+                          fit: BoxFit.cover,
+                          errorBuilder: (e, s, t) =>
+                              const Center(child: Icon(Icons.music_note, color: Colors.white38)),
+                        )
+                      : const Center(child: Icon(Icons.music_note, color: Colors.white38)),
                 ),
-                child: (coverUrl != null && coverUrl!.isNotEmpty)
-                    ? Image.network(
-                        coverUrl!.trim(),
-                        fit: BoxFit.cover,
-                        errorBuilder: (e, s, t) =>
-                            const Center(child: Icon(Icons.music_note, color: Colors.white38)),
-                      )
-                    : const Center(child: Icon(Icons.music_note, color: Colors.white38)),
               ),
             ),
             const SizedBox(width: 12),

@@ -17,6 +17,8 @@ import '../../../../features/profile/presentation/bloc/profile_state.dart';
 import '../../../../features/favorites/presentation/bloc/favorites_bloc.dart';
 import '../../../../features/favorites/presentation/bloc/favorites_event.dart';
 import '../../../../core/widgets/song_widgets.dart';
+import '../../../../core/widgets/shimmer_skeleton.dart';
+import '../../../../core/widgets/empty_state_widget.dart';
 
 class PlaylistDetailPage extends StatelessWidget {
   final String id;
@@ -236,19 +238,34 @@ class PlaylistDetailView extends StatelessWidget {
               builder: (context, state) {
                 if (state is PlaylistDetailLoading) {
                   return const Padding(
-                    padding: EdgeInsets.all(40.0),
-                    child: Center(child: CircularProgressIndicator(color: AppColors.primary)),
+                    padding: EdgeInsets.only(top: 20),
+                    child: PlaylistDetailSkeleton(),
                   );
                 } else if (state is PlaylistDetailFailure) {
-                  return Padding(
-                    padding: const EdgeInsets.all(40.0),
-                    child: Center(child: Text(state.error, style: const TextStyle(color: Colors.red))),
+                  return EmptyStateWidget(
+                    icon: Icons.error_outline,
+                    title: 'Error al cargar detalle',
+                    message: state.error,
+                    buttonText: 'Reintentar',
+                    onButtonPressed: () => context.read<PlaylistDetailBloc>().add(LoadPlaylistDetailEvent(id: id, type: type)),
                   );
                 } else if (state is PlaylistDetailLoaded) {
                   if (state.songs.isEmpty) {
-                    return const Padding(
-                      padding: EdgeInsets.all(40.0),
-                      child: Center(child: Text('Aún no hay canciones.', style: TextStyle(color: Colors.white))),
+                    final isOwner = type == 'playlist' &&
+                        context.read<ProfileBloc>().state is ProfileLoaded &&
+                        (context.read<ProfileBloc>().state as ProfileLoaded).user.userId == ownerId;
+
+                    return EmptyStateWidget(
+                      icon: Icons.music_note_outlined,
+                      title: 'Playlist vacía',
+                      message: isOwner 
+                        ? 'Añade algunas canciones para empezar a escuchar.' 
+                        : 'Esta playlist aún no tiene canciones.',
+                      buttonText: isOwner ? 'Añadir canciones' : null,
+                      onButtonPressed: isOwner ? () {
+                        final bloc = context.read<PlaylistDetailBloc>();
+                        SearchSongToAddSheet.show(context, id, detailBloc: bloc);
+                      } : null,
                     );
                   }
                   final isOwner = type == 'playlist' &&
@@ -304,26 +321,33 @@ class PlaylistDetailView extends StatelessWidget {
   }
 
   Widget _buildCoverSpace() {
+    final heroTag = type == 'playlist' || type == 'favorites' 
+        ? 'playlist_cover_$title' 
+        : 'album_cover_$title';
+
     return Center(
-      child: Container(
-        width: 250,
-        height: 250,
-        decoration: BoxDecoration(
-          color: const Color(0xFF6A2C50), // Color morado del mockup
-          image: coverUrl != null 
-            ? DecorationImage(image: NetworkImage(coverUrl!), fit: BoxFit.cover)
+      child: Hero(
+        tag: heroTag,
+        child: Container(
+          width: 250,
+          height: 250,
+          decoration: BoxDecoration(
+            color: const Color(0xFF6A2C50), // Color morado del mockup
+            image: coverUrl != null 
+              ? DecorationImage(image: NetworkImage(coverUrl!), fit: BoxFit.cover)
+              : null,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.5),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
+              )
+            ]
+          ),
+          child: coverUrl == null 
+            ? const Icon(Icons.photo_outlined, color: Colors.white, size: 80)
             : null,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.5),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
-            )
-          ]
         ),
-        child: coverUrl == null 
-          ? const Icon(Icons.photo_outlined, color: Colors.white, size: 80)
-          : null,
       ),
     );
   }
