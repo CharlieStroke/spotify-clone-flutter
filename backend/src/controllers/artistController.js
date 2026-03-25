@@ -47,8 +47,7 @@ const createArtist = asyncHandler(async (req, res) => {
         throw err;
     }
 
-    const imageName = `artists/${Date.now()}_${imageFile.originalname}`;
-    const image_url = await uploadFile(imageFile.buffer, imageName, imageFile.mimetype);
+    const image_url = await uploadFile(imageFile, 'artists');
 
     const newArtist = await pool.query(
         `INSERT INTO artists (user_id, stage_name, bio, image_url)
