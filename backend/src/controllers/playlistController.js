@@ -222,7 +222,7 @@ const getPlaylistSongs = asyncHandler(async (req, res) => {
          LEFT JOIN albums al ON s.album_id = al.album_id
          LEFT JOIN artists ar ON al.artist_id = ar.artist_id
          WHERE ps.playlist_id = $1
-         ORDER BY ps.added_at ASC`,
+         ORDER BY s.song_id ASC`,
         [playlistId]
     );
 
