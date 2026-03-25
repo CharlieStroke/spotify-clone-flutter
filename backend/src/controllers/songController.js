@@ -9,10 +9,6 @@ const createSong = asyncHandler(async (req, res) => {
     const audio = req.files?.audio?.[0];
     const cover = req.files?.cover?.[0];
 
-    console.log('[CreateSong] Body:', { title, album_id, duration });
-    console.log('[CreateSong] Files:', { audio: audio?.mimetype, cover: cover?.mimetype });
-    console.log('[CreateSong] Artist:', req.artist);
-
     if (!audio) {
         const err = new Error('Archivo de canción es requerido');
         err.statusCode = 400;
@@ -48,7 +44,6 @@ const createSong = asyncHandler(async (req, res) => {
         [title, parseInt(album_id), duration ? parseInt(duration) : null, songUrl, coverUrl]
     );
 
-    console.log(req.files);
     res.status(201).json({
         success: true,
         message: 'Canción creada exitosamente',
@@ -122,20 +117,37 @@ const deleteSong = asyncHandler(async (req, res) => {
 });
 
 const getSongsByArtist = asyncHandler(async (req, res) => {
-
     const artistId = req.artist.artist_id;
+    const { page, limit, offset } = paginate.getPagination(req);
 
-    const songs = await pool.query(
-        `SELECT song_id, album_id, title, duration, audio_url, cover_url 
-        FROM songs 
-        WHERE album_id IN (SELECT album_id FROM albums WHERE artist_id = $1)`,
-        [artistId]
-    );
+    const [totalResult, songs] = await Promise.all([
+        pool.query(
+            `SELECT COUNT(*) FROM songs
+             WHERE album_id IN (SELECT album_id FROM albums WHERE artist_id = $1)`,
+            [artistId]
+        ),
+        pool.query(
+            `SELECT song_id, album_id, title, duration, audio_url, cover_url
+             FROM songs
+             WHERE album_id IN (SELECT album_id FROM albums WHERE artist_id = $1)
+             ORDER BY created_at DESC
+             LIMIT $2 OFFSET $3`,
+            [artistId, limit, offset]
+        ),
+    ]);
+
+    const totalItems = parseInt(totalResult.rows[0].count, 10);
 
     res.status(200).json({
         success: true,
         message: 'Canciones obtenidas exitosamente',
-        songs: songs.rows
+        songs: songs.rows,
+        pagination: {
+            page,
+            limit,
+            totalItems,
+            totalPages: Math.ceil(totalItems / limit),
+        },
     });
 });
 
