@@ -17,14 +17,8 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            # Entramos a la carpeta de tu backend
             cd /home/ubuntu/backend/spotify-clone-flutter/backend
-            
-            # Descargamos los últimos cambios de GitHub
             git pull origin main
-            
-            # Instalamos nuevas dependencias si las hay
-            npm install
-            
-            # Reiniciamos la aplicación con PM2
-            pm2 restart backend
+            docker compose down
+            docker compose up -d --build
+            docker image prune -f
