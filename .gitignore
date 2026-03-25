@@ -15,6 +15,7 @@ backend/test_endpoints.js
 .env
 node_modules/
 CLAUDE.md
+.claude/
 
 # IntelliJ related
 *.iml

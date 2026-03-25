@@ -52,7 +52,7 @@ const globalLimiter = rateLimit({
 // Se aplica individualmente en authRoutes.
 const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 15,
+    max: 100,
     standardHeaders: true,
     legacyHeaders: false,
     message: {
