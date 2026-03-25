@@ -1,6 +1,8 @@
 const multer = require('multer');
+const path   = require('path');
 
-const allowedAudioTypes = [
+// ─── MIME types permitidos ────────────────────────────────────────────────────
+const ALLOWED_AUDIO_MIMES = new Set([
     'audio/mpeg',
     'audio/mp3',
     'audio/mp4',
@@ -12,41 +14,58 @@ const allowedAudioTypes = [
     'audio/ogg',
     'audio/aac',
     'audio/x-m4a',
-    'video/mp4', // Android sometimes sends mp3 as video/mp4
-    'application/octet-stream' // Generic binary, allow and let the backend handle it
-];
+    'video/mp4', // Android a veces envía mp3 como video/mp4
+]);
 
-const allowedImageTypes = [
+// Extensiones de audio válidas (usadas como fallback para application/octet-stream)
+const ALLOWED_AUDIO_EXTENSIONS = new Set([
+    '.mp3', '.mp4', '.wav', '.webm', '.ogg', '.aac', '.m4a',
+]);
+
+const ALLOWED_IMAGE_MIMES = new Set([
     'image/jpeg',
     'image/png',
     'image/webp',
     'image/gif',
-    'image/svg+xml',
     'image/bmp',
-    'image/tiff'
-];
+    'image/tiff',
+]);
 
+// ─── File filter ──────────────────────────────────────────────────────────────
+const fileFilter = (req, file, cb) => {
+    // Normalizar originalname para prevenir path traversal
+    const safeName = path.basename(file.originalname);
+    const ext      = path.extname(safeName).toLowerCase();
+
+    if (file.fieldname === 'audio') {
+        // Aceptar MIMEs conocidos de audio
+        if (ALLOWED_AUDIO_MIMES.has(file.mimetype)) {
+            return cb(null, true);
+        }
+        // Para application/octet-stream (envío genérico de Android),
+        // validar que la extensión sea de audio
+        if (file.mimetype === 'application/octet-stream' && ALLOWED_AUDIO_EXTENSIONS.has(ext)) {
+            return cb(null, true);
+        }
+        return cb(new Error(`Tipo de archivo de audio no permitido: ${file.mimetype} (${ext})`), false);
+    }
+
+    if (['cover', 'image', 'profile_image', 'cover_image'].includes(file.fieldname)) {
+        if (ALLOWED_IMAGE_MIMES.has(file.mimetype)) {
+            return cb(null, true);
+        }
+        return cb(new Error(`Tipo de archivo de imagen no permitido: ${file.mimetype} (${ext})`), false);
+    }
+
+    // Campo desconocido: rechazar
+    return cb(new Error(`Campo de archivo no reconocido: ${file.fieldname}`), false);
+};
+
+// ─── Configuración de multer ──────────────────────────────────────────────────
 const upload = multer({
     storage: multer.memoryStorage(),
-    limits: { fileSize: 20 * 1024 * 1024 },
-    fileFilter: (req, file, cb) => {
-        console.log(file.mimetype);
-        if (file.fieldname === 'audio') {
-            if (!allowedAudioTypes.includes(file.mimetype)) {
-                return cb(new Error('Tipo de audio no permitido'), false);
-            }
-
-        }
-
-        if (file.fieldname === 'cover' || file.fieldname === 'image' || file.fieldname === 'profile_image' || file.fieldname === 'cover_image') {
-            if (!allowedImageTypes.includes(file.mimetype)) {
-                return cb(new Error('Tipo de imagen no permitido'), false);
-            }
-        }
-
-        cb(null, true);
-
-    }
+    limits: { fileSize: 20 * 1024 * 1024 }, // 20 MB
+    fileFilter,
 });
 
 module.exports = upload;

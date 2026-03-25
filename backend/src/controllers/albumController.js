@@ -1,6 +1,7 @@
-const pool = require('../config/db');
-const { uploadFile } = require('../services/supabaseStorageService'); // importamos el servicio de subida de imágenes (Supabase)
+const pool         = require('../config/db');
 const asyncHandler = require('../utils/asyncHandler');
+const paginate     = require('../utils/pagination');
+const { uploadFile } = require('../services/supabaseStorageService');
 const { albumSchema } = require('../validators/artistValidator');
 
 const createAlbum = asyncHandler(async (req, res) => {
@@ -61,30 +62,55 @@ const getAlbums = asyncHandler(async (req, res) => {
 });
 
 const deleteAlbum = asyncHandler(async (req, res) => {
-
-    const albumId = req.params.id;
+    const albumId  = req.params.id;
     const artistId = req.artist.artist_id;
 
     const albumResult = await pool.query(
         `SELECT * FROM albums WHERE album_id = $1 AND artist_id = $2`,
         [albumId, artistId]
     );
-
     if (albumResult.rows.length === 0) {
         const err = new Error('Álbum no encontrado o no pertenece al artista');
         err.statusCode = 404;
         throw err;
     }
 
-    await pool.query(
-        `DELETE FROM albums WHERE album_id = $1 AND artist_id = $2`,
-        [albumId, artistId]
-    );
+    // Transacción: eliminar referencias en playlist_songs → songs → album de forma atómica
+    const client = await pool.connect();
+    try {
+        await client.query('BEGIN');
+
+        // 1. Quitar canciones del álbum de cualquier playlist
+        await client.query(
+            `DELETE FROM playlist_songs
+             WHERE song_id IN (SELECT song_id FROM songs WHERE album_id = $1)`,
+            [albumId]
+        );
+
+        // 2. Eliminar las canciones del álbum
+        await client.query(
+            `DELETE FROM songs WHERE album_id = $1`,
+            [albumId]
+        );
+
+        // 3. Eliminar el álbum
+        await client.query(
+            `DELETE FROM albums WHERE album_id = $1`,
+            [albumId]
+        );
+
+        await client.query('COMMIT');
+    } catch (err) {
+        await client.query('ROLLBACK');
+        throw err;
+    } finally {
+        client.release();
+    }
 
     res.status(200).json({
         success: true,
-        message: 'Álbum con nombre "' + albumResult.rows[0].title + '" eliminado exitosamente',
-        album: albumResult.rows[0]
+        message: `Álbum "${albumResult.rows[0].title}" eliminado exitosamente`,
+        album: albumResult.rows[0],
     });
 });
 
@@ -121,18 +147,31 @@ const updateAlbumName = asyncHandler(async (req, res) => {
 });
 
 const getAllAlbums = asyncHandler(async (req, res) => {
-    // No requiere que sea un artista, solo un usuario logueado.
-    // Hacemos JOIN con users para obtener el nombre del artista que lo creó.
-    const albums = await pool.query(
-        `SELECT a.album_id, a.title, a.cover_url, ar.stage_name as artist_name 
-         FROM albums a
-         LEFT JOIN artists ar ON a.artist_id = ar.artist_id
-         ORDER BY a.created_at DESC`
-    );
+    const { page, limit, offset } = paginate.getPagination(req);
+
+    const [totalResult, albums] = await Promise.all([
+        pool.query('SELECT COUNT(*) FROM albums'),
+        pool.query(
+            `SELECT a.album_id, a.title, a.cover_url, ar.stage_name AS artist_name
+             FROM albums a
+             LEFT JOIN artists ar ON a.artist_id = ar.artist_id
+             ORDER BY a.created_at DESC
+             LIMIT $1 OFFSET $2`,
+            [limit, offset]
+        ),
+    ]);
+
+    const totalItems = parseInt(totalResult.rows[0].count, 10);
 
     res.status(200).json({
         success: true,
-        albums: albums.rows
+        albums: albums.rows,
+        pagination: {
+            page,
+            limit,
+            totalItems,
+            totalPages: Math.ceil(totalItems / limit),
+        },
     });
 });
 

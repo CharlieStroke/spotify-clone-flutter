@@ -1,17 +1,19 @@
-const pool = require('../config/db');
+const pool         = require('../config/db');
 const asyncHandler = require('../utils/asyncHandler');
 const { createArtistSchema } = require('../validators/artistValidator');
 const { uploadFile } = require('../services/supabaseStorageService');
+
 // =============================
 // CREATE ARTIST
+// =============================
 const createArtist = asyncHandler(async (req, res) => {
     const userId = req.user.userId;
 
+    // Verificar que el usuario no tenga ya un perfil de artista
     const userArtist = await pool.query(
         'SELECT artist_id FROM artists WHERE user_id = $1',
         [userId]
     );
-
     if (userArtist.rows.length > 0) {
         const err = new Error('El usuario ya tiene un perfil de artista');
         err.statusCode = 400;
@@ -26,8 +28,19 @@ const createArtist = asyncHandler(async (req, res) => {
 
     const { stage_name, bio } = req.body;
 
-    const imageFile = req.files?.image?.[0];
+    // Verificar nombre artístico ANTES de subir la imagen para evitar
+    // archivos huérfanos en Supabase Storage si el nombre ya está en uso
+    const artistExists = await pool.query(
+        'SELECT stage_name FROM artists WHERE stage_name = $1',
+        [stage_name]
+    );
+    if (artistExists.rows.length > 0) {
+        const err = new Error('El nombre artístico ya existe');
+        err.statusCode = 400;
+        throw err;
+    }
 
+    const imageFile = req.files?.image?.[0];
     if (!imageFile) {
         const err = new Error('Archivo de imagen es requerido');
         err.statusCode = 400;
@@ -35,38 +48,25 @@ const createArtist = asyncHandler(async (req, res) => {
     }
 
     const imageName = `artists/${Date.now()}_${imageFile.originalname}`;
-    const image_url = await uploadFile(
-        imageFile.buffer,
-        imageName,
-        imageFile.mimetype
-    );
-
-    const artistExists = await pool.query(
-        'SELECT stage_name FROM artists WHERE stage_name = $1',
-        [stage_name]
-    );
-
-    if (artistExists.rows.length > 0) {
-        const err = new Error('El nombre artístico ya existe');
-        err.statusCode = 400;
-        throw err;
-    }
-
-
+    const image_url = await uploadFile(imageFile.buffer, imageName, imageFile.mimetype);
 
     const newArtist = await pool.query(
-        `INSERT INTO artists (user_id, stage_name, bio, image_url) 
-        VALUES ($1, $2, $3, $4) RETURNING artist_id, user_id, stage_name, bio, image_url`,
+        `INSERT INTO artists (user_id, stage_name, bio, image_url)
+         VALUES ($1, $2, $3, $4)
+         RETURNING artist_id, user_id, stage_name, bio, image_url`,
         [userId, stage_name, bio, image_url]
     );
 
     res.status(201).json({
         success: true,
         message: 'Artista creado exitosamente',
-        artist: newArtist.rows[0]
+        artist: newArtist.rows[0],
     });
 });
 
+// =============================
+// GET MY ARTIST PROFILE
+// =============================
 const getMyArtistProfile = asyncHandler(async (req, res) => {
     const userId = req.user.userId;
 
@@ -76,19 +76,18 @@ const getMyArtistProfile = asyncHandler(async (req, res) => {
     );
 
     if (result.rows.length === 0) {
-        return res.status(404).json({
-            success: false,
-            message: 'El usuario no tiene un perfil de artista'
-        });
+        const err = new Error('El usuario no tiene un perfil de artista');
+        err.statusCode = 404;
+        throw err;
     }
 
     res.json({
         success: true,
-        artist: result.rows[0]
+        artist: result.rows[0],
     });
 });
 
 module.exports = {
     createArtist,
-    getMyArtistProfile
+    getMyArtistProfile,
 };

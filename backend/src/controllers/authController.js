@@ -103,7 +103,13 @@ const login = asyncHandler(async (req, res) => {
     res.json({
         success: true,
         message: 'Login exitoso',
-        token
+        token,
+        user: {
+            user_id:           user.user_id,
+            email:             user.email,
+            username:          user.username,
+            profile_image_url: user.profile_image_url,
+        },
     });
 });
 
