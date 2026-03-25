@@ -18,12 +18,15 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
       if (state is LibraryLoaded && !event.forceRefresh) return;
       if (state is LibraryLoading) return;
 
-      // 1. Mostrar caché inmediatamente si existe
+      // 1. Mostrar caché inmediatamente si existe (offline-first)
       final cache = await _getCachedLibraryUseCase();
-      if ((cache['playlists'] as List).isNotEmpty || (cache['albums'] as List).isNotEmpty) {
+      final cachedPlaylists = cache['playlists'] ?? const <dynamic>[];
+      final cachedAlbums = cache['albums'] ?? const <dynamic>[];
+
+      if (cachedPlaylists.isNotEmpty || cachedAlbums.isNotEmpty) {
         emit(LibraryLoaded(
-          playlists: cache['playlists']!,
-          albums: cache['albums']!,
+          playlists: cachedPlaylists,
+          albums: cachedAlbums,
         ));
       } else {
         emit(LibraryLoading());
@@ -33,13 +36,14 @@ class LibraryBloc extends Bloc<LibraryEvent, LibraryState> {
 
       result.fold(
         (failure) {
+          // Si ya hay datos del caché no mostramos error total, los datos siguen visibles
           if (state is! LibraryLoaded) {
             emit(LibraryFailure(failure));
           }
         },
         (data) => emit(LibraryLoaded(
-          playlists: data['playlists']!,
-          albums: data['albums']!,
+          playlists: data['playlists'] ?? const <dynamic>[],
+          albums: data['albums'] ?? const <dynamic>[],
         )),
       );
     });
