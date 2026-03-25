@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:just_audio/just_audio.dart';
 import 'package:audio_session/audio_session.dart';
 import 'package:rxdart/rxdart.dart';
@@ -62,14 +64,18 @@ class AudioService {
   int _currentIndex = 0;
   String _playlistName = '';
   String _playlistType = 'playlist';
-  SongEntity? get _currentSong => _currentPlaylist.isNotEmpty && _currentIndex >= 0 && _currentIndex < _currentPlaylist.length 
-      ? _currentPlaylist[_currentIndex] 
+  SongEntity? get _currentSong => _currentPlaylist.isNotEmpty && _currentIndex >= 0 && _currentIndex < _currentPlaylist.length
+      ? _currentPlaylist[_currentIndex]
       : null;
 
   // RxDart Subjects for broadcasting states
   final _audioStateSubject = BehaviorSubject<AudioState>.seeded(AudioState.initial());
   Stream<AudioState> get audioStateStream => _audioStateSubject.stream;
   AudioState get audioState => _audioStateSubject.value;
+
+  // Subscriptions que se deben cancelar en dispose() para evitar memory leaks
+  StreamSubscription<AudioState>? _combinedStateSub;
+  StreamSubscription<int?>? _currentIndexSub;
 
   Future<void> init() async {
     _player = AudioPlayer();
@@ -78,8 +84,9 @@ class AudioService {
     final session = await AudioSession.instance;
     await session.configure(const AudioSessionConfiguration.music());
 
-    // Listen to combined stream of just_audio states to emit a single AudioState
-    Rx.combineLatest4<bool, ProcessingState, Duration, Duration, AudioState>(
+    // Escuchar el stream combinado de just_audio y emitir un único AudioState.
+    // La suscripción se guarda para poder cancelarla en dispose().
+    _combinedStateSub = Rx.combineLatest4<bool, ProcessingState, Duration, Duration, AudioState>(
       _player.playingStream,
       _player.processingStateStream,
       _player.positionStream,
@@ -100,10 +107,10 @@ class AudioService {
       _audioStateSubject.add(state);
     });
 
-    _player.currentIndexStream.listen((index) {
+    // Actualizar la canción actual al cambiar de índice en la cola.
+    _currentIndexSub = _player.currentIndexStream.listen((index) {
       if (index != null && _currentPlaylist.isNotEmpty) {
         _currentIndex = index;
-        // Emit updated state with new current song
         _audioStateSubject.add(audioState._copyWith(currentSong: _currentSong));
       }
     });
@@ -151,7 +158,17 @@ class AudioService {
       );
       await _player.play();
     } catch (e) {
-      // Handle error accordingly, maybe emit failure state
+      // Emitir estado de error para que el UI pueda reaccionar (mostrar snackbar, etc.)
+      _audioStateSubject.add(AudioState(
+        isPlaying: false,
+        processingState: ProcessingState.idle,
+        position: Duration.zero,
+        bufferedPosition: Duration.zero,
+        totalDuration: Duration.zero,
+        currentSong: null,
+        playlistName: _playlistName,
+        playlistType: _playlistType,
+      ));
     }
   }
 
@@ -172,6 +189,8 @@ class AudioService {
   }
 
   void dispose() {
+    _combinedStateSub?.cancel();
+    _currentIndexSub?.cancel();
     _player.dispose();
     _audioStateSubject.close();
   }

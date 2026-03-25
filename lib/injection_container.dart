@@ -1,6 +1,7 @@
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'core/network/api_client.dart';
+import 'core/services/network_service.dart';
 import 'features/auth/data/repository/auth_repository_impl.dart';
 import 'features/auth/data/sources/auth_api_service.dart';
 import 'features/auth/data/repository/auth_repository.dart';
@@ -88,7 +89,13 @@ Future<void> init() async {
   // --- External ---
   final sharedPreferences = await SharedPreferences.getInstance();
   sl.registerLazySingleton(() => sharedPreferences);
-  sl.registerLazySingleton(() => ApiClient(sl()));
+
+  // NetworkService: inicializado antes que ApiClient porque este lo necesita
+  final networkService = NetworkService();
+  await networkService.init();
+  sl.registerLazySingleton(() => networkService);
+
+  sl.registerLazySingleton(() => ApiClient(sl(), sl()));
 
   // Inicializar Motor de Audio Global
   final audioService = AudioService();

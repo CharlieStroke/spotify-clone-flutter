@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Configuración de seguridad de red para Snakefy.
+
+    - Por defecto se deniega todo tráfico en texto plano (HTTP).
+    - Se permite HTTP únicamente al servidor de desarrollo actual.
+    - CUANDO MIGRES A HTTPS: elimina el bloque <domain-config> de abajo.
+    - En builds de debug también se confía en certificados de usuario
+      (útil para proxies como Charles / mitmproxy).
+-->
+<network-security-config>
+
+    <!-- Política base: HTTPS obligatorio en producción -->
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+
+    <!-- Servidor de desarrollo: permite HTTP temporalmente hasta migrar a HTTPS -->
+    <!-- TODO: Eliminar este bloque cuando el backend use HTTPS -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">159.54.145.22</domain>
+    </domain-config>
+
+    <!-- Builds de debug: confiar en certificados de usuario (Charles, mitmproxy, etc.) -->
+    <debug-overrides>
+        <trust-anchors>
+            <certificates src="system" />
+            <certificates src="user" />
+        </trust-anchors>
+    </debug-overrides>
+
+</network-security-config>
