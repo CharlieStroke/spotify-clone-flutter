@@ -21,13 +21,7 @@ const createAlbum = asyncHandler(async (req, res) => {
         throw err;
     }
 
-    const coverName = `covers/albums/${Date.now()}_${cover.originalname}`; // le asignamos un nombre único a la imagen para evitar colisiones en el almacenamiento, y organizamos las imágenes en carpetas por tipo (covers/albums/)
-
-    const coverUrl = await uploadFile(
-        cover.buffer,
-        coverName,
-        cover.mimetype
-    ); // subimos la imagen a OCI y obtenemos la URL pública para almacenarla en la base de datos
+    const coverUrl = await uploadFile(cover, 'covers/albums');
 
     const newAlbum = await pool.query(
         `INSERT INTO albums (title, artist_id, cover_url) 

@@ -21,21 +21,8 @@ const createSong = asyncHandler(async (req, res) => {
         throw err;
     }
 
-    const songName = `songs/tracks/${Date.now()}_${audio.originalname}`;
-    const coverName = `songs/covers/${Date.now()}_${cover.originalname}`;
-    // Replace spaces with underscores for better URL handling
-
-    const songUrl = await uploadFile(
-        audio.buffer,
-        songName,
-        audio.mimetype
-    );
-
-    const coverUrl = await uploadFile(
-        cover.buffer,
-        coverName,
-        cover.mimetype
-    );
+    const songUrl = await uploadFile(audio, 'songs/tracks');
+    const coverUrl = await uploadFile(cover, 'songs/covers');
 
     const result = await pool.query(
         `INSERT INTO songs (title, album_id, duration, audio_url, cover_url)
