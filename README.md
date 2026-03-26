@@ -3,31 +3,43 @@
 ![Flutter](https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white)
 ![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-336791?style=for-the-badge&logo=postgresql&logoColor=white)
-![Oracle Cloud](https://img.shields.io/badge/OCI-F80000?style=for-the-badge&logo=oracle&logoColor=white)
+![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)
 
-A professional, production-ready music streaming platform built with **Flutter** and **Node.js**. This project replicates the core experience of Spotify, featuring high-fidelity UI, offline-first capabilities, and a robust artist ecosystem.
+A full-stack music streaming platform built with **Flutter** and **Node.js**, replicating the core Spotify experience. Features a high-fidelity mobile UI, offline-first capabilities, and a complete artist ecosystem for uploading and managing music.
 
 ---
 
 ## 🏛 Project Overview
 
-This repository is split into two main components:
+The repository is split into two main components:
 
-### 1. [📱 High-Fidelity Mobile App](./lib/README.md)
-*   **Built with**: 
-    ![Flutter](https://img.shields.io/badge/Flutter-02569B?style=flat&logo=flutter&logoColor=white)
-    ![Dart](https://img.shields.io/badge/Dart-0175C2?style=flat&logo=dart&logoColor=white)
-    ![BLoC](https://img.shields.io/badge/BLoC-5FB9FF?style=flat&logo=flutter&logoColor=white)
-*   **Key Features**: Premium UI (Hero animations, Shimmers), Offline-First caching (Hive), Gesture-based player, and Artist management.
-*   **Supported Platforms**: Android & iOS.
+### 1. [📱 Mobile App](./lib/README.md)
 
-### 2. [📡 Scalable Backend API](./backend/README.md)
-*   **Built with**: 
-    ![Node.js](https://img.shields.io/badge/Node.js-339933?style=flat&logo=nodedotjs&logoColor=white)
-    ![Express](https://img.shields.io/badge/Express-000000?style=flat&logo=express&logoColor=white)
-    ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-336791?style=flat&logo=postgresql&logoColor=white)
-*   **Key Features**: JWT Security, Multimedia streaming (OCI), Multi-cloud storage integration, and Rate limiting.
+**Built with:**
+![Flutter](https://img.shields.io/badge/Flutter-02569B?style=flat&logo=flutter&logoColor=white)
+![Dart](https://img.shields.io/badge/Dart-0175C2?style=flat&logo=dart&logoColor=white)
+![BLoC](https://img.shields.io/badge/BLoC-5FB9FF?style=flat&logo=flutter&logoColor=white)
+
+- Premium UI with Hero animations and shimmer loading effects
+- Offline-first caching with Hive (favorites, recent searches)
+- Gesture-based player with full playback controls
+- Artist dashboard for uploading albums and tracking plays
+- Supported platforms: Android & iOS
+
+### 2. [📡 Backend API](./backend/README.md)
+
+**Built with:**
+![Node.js](https://img.shields.io/badge/Node.js-339933?style=flat&logo=nodedotjs&logoColor=white)
+![Express](https://img.shields.io/badge/Express-000000?style=flat&logo=express&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-336791?style=flat&logo=postgresql&logoColor=white)
+![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=flat&logo=supabase&logoColor=white)
+
+- JWT authentication with bcrypt password hashing
+- Audio and image file storage via Supabase Storage
+- PostgreSQL database hosted on Supabase
+- Rate limiting and security headers (Helmet)
+- Dockerized for easy deployment
 
 ---
 
@@ -35,40 +47,63 @@ This repository is split into two main components:
 
 ```mermaid
 graph TD
-    User([User App]) <--> API[Node.js Express API]
-    API <--> DB[(PostgreSQL Database)]
-    API <--> OCI[OCI Object Storage]
-    User <--> Hive[(Local Cache)]
+    App([Flutter App]) <--> API[Node.js Express API]
+    API <--> DB[(Supabase PostgreSQL)]
+    API <--> Storage[Supabase Storage]
+    App <--> Hive[(Local Cache - Hive)]
 ```
 
 ### Core Workflows
-1.  **Authentication**: Secure JWT flow for users and artists.
-2.  **Streaming**: Songs are served via progressive streaming from OCI.
-3.  **Offline-First**: Favorites and recent searches are cached locally for an "always-available" experience.
-4.  **Artist Ecosystem**: Independent workflow for uploading albums and tracking play counts.
+
+1. **Authentication** — JWT-based auth flow for regular users and artists.
+2. **Streaming** — Audio files are served progressively from Supabase Storage.
+3. **Offline-First** — Favorites and recent searches are cached locally via Hive for an always-available experience.
+4. **Artist Ecosystem** — Independent upload workflow for albums and songs, with play count tracking.
 
 ---
 
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Flutter SDK (Latest Stable)
-- Node.js (v18+)
-- PostgreSQL instance (or Supabase)
 
-### 1. Setup Backend
+- [Flutter SDK](https://docs.flutter.dev/get-started/install) (Latest Stable)
+- [Node.js](https://nodejs.org/) v18+
+- A [Supabase](https://supabase.com) project (database + storage)
+
+### 1. Backend Setup
+
 ```bash
 cd backend
 npm install
-# Configure your .env
+```
+
+Create a `.env` file with your credentials:
+
+```env
+PORT=3000
+SUPABASE_URL=your_supabase_url
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+JWT_SECRET=your_jwt_secret
+```
+
+```bash
 npm start
 ```
 
-### 2. Setup Frontend
+### 2. Database Setup
+
+Run the schema against your Supabase project:
+
 ```bash
-# In the root directory
+# In Supabase SQL Editor, paste and run:
+# backend/database/schema.sql
+```
+
+### 3. Flutter App Setup
+
+```bash
 flutter pub get
-# Update ApiConstants with your server IP
+# Update the base URL in lib/core/constants/api_constants.dart
 flutter run
 ```
 
@@ -76,32 +111,32 @@ flutter run
 
 ## ☁️ Deployment
 
-### Infrastructure
-- **API**: Deployable via Docker or directly on VPS/Cloud (Railway, Render, OCI).
-- **Database**: PostgreSQL (Supabase recommended for quick setup).
-- **Storage**: Oracle Cloud Infrastructure (OCI) Object Storage or Supabase Storage.
+### Backend (Docker)
 
-### Docker Deployment (Backend)
 ```bash
 cd backend
 docker-compose up -d
 ```
 
-### Building Mobile App
+### Mobile App
+
 ```bash
 # Android
 flutter build apk --release
+
 # iOS
 flutter build ios --release
 ```
 
+### Infrastructure
+
+| Component | Service |
+|-----------|---------|
+| API | Docker on VPS (OCI, Railway, Render) |
+| Database | Supabase (PostgreSQL) |
+| File Storage | Supabase Storage |
+| Mobile | Android / iOS |
+
 ---
 
-## 🎨 Visual Preview
-
-| Home Screen | Player & Gestures | Artist Dashboard |
-| :---: | :---: | :---: |
-| ![Home](assets/images/preview_home.png) | ![Player](assets/images/preview_player.png) | ![Artist](assets/images/preview_artist.png) |
-
-> [!NOTE]
-> For detailed technical documentation of each component, please visit the respective directories listed above.
+> For detailed technical documentation, see the [frontend](./lib/README.md) and [backend](./backend/README.md) directories.
