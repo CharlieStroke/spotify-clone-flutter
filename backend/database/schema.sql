@@ -23,7 +23,8 @@ CREATE TABLE users (
     email VARCHAR(255) UNIQUE NOT NULL,
     password_hash TEXT NOT NULL,
     username VARCHAR(255) UNIQUE NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    profile_image_url TEXT
 );
 
 -- =========================
@@ -69,7 +70,7 @@ CREATE TABLE songs (
     song_id SERIAL PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     album_id INTEGER NOT NULL,
-    duration INTEGER NOT NULL CHECK (duration > 0),
+    duration BIGINT,
     plays INTEGER DEFAULT 0,
     cover_url TEXT,
     audio_url TEXT,
@@ -92,6 +93,7 @@ CREATE TABLE playlists (
     description TEXT,
     user_id INTEGER NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    cover_url TEXT,
 
     CONSTRAINT fk_playlist_user
         FOREIGN KEY (user_id)
@@ -147,12 +149,38 @@ CREATE TABLE favorites (
 -- INDEXES (optimización básica)
 -- =========================
 
-CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_playlists_user_id ON playlists(user_id);
 CREATE INDEX idx_songs_album_id ON songs(album_id);
 CREATE INDEX idx_favorites_user_id ON favorites(user_id);
 CREATE INDEX idx_favorites_song_id ON favorites(song_id);
 CREATE INDEX idx_albums_artist_id ON albums(artist_id);
-CREATE INDEX idx_songs_title ON songs(title);
-CREATE INDEX idx_albums_title ON albums(title);
 CREATE INDEX idx_artists_stage_name ON artists(stage_name);
+CREATE INDEX idx_playlist_songs_song_id ON playlist_songs(song_id);
+
+-- =========================
+-- ROW LEVEL SECURITY
+-- =========================
+
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE artists ENABLE ROW LEVEL SECURITY;
+ALTER TABLE albums ENABLE ROW LEVEL SECURITY;
+ALTER TABLE songs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE playlists ENABLE ROW LEVEL SECURITY;
+ALTER TABLE playlist_songs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE favorites ENABLE ROW LEVEL SECURITY;
+
+-- Lectura pública (datos no sensibles)
+CREATE POLICY artists_select_public ON artists FOR SELECT TO public USING (true);
+CREATE POLICY albums_select_public ON albums FOR SELECT TO public USING (true);
+CREATE POLICY songs_select_public ON songs FOR SELECT TO public USING (true);
+CREATE POLICY playlists_select_public ON playlists FOR SELECT TO public USING (true);
+CREATE POLICY playlist_songs_select_public ON playlist_songs FOR SELECT TO public USING (true);
+
+-- Escritura exclusiva para el backend (service_role bypasea RLS)
+CREATE POLICY users_write_service_role ON users FOR ALL TO service_role USING (true) WITH CHECK (true);
+CREATE POLICY artists_write_service_role ON artists FOR ALL TO service_role USING (true) WITH CHECK (true);
+CREATE POLICY albums_write_service_role ON albums FOR ALL TO service_role USING (true) WITH CHECK (true);
+CREATE POLICY songs_write_service_role ON songs FOR ALL TO service_role USING (true) WITH CHECK (true);
+CREATE POLICY playlists_write_service_role ON playlists FOR ALL TO service_role USING (true) WITH CHECK (true);
+CREATE POLICY playlist_songs_write_service_role ON playlist_songs FOR ALL TO service_role USING (true) WITH CHECK (true);
+CREATE POLICY favorites_write_service_role ON favorites FOR ALL TO service_role USING (true) WITH CHECK (true);
