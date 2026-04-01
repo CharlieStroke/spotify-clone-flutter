@@ -167,3 +167,32 @@ class LibrarySkeleton extends StatelessWidget {
     );
   }
 }
+
+class ProfileSkeleton extends StatelessWidget {
+  const ProfileSkeleton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: Column(
+        children: [
+          const SizedBox(height: 30),
+          // Avatar
+          const ShimmerSkeleton(width: 140, height: 140, shape: BoxShape.circle),
+          const SizedBox(height: 16),
+          // Nombre
+          const ShimmerSkeleton(width: 160, height: 24),
+          const SizedBox(height: 12),
+          // Botón editar perfil
+          const ShimmerSkeleton(width: 110, height: 34, borderRadius: 20),
+          const SizedBox(height: 32),
+          // Sección información personal
+          const ShimmerSkeleton(width: double.infinity, height: 16),
+          const SizedBox(height: 12),
+          const ShimmerSkeleton(width: double.infinity, height: 100, borderRadius: 20),
+        ],
+      ),
+    );
+  }
+}
