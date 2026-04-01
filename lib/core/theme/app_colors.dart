@@ -6,6 +6,7 @@ class AppColors {
   static const Color secondBackground = Color(0xFF1E1E1E);
   static const Color grey = Color(0xFFBEBEBE);
   static const Color textSecondary = Color(0xFFFFFFFF);
-
   static const Color error = Color(0xFFCF6679);
+  static const Color surface = Color(0xFF282828);
+  static const Color coverPlaceholder = Color(0xFF6A2C50);
 }
