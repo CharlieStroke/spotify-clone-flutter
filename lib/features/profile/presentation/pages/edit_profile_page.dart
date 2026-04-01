@@ -5,7 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/basic_app_button.dart';
-import '../../../../core/utils/extensions.dart'; // Asegúrate de que este archivo exista, si da error lo borraremos
+import '../../../../core/extensions/extensions.dart'; // Asegúrate de que este archivo exista, si da error lo borraremos
 import '../../domain/entities/user_entity.dart';
 import '../bloc/profile_bloc.dart';
 import '../bloc/profile_event.dart';
