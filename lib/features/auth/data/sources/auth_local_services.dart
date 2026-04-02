@@ -1,4 +1,4 @@
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../../../core/constants/app_constants.dart';
 
 abstract class AuthLocalService {
@@ -8,22 +8,22 @@ abstract class AuthLocalService {
 }
 
 class AuthLocalServiceImpl implements AuthLocalService {
-  final SharedPreferences _sharedPreferences;
+  final FlutterSecureStorage _secureStorage;
 
-  AuthLocalServiceImpl(this._sharedPreferences);
+  AuthLocalServiceImpl(this._secureStorage);
 
   @override
   Future<void> saveToken(String token) async {
-    await _sharedPreferences.setString(AppConstants.tokenKey, token);
+    await _secureStorage.write(key: AppConstants.tokenKey, value: token);
   }
 
   @override
   Future<String?> getToken() async {
-    return _sharedPreferences.getString(AppConstants.tokenKey);
+    return _secureStorage.read(key: AppConstants.tokenKey);
   }
 
   @override
   Future<void> clear() async {
-    await _sharedPreferences.remove(AppConstants.tokenKey);
+    await _secureStorage.delete(key: AppConstants.tokenKey);
   }
 }
