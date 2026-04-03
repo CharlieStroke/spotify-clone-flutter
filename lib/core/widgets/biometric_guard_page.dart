@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import '../services/biometric_auth_service.dart';
 import '../../core/theme/app_colors.dart';
 import '../routes/app_routes.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../../injection_container.dart' as di;
+import '../../features/auth/data/sources/auth_local_services.dart';
 
 class BiometricGuardPage extends StatefulWidget {
   final Widget child;
@@ -50,8 +50,7 @@ class _BiometricGuardPageState extends State<BiometricGuardPage> {
   }
 
   void _logout() async {
-    final prefs = di.sl<SharedPreferences>();
-    await prefs.remove('token');
+    await di.sl<AuthLocalService>().clear();
     if (mounted) {
       Navigator.pushNamedAndRemoveUntil(context, AppRoutes.initial, (route) => false);
     }

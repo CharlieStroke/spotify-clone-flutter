@@ -123,7 +123,7 @@ Future<void> init() async {
   sl.registerLazySingleton<AuthLocalService>(() => AuthLocalServiceImpl(sl<FlutterSecureStorage>()));
   sl.registerLazySingleton<SongApiService>(() => SongApiServiceImpl(sl()));
   sl.registerLazySingleton<HomeApiService>(() => HomeApiServiceImpl(sl()));
-  sl.registerLazySingleton<ProfileApiService>(() => ProfileApiServiceImpl(apiClient: sl(), sharedPreferences: sl()));
+  sl.registerLazySingleton<ProfileApiService>(() => ProfileApiServiceImpl(apiClient: sl()));
   sl.registerLazySingleton<CreateApiService>(() => CreateApiServiceImpl(sl()));
   sl.registerLazySingleton<SearchApiService>(() => SearchApiServiceImpl(sl()));
   sl.registerLazySingleton<SearchLocalDataSource>(() => SearchLocalDataSourceImpl(Hive.box(AppConstants.boxSearchCache)));

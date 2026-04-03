@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/routes/app_routes.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../injection_container.dart' as di;
+import '../../../../features/auth/data/sources/auth_local_services.dart';
 import '../bloc/profile_bloc.dart';
 import '../bloc/profile_event.dart';
 import '../bloc/profile_state.dart';
@@ -306,8 +306,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   const SizedBox(height: 40),
                   ElevatedButton(
                     onPressed: () async {
-                      final prefs = di.sl<SharedPreferences>();
-                      await prefs.remove('token');
+                      await di.sl<AuthLocalService>().clear();
                       if (context.mounted) {
                         di.sl<HomeBloc>().add(ResetHomeEvent());
                         di.sl<LibraryBloc>().add(ResetLibraryEvent());
