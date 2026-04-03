@@ -9,6 +9,13 @@ import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_logo.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/extensions/extensions.dart';
+import '../../../../injection_container.dart' as di;
+import '../../../home/presentation/bloc/home_bloc.dart';
+import '../../../home/presentation/bloc/home_event.dart';
+import '../../../library/presentation/bloc/library_bloc.dart';
+import '../../../library/presentation/bloc/library_event.dart';
+import '../../../favorites/presentation/bloc/favorites_bloc.dart';
+import '../../../favorites/presentation/bloc/favorites_event.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -52,6 +59,9 @@ class _LoginPageState extends State<LoginPage> {
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthSuccess) {
+            di.sl<HomeBloc>().add(ResetHomeEvent());
+            di.sl<LibraryBloc>().add(ResetLibraryEvent());
+            di.sl<FavoritesBloc>().add(ResetFavoritesEvent());
             Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
           }
           if (state is AuthFailure) {
