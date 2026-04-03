@@ -19,7 +19,6 @@ class ApiClient {
             headers: {'Content-Type': 'application/json'},
           ),
         ) {
-    // Logging solo en debug para no exponer datos sensibles en producción
     if (kDebugMode) {
       _dio.interceptors.add(LogInterceptor(
         requestBody: true,
@@ -29,7 +28,6 @@ class ApiClient {
 
     _dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) async {
-        // Rechazar inmediatamente si no hay conexión (evita esperar el timeout)
         if (!networkService.isConnected) {
           handler.reject(
             DioException(
@@ -41,7 +39,6 @@ class ApiClient {
           return;
         }
 
-        // Adjuntar JWT a todas las peticiones autenticadas
         final token = await _secureStorage.read(key: AppConstants.tokenKey);
         if (token != null && token.isNotEmpty) {
           options.headers['Authorization'] = 'Bearer $token';
@@ -50,8 +47,39 @@ class ApiClient {
       },
       onError: (DioException e, handler) async {
         if (e.response?.statusCode == 401) {
-          // Token expirado o inválido: limpiar sesión y redirigir al login
+          final refreshToken = await _secureStorage.read(key: AppConstants.refreshTokenKey);
+
+          if (refreshToken != null) {
+            try {
+              final refreshDio = Dio(BaseOptions(
+                baseUrl: ApiConstants.baseUrl,
+                connectTimeout: const Duration(seconds: 10),
+                receiveTimeout: const Duration(seconds: 10),
+              ));
+
+              final response = await refreshDio.post(
+                ApiConstants.refreshEndpoint,
+                data: {'refreshToken': refreshToken},
+              );
+
+              final newToken = response.data['token'] as String;
+              final newRefresh = response.data['refreshToken'] as String;
+
+              await _secureStorage.write(key: AppConstants.tokenKey, value: newToken);
+              await _secureStorage.write(key: AppConstants.refreshTokenKey, value: newRefresh);
+
+              // Reintentar la petición original con el nuevo token
+              e.requestOptions.headers['Authorization'] = 'Bearer $newToken';
+              final retryResponse = await _dio.fetch(e.requestOptions);
+              handler.resolve(retryResponse);
+              return;
+            } catch (_) {
+              // Refresh falló — cerrar sesión
+            }
+          }
+
           await _secureStorage.delete(key: AppConstants.tokenKey);
+          await _secureStorage.delete(key: AppConstants.refreshTokenKey);
           AppRoutes.navigatorKey.currentState?.pushNamedAndRemoveUntil(
             AppRoutes.initial,
             (route) => false,

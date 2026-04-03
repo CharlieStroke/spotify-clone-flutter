@@ -6,6 +6,7 @@ import '../../../../core/constants/api_constants.dart';
 abstract class AuthApiService {
   Future<UserModel> login(String email, String password);
   Future<UserModel> register(String name, String email, String password);
+  Future<void> logout(String refreshToken);
 }
 
 class AuthApiServiceImpl implements AuthApiService {
@@ -42,14 +43,23 @@ Future<UserModel> login(String email, String password) async {
     try {
       final response = await _apiClient.dio.post(
         ApiConstants.registerEndpoint,
-        data: {
-          'username': username, 
-          'email': email, 
-          'password': password},
+        data: {'username': username, 'email': email, 'password': password},
       );
       return UserModel.fromJson(response.data);
     } on DioException catch (e) {
       throw Exception(e.response?.data['message'] ?? 'Error al registrarse');
+    }
+  }
+
+  @override
+  Future<void> logout(String refreshToken) async {
+    try {
+      await _apiClient.dio.post(
+        ApiConstants.logoutEndpoint,
+        data: {'refreshToken': refreshToken},
+      );
+    } on DioException {
+      // Fire-and-forget: si falla, continuamos con el cierre de sesión local
     }
   }
 }

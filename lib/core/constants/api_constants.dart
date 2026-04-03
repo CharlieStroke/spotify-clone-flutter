@@ -9,6 +9,8 @@ class ApiConstants {
   static const String loginEndpoint = '/auth/login';
   static const String registerEndpoint = '/auth/register';
   static const String userProfileEndpoint = '/auth/';
+  static const String refreshEndpoint = '/auth/refresh';
+  static const String logoutEndpoint = '/auth/logout';
 
   static const String getSongsEndpoint = '/songs/all';
 }

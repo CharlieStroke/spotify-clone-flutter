@@ -4,6 +4,7 @@ import '../../core/theme/app_colors.dart';
 import '../routes/app_routes.dart';
 import '../../injection_container.dart' as di;
 import '../../features/auth/data/sources/auth_local_services.dart';
+import '../../features/auth/data/sources/auth_api_service.dart';
 
 class BiometricGuardPage extends StatefulWidget {
   final Widget child;
@@ -50,6 +51,10 @@ class _BiometricGuardPageState extends State<BiometricGuardPage> {
   }
 
   void _logout() async {
+    final refreshToken = await di.sl<AuthLocalService>().getRefreshToken();
+    if (refreshToken != null) {
+      await di.sl<AuthApiService>().logout(refreshToken);
+    }
     await di.sl<AuthLocalService>().clear();
     if (mounted) {
       Navigator.pushNamedAndRemoveUntil(context, AppRoutes.initial, (route) => false);

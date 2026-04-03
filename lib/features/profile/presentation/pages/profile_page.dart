@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/routes/app_routes.dart';
 import '../../../../injection_container.dart' as di;
 import '../../../../features/auth/data/sources/auth_local_services.dart';
+import '../../../../features/auth/data/sources/auth_api_service.dart';
 import '../bloc/profile_bloc.dart';
 import '../bloc/profile_event.dart';
 import '../bloc/profile_state.dart';
@@ -306,6 +307,10 @@ class _ProfilePageState extends State<ProfilePage> {
                   const SizedBox(height: 40),
                   ElevatedButton(
                     onPressed: () async {
+                      final refreshToken = await di.sl<AuthLocalService>().getRefreshToken();
+                      if (refreshToken != null) {
+                        await di.sl<AuthApiService>().logout(refreshToken);
+                      }
                       await di.sl<AuthLocalService>().clear();
                       if (context.mounted) {
                         di.sl<HomeBloc>().add(ResetHomeEvent());

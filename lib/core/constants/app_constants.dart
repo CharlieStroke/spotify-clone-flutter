@@ -13,6 +13,7 @@ class AppConstants {
   
   // Storage Keys
   static const String tokenKey = 'token';
+  static const String refreshTokenKey = 'refresh_token';
   static const String boxFavorites = 'favorites';
   static const String boxHomeCache = 'home_cache';
   static const String boxLibraryCache = 'library_cache';

@@ -15,11 +15,12 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<String, UserEntity>> register(String username, String email, String password) async {
     try {
       final userModel = await authApiService.register(username, email, password);
-      
       if (userModel.token != null) {
         await authLocalService.saveToken(userModel.token!);
       }
-      
+      if (userModel.refreshToken != null) {
+        await authLocalService.saveRefreshToken(userModel.refreshToken!);
+      }
       return Right(userModel);
     } catch (e) {
       return Left(e.toString());
@@ -29,17 +30,13 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Either<String, UserEntity>> login(String email, String password) async {
     try {
-      // 1. Intentamos el login en la API
-      // Nota: Asegúrate de que tu authApiService.login devuelva un objeto 
-      // que contenga el TOKEN (puedes modificar tu UserModel para incluirlo)
       final userModel = await authApiService.login(email, password);
-      
-      // 2. Si el login es exitoso y tenemos un token, lo guardamos localmente
-      // Asumiendo que agregaste el campo 'token' a tu UserModel
       if (userModel.token != null) {
         await authLocalService.saveToken(userModel.token!);
       }
-      
+      if (userModel.refreshToken != null) {
+        await authLocalService.saveRefreshToken(userModel.refreshToken!);
+      }
       return Right(userModel);
     } catch (e) {
       return Left(e.toString());
