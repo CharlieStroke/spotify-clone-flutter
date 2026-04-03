@@ -100,8 +100,13 @@ Future<void> init() async {
   const secureStorage = FlutterSecureStorage();
   final legacyToken = sharedPreferences.getString(AppConstants.tokenKey);
   if (legacyToken != null) {
-    await secureStorage.write(key: AppConstants.tokenKey, value: legacyToken);
-    await sharedPreferences.remove(AppConstants.tokenKey);
+    try {
+      await secureStorage.write(key: AppConstants.tokenKey, value: legacyToken);
+      await sharedPreferences.remove(AppConstants.tokenKey);
+    } catch (_) {
+      // Migration failed (e.g. Keystore unavailable). Token stays in SharedPreferences
+      // and the migration will retry on the next app launch.
+    }
   }
   sl.registerLazySingleton(() => secureStorage);
 
