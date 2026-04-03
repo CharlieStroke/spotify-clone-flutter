@@ -39,12 +39,13 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
       // 1. Mostrar caché inmediatamente (offline-first) si hay datos persistidos
       final cache = await _getCachedHomeUseCase();
+      final cachedSongs = (cache['songs'] ?? const <dynamic>[]).cast<SongEntity>();
       final cachedAlbums = (cache['albums'] ?? const <dynamic>[]).cast<AlbumEntity>();
       final cachedPlaylists = (cache['playlists'] ?? const <dynamic>[]).cast<PlaylistEntity>();
 
-      if (cachedAlbums.isNotEmpty || cachedPlaylists.isNotEmpty) {
+      if (cachedSongs.isNotEmpty || cachedAlbums.isNotEmpty || cachedPlaylists.isNotEmpty) {
         emit(HomeLoaded(
-          songs: const [],
+          songs: cachedSongs,
           albums: cachedAlbums,
           playlists: cachedPlaylists,
         ));

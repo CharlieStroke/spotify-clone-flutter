@@ -140,7 +140,7 @@ Future<void> init() async {
     () => AuthRepositoryImpl(sl(), sl()) // Pasa dos sl() porque ahora usa API y Local
     
   );
-  sl.registerLazySingleton<SongRepository>(() => SongRepositoryImpl(sl()));
+  sl.registerLazySingleton<SongRepository>(() => SongRepositoryImpl(sl(), sl()));
   sl.registerLazySingleton<HomeRepository>(() => HomeRepositoryImpl(sl(), sl()));
   sl.registerLazySingleton<ProfileRepository>(() => ProfileRepositoryImpl(profileApiService: sl()));
   sl.registerLazySingleton<CreateRepository>(() => CreateRepositoryImpl(sl()));
@@ -170,6 +170,8 @@ Future<void> init() async {
   sl.registerLazySingleton(() => GetFavoritesUseCase(sl()));
   sl.registerLazySingleton(() => AddFavoriteUseCase(sl()));
   sl.registerLazySingleton(() => RemoveFavoriteUseCase(sl()));
+  sl.registerLazySingleton(() => GetCachedFavoritesUseCase(sl()));
+  sl.registerLazySingleton(() => AddCachedFavoriteUseCase(sl()));
 
   // --- Blocs ---
   sl.registerFactory(() => AuthBloc(
@@ -197,6 +199,6 @@ Future<void> init() async {
   sl.registerFactory(() => LibraryActionBloc(sl(), sl(), sl()));
   sl.registerFactory(() => PlaylistDetailBloc(sl()));
   sl.registerLazySingleton(() => PlayerCubit(sl()));
-  sl.registerLazySingleton(() => FavoritesBloc(sl(), sl(), sl()));
+  sl.registerLazySingleton(() => FavoritesBloc(sl(), sl(), sl(), sl(), sl()));
   sl.registerFactory(() => ArtistBloc(sl()));
 }

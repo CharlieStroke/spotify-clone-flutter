@@ -45,17 +45,15 @@ class LibraryLocalDataSourceImpl implements LibraryLocalDataSource {
 
   @override
   Future<void> cacheLibrary(Map<String, List<dynamic>> library) async {
-    try {
-      if (library['playlists'] != null) {
-        final playlists = library['playlists'] as List<dynamic>;
-        final encoded = jsonEncode(playlists.map((e) => (e as PlaylistModel).toJson()).toList());
-        await _box.put('playlists', encoded);
-      }
-      if (library['albums'] != null) {
-        final albums = library['albums'] as List<dynamic>;
-        final encoded = jsonEncode(albums.map((e) => (e as AlbumModel).toJson()).toList());
-        await _box.put('albums', encoded);
-      }
-    } catch (_) {}
+    if (library['playlists'] != null) {
+      final playlists = library['playlists'] as List<dynamic>;
+      final encoded = jsonEncode(playlists.map((e) => (e as PlaylistModel).toJson()).toList());
+      await _box.put('playlists', encoded);
+    }
+    if (library['albums'] != null) {
+      final albums = library['albums'] as List<dynamic>;
+      final encoded = jsonEncode(albums.map((e) => (e as AlbumModel).toJson()).toList());
+      await _box.put('albums', encoded);
+    }
   }
 }

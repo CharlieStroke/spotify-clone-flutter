@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'home_repository.dart';
 import '../../domain/entities/album_entity.dart';
 import '../../domain/entities/playlist_entity.dart';
+import '../../domain/entities/song_entity.dart';
 import '../sources/home_api_service.dart';
 import '../sources/home_local_data_source.dart';
 
@@ -46,4 +47,7 @@ class HomeRepositoryImpl implements HomeRepository {
 
   @override
   Future<List<PlaylistEntity>> getCachedPlaylists() => _localDataSource.getCachedPlaylists();
+
+  @override
+  Future<List<SongEntity>> getCachedSongs() => _localDataSource.getCachedSongs();
 }

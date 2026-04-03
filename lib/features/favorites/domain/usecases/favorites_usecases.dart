@@ -43,3 +43,17 @@ class RemoveFavoriteUseCase {
     }
   }
 }
+
+class GetCachedFavoritesUseCase {
+  final FavoritesRepository _repo;
+  GetCachedFavoritesUseCase(this._repo);
+
+  Future<List<SongEntity>> call() => _repo.getCachedFavorites();
+}
+
+class AddCachedFavoriteUseCase {
+  final FavoritesRepository _repo;
+  AddCachedFavoriteUseCase(this._repo);
+
+  Future<void> call(SongEntity song) => _repo.addCachedFavorite(song);
+}

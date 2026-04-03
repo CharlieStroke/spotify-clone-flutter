@@ -1,10 +1,12 @@
 import 'package:dartz/dartz.dart';
 import '../../domain/entities/album_entity.dart';
 import '../../domain/entities/playlist_entity.dart';
+import '../../domain/entities/song_entity.dart';
 
 abstract class HomeRepository {
   Future<Either<String, List<AlbumEntity>>> getAlbums();
   Future<Either<String, List<PlaylistEntity>>> getPlaylists();
   Future<List<AlbumEntity>> getCachedAlbums();
   Future<List<PlaylistEntity>> getCachedPlaylists();
+  Future<List<SongEntity>> getCachedSongs();
 }

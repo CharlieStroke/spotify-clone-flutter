@@ -8,9 +8,11 @@ class GetCachedHomeUseCase {
   Future<Map<String, List<dynamic>>> call() async {
     final albums = await repository.getCachedAlbums();
     final playlists = await repository.getCachedPlaylists();
+    final songs = await repository.getCachedSongs();
     return {
       'albums': albums,
       'playlists': playlists,
+      'songs': songs,
     };
   }
 }
