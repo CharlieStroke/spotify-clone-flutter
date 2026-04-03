@@ -6,6 +6,7 @@
 -- DROP TABLES (orden por dependencias)
 -- =========================
 
+DROP TABLE IF EXISTS refresh_tokens CASCADE;
 DROP TABLE IF EXISTS favorites CASCADE;
 DROP TABLE IF EXISTS playlist_songs CASCADE;
 DROP TABLE IF EXISTS playlists CASCADE;
@@ -26,6 +27,26 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     profile_image_url TEXT
 );
+
+-- =========================
+-- REFRESH TOKENS
+-- =========================
+
+CREATE TABLE refresh_tokens (
+    token_id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    token_hash TEXT NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_rt_user
+        FOREIGN KEY (user_id)
+        REFERENCES users(user_id)
+        ON DELETE CASCADE
+);
+
+CREATE UNIQUE INDEX idx_refresh_tokens_hash ON refresh_tokens(token_hash);
+CREATE INDEX idx_refresh_tokens_user_id ON refresh_tokens(user_id);
 
 -- =========================
 -- ARTISTAS

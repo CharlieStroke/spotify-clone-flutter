@@ -1,10 +1,35 @@
 const pool = require('../config/db');
 const bcrypt = require('bcrypt');
+const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const asyncHandler = require('../utils/asyncHandler');
 const logger = require('../config/logger');
 const { registerSchema, loginSchema } = require('../validators/authValidator');
 const supabaseStorage = require('../services/supabaseStorageService');
+
+const REFRESH_TOKEN_BYTES = 40;
+const REFRESH_TOKEN_TTL_DAYS = 7;
+
+function generateAccessToken(userId, email) {
+    return jwt.sign({ userId, email }, process.env.JWT_SECRET, { expiresIn: '1h' });
+}
+
+function hashToken(raw) {
+    return crypto.createHash('sha256').update(raw).digest('hex');
+}
+
+async function issueRefreshToken(userId) {
+    const raw = crypto.randomBytes(REFRESH_TOKEN_BYTES).toString('hex');
+    const hash = hashToken(raw);
+    const expiresAt = new Date(Date.now() + REFRESH_TOKEN_TTL_DAYS * 24 * 60 * 60 * 1000);
+
+    await pool.query(
+        'INSERT INTO refresh_tokens (user_id, token_hash, expires_at) VALUES ($1, $2, $3)',
+        [userId, hash, expiresAt]
+    );
+
+    return raw;
+}
 
 
 // =============================
@@ -40,20 +65,15 @@ const register = asyncHandler(async (req, res) => {
 
     const user = newUser.rows[0];
 
-    const token = jwt.sign(
-        {
-            userId: user.user_id,
-            email: user.email
-        },
-        process.env.JWT_SECRET,
-        { expiresIn: '24h' }
-    );
+    const accessToken = generateAccessToken(user.user_id, user.email);
+    const refreshToken = await issueRefreshToken(user.user_id);
 
     res.status(201).json({
         success: true,
         message: 'Usuario registrado exitosamente',
         user: user,
-        token: token
+        token: accessToken,
+        refreshToken,
     });
 });
 
@@ -92,19 +112,14 @@ const login = asyncHandler(async (req, res) => {
         throw err;
     }
 
-    const token = jwt.sign(
-        {
-            userId: user.user_id,
-            email: user.email
-        },
-        process.env.JWT_SECRET,
-        { expiresIn: '24h' }
-    );
+    const accessToken = generateAccessToken(user.user_id, user.email);
+    const refreshToken = await issueRefreshToken(user.user_id);
 
     res.json({
         success: true,
         message: 'Login exitoso',
-        token,
+        token: accessToken,
+        refreshToken,
         user: {
             user_id:           user.user_id,
             email:             user.email,
@@ -247,9 +262,80 @@ const updateProfile = asyncHandler(async (req, res) => {
     });
 });
 
+// =============================
+// REFRESH TOKEN
+// =============================
+const refreshToken = asyncHandler(async (req, res) => {
+    const { refreshToken: raw } = req.body;
+
+    if (!raw) {
+        const err = new Error('Refresh token requerido');
+        err.statusCode = 400;
+        throw err;
+    }
+
+    const hash = hashToken(raw);
+
+    const result = await pool.query(
+        'SELECT * FROM refresh_tokens WHERE token_hash = $1 AND expires_at > NOW()',
+        [hash]
+    );
+
+    if (result.rows.length === 0) {
+        const err = new Error('Refresh token inválido o expirado');
+        err.statusCode = 401;
+        throw err;
+    }
+
+    const matched = result.rows[0];
+
+    // Rotar: eliminar el token usado
+    await pool.query('DELETE FROM refresh_tokens WHERE token_id = $1', [matched.token_id]);
+
+    const userResult = await pool.query(
+        'SELECT user_id, email FROM users WHERE user_id = $1',
+        [matched.user_id]
+    );
+
+    if (userResult.rows.length === 0) {
+        const err = new Error('Usuario no encontrado');
+        err.statusCode = 404;
+        throw err;
+    }
+
+    const user = userResult.rows[0];
+    const newAccessToken = generateAccessToken(user.user_id, user.email);
+    const newRefreshToken = await issueRefreshToken(user.user_id);
+
+    res.json({
+        success: true,
+        token: newAccessToken,
+        refreshToken: newRefreshToken,
+    });
+});
+
+// =============================
+// LOGOUT
+// =============================
+const logout = asyncHandler(async (req, res) => {
+    const { refreshToken: raw } = req.body;
+
+    if (raw) {
+        const hash = hashToken(raw);
+        await pool.query(
+            'DELETE FROM refresh_tokens WHERE token_hash = $1 AND user_id = $2',
+            [hash, req.user.userId]
+        );
+    }
+
+    res.json({ success: true, message: 'Sesión cerrada' });
+});
+
 module.exports = {
     register,
     login,
     MyUserInfo,
-    updateProfile
+    updateProfile,
+    refreshToken,
+    logout,
 };

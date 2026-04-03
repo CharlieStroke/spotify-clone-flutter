@@ -27,7 +27,6 @@ const uploadFile = async (fileObj, folderPath = '') => {
         .from(supabaseBucket)
         .upload(objectName, fileObj.buffer, {
             contentType: fileObj.mimetype,
-            upsert: true // IMPORTANTE: permite sobrescribir si el archivo ya existe
         });
 
     if (error) {
