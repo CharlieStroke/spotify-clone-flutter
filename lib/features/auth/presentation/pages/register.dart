@@ -10,6 +10,7 @@ import '../../../../core/widgets/app_logo.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/extensions/extensions.dart';
 import '../../../../injection_container.dart' as di;
+import '../../../../features/auth/data/sources/auth_local_services.dart';
 import '../../../home/presentation/bloc/home_bloc.dart';
 import '../../../home/presentation/bloc/home_event.dart';
 import '../../../library/presentation/bloc/library_bloc.dart';
@@ -60,14 +61,17 @@ class _RegisterPageState extends State<RegisterPage> {
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: BlocConsumer<AuthBloc, AuthState>(
-        listener: (context, state) {
+        listener: (context, state) async {
           if (state is AuthSuccess) {
+            await di.sl<AuthLocalService>().clearCache();
             di.sl<HomeBloc>().add(ResetHomeEvent());
             di.sl<LibraryBloc>().add(ResetLibraryEvent());
             di.sl<FavoritesBloc>().add(ResetFavoritesEvent());
-            Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+            if (context.mounted) {
+              Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+            }
           }
-          if (state is AuthFailure) {
+          if (state is AuthFailure && context.mounted) {
             context.showSnack(state.message, color: Colors.redAccent);
           }
         },

@@ -6,6 +6,7 @@ import '../constants/api_constants.dart';
 import '../routes/app_routes.dart';
 import '../services/network_service.dart';
 import '../../injection_container.dart' as di;
+import '../../features/auth/data/sources/auth_local_services.dart';
 import '../../features/home/presentation/bloc/home_bloc.dart';
 import '../../features/home/presentation/bloc/home_event.dart';
 import '../../features/library/presentation/bloc/library_bloc.dart';
@@ -85,8 +86,7 @@ class ApiClient {
             }
           }
 
-          await _secureStorage.delete(key: AppConstants.tokenKey);
-          await _secureStorage.delete(key: AppConstants.refreshTokenKey);
+          await di.sl<AuthLocalService>().clear();
           di.sl<HomeBloc>().add(ResetHomeEvent());
           di.sl<LibraryBloc>().add(ResetLibraryEvent());
           di.sl<FavoritesBloc>().add(ResetFavoritesEvent());
