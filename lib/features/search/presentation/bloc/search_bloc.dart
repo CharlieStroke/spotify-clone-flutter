@@ -29,7 +29,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     final query = event.query.trim();
     
     if (query.isEmpty) {
-      add(LoadRecentSearches());
+      final searches = await _localDataSource.getRecentSearches();
+      emit(SearchRecentLoaded(searches));
       return;
     }
 

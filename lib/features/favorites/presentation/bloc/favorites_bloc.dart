@@ -58,14 +58,13 @@ class FavoritesBloc extends Bloc<FavoritesEvent, FavoritesState> {
     final result = await _addFavorite(event.songId);
     result.fold(
       (error) {
-        // Revertir UI y Hive
+        // Revertir UI al estado previo sin entrar en estado de error
         if (state is FavoritesLoaded) {
           final reverted = (state as FavoritesLoaded).songs
               .where((s) => s.id != event.songId)
               .toList();
           emit(FavoritesLoaded(songs: reverted));
         }
-        emit(FavoritesError(error));
       },
       (_) async {
         // 3. Persistir en caché local
@@ -89,8 +88,8 @@ class FavoritesBloc extends Bloc<FavoritesEvent, FavoritesState> {
       final result = await _removeFavorite(event.songId);
       result.fold(
         (error) {
+          // Revertir al estado previo sin entrar en estado de error
           emit(FavoritesLoaded(songs: snapshot.cast()));
-          emit(FavoritesError(error));
         },
         (_) {},
       );
