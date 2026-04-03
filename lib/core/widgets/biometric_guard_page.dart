@@ -5,6 +5,14 @@ import '../routes/app_routes.dart';
 import '../../injection_container.dart' as di;
 import '../../features/auth/data/sources/auth_local_services.dart';
 import '../../features/auth/data/sources/auth_api_service.dart';
+import '../../features/home/presentation/bloc/home_bloc.dart';
+import '../../features/home/presentation/bloc/home_event.dart';
+import '../../features/library/presentation/bloc/library_bloc.dart';
+import '../../features/library/presentation/bloc/library_event.dart';
+import '../../features/favorites/presentation/bloc/favorites_bloc.dart';
+import '../../features/favorites/presentation/bloc/favorites_event.dart';
+import '../../features/profile/presentation/bloc/profile_bloc.dart';
+import '../../features/profile/presentation/bloc/profile_event.dart';
 
 class BiometricGuardPage extends StatefulWidget {
   final Widget child;
@@ -57,6 +65,10 @@ class _BiometricGuardPageState extends State<BiometricGuardPage> {
     }
     await di.sl<AuthLocalService>().clear();
     if (mounted) {
+      di.sl<HomeBloc>().add(ResetHomeEvent());
+      di.sl<LibraryBloc>().add(ResetLibraryEvent());
+      di.sl<FavoritesBloc>().add(ResetFavoritesEvent());
+      di.sl<ProfileBloc>().add(ResetProfileEvent());
       Navigator.pushNamedAndRemoveUntil(context, AppRoutes.initial, (route) => false);
     }
   }

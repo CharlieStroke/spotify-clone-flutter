@@ -3,6 +3,8 @@ abstract class ProfileEvent {
   ProfileEvent({this.forceRefresh = false});
 }
 
+class ResetProfileEvent extends ProfileEvent {}
+
 class LoadProfileEvent extends ProfileEvent {
   LoadProfileEvent({super.forceRefresh = false});
 }

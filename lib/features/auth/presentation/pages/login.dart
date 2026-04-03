@@ -17,6 +17,8 @@ import '../../../library/presentation/bloc/library_bloc.dart';
 import '../../../library/presentation/bloc/library_event.dart';
 import '../../../favorites/presentation/bloc/favorites_bloc.dart';
 import '../../../favorites/presentation/bloc/favorites_event.dart';
+import '../../../profile/presentation/bloc/profile_bloc.dart';
+import '../../../profile/presentation/bloc/profile_event.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -64,6 +66,7 @@ class _LoginPageState extends State<LoginPage> {
             di.sl<HomeBloc>().add(ResetHomeEvent());
             di.sl<LibraryBloc>().add(ResetLibraryEvent());
             di.sl<FavoritesBloc>().add(ResetFavoritesEvent());
+            di.sl<ProfileBloc>().add(ResetProfileEvent());
             if (context.mounted) {
               Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
             }

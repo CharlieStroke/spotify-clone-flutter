@@ -15,6 +15,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     required this.updateProfileUseCase,
     required this.artistRepository,
   }) : super(ProfileInitial()) {
+    on<ResetProfileEvent>((event, emit) => emit(ProfileInitial()));
     on<LoadProfileEvent>(_onLoadProfile);
     on<UpdateProfileEvent>(_onUpdateProfile);
   }

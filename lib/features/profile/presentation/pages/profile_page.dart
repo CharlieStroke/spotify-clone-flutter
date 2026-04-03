@@ -11,6 +11,8 @@ import '../../../home/presentation/bloc/home_bloc.dart';
 import '../../../home/presentation/bloc/home_event.dart';
 import '../../../library/presentation/bloc/library_bloc.dart';
 import '../../../library/presentation/bloc/library_event.dart';
+import '../../../favorites/presentation/bloc/favorites_bloc.dart';
+import '../../../favorites/presentation/bloc/favorites_event.dart';
 import '../../../../core/widgets/page_layout.dart';
 import '../../../../core/widgets/empty_state_widget.dart';
 import '../../../../core/constants/app_constants.dart';
@@ -315,6 +317,8 @@ class _ProfilePageState extends State<ProfilePage> {
                       if (context.mounted) {
                         di.sl<HomeBloc>().add(ResetHomeEvent());
                         di.sl<LibraryBloc>().add(ResetLibraryEvent());
+                        di.sl<FavoritesBloc>().add(ResetFavoritesEvent());
+                        di.sl<ProfileBloc>().add(ResetProfileEvent());
                         Navigator.pushNamedAndRemoveUntil(context, AppRoutes.initial, (route) => false);
                       }
                     },

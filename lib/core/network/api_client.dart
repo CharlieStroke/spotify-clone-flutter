@@ -13,6 +13,8 @@ import '../../features/library/presentation/bloc/library_bloc.dart';
 import '../../features/library/presentation/bloc/library_event.dart';
 import '../../features/favorites/presentation/bloc/favorites_bloc.dart';
 import '../../features/favorites/presentation/bloc/favorites_event.dart';
+import '../../features/profile/presentation/bloc/profile_bloc.dart';
+import '../../features/profile/presentation/bloc/profile_event.dart';
 
 class ApiClient {
   final Dio _dio;
@@ -90,6 +92,7 @@ class ApiClient {
           di.sl<HomeBloc>().add(ResetHomeEvent());
           di.sl<LibraryBloc>().add(ResetLibraryEvent());
           di.sl<FavoritesBloc>().add(ResetFavoritesEvent());
+          di.sl<ProfileBloc>().add(ResetProfileEvent());
           AppRoutes.navigatorKey.currentState?.pushNamedAndRemoveUntil(
             AppRoutes.initial,
             (route) => false,
