@@ -96,7 +96,16 @@ Future<void> init() async {
   await networkService.init();
   sl.registerLazySingleton(() => networkService);
 
-  sl.registerLazySingleton(() => ApiClient(sl(), sl()));
+  // One-time migration: move token from SharedPreferences to FlutterSecureStorage
+  const secureStorage = FlutterSecureStorage();
+  final legacyToken = sharedPreferences.getString(AppConstants.tokenKey);
+  if (legacyToken != null) {
+    await secureStorage.write(key: AppConstants.tokenKey, value: legacyToken);
+    await sharedPreferences.remove(AppConstants.tokenKey);
+  }
+  sl.registerLazySingleton(() => secureStorage);
+
+  sl.registerLazySingleton(() => ApiClient(sl<FlutterSecureStorage>(), sl<NetworkService>()));
 
   // Inicializar Motor de Audio Global
   final audioService = AudioService();
@@ -105,8 +114,6 @@ Future<void> init() async {
 
 
   // --- Data Sources ---
-  // ASEGÚRATE DE QUE ESTAS LÍNEAS ESTÉN SOLO UNA VEZ
-  sl.registerLazySingleton(() => const FlutterSecureStorage());
   sl.registerLazySingleton<AuthApiService>(() => AuthApiServiceImpl(sl()));
   sl.registerLazySingleton<AuthLocalService>(() => AuthLocalServiceImpl(sl<FlutterSecureStorage>()));
   sl.registerLazySingleton<SongApiService>(() => SongApiServiceImpl(sl()));
