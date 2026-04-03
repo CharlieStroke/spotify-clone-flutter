@@ -139,9 +139,19 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     return PageLayout(
       title: 'Perfil',
-      child: BlocBuilder<ProfileBloc, ProfileState>(
+      child: BlocConsumer<ProfileBloc, ProfileState>(
+        listener: (context, state) {
+          if (state is ProfileUpdateSuccess) {
+            context.read<ProfileBloc>().add(LoadProfileEvent(forceRefresh: true));
+          } else if (state is ProfileUpdateError) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.message), backgroundColor: Colors.redAccent),
+            );
+            context.read<ProfileBloc>().add(LoadProfileEvent(forceRefresh: true));
+          }
+        },
         builder: (context, state) {
-          if (state is ProfileLoading) {
+          if (state is ProfileLoading || state is ProfileUpdateSuccess || state is ProfileUpdateError) {
             return const Center(child: CircularProgressIndicator(color: Colors.white));
           } else if (state is ProfileError) {
             return EmptyStateWidget(

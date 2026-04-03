@@ -31,7 +31,7 @@ class _LibraryViewState extends State<LibraryView> {
   void initState() {
     super.initState();
     final bloc = context.read<LibraryBloc>();
-    if (bloc.state is LibraryInitial || bloc.state is LibraryLoaded) {
+    if (bloc.state is LibraryInitial) {
       bloc.add(LoadLibraryEvent());
     }
   }

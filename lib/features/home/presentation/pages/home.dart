@@ -55,7 +55,7 @@ class _HomePageState extends State<HomePage> {
 
               return RefreshIndicator(
                 onRefresh: () async {
-                  context.read<HomeBloc>().add(GetSongsEvent());
+                  context.read<HomeBloc>().add(GetSongsEvent(forceRefresh: true));
                 },
                 color: AppColors.primary,
                 backgroundColor: const Color(0xFF282828),
