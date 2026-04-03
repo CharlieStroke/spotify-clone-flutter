@@ -27,7 +27,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         _getCachedHomeUseCase = getCachedHomeUseCase,
         super(HomeInitial()) {
     on<ResetHomeEvent>((event, emit) {
-      emit(HomeLoading());
+      emit(HomeInitial());
     });
 
     on<GetSongsEvent>((event, emit) async {
