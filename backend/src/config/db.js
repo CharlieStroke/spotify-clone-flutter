@@ -16,7 +16,8 @@ const pool = new Pool({
 
 // Loggear errores inesperados en clientes idle para detectar drops de conexión
 pool.on('error', (err) => {
-    console.error('Error inesperado en cliente idle del pool:', err.message);
+    const logger = require('./logger');
+    logger.error({ err: err.message }, 'Error inesperado en cliente idle del pool');
 });
 
 module.exports = pool;

@@ -2,6 +2,7 @@ const pool = require('../config/db');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const asyncHandler = require('../utils/asyncHandler');
+const logger = require('../config/logger');
 const { registerSchema, loginSchema } = require('../validators/authValidator');
 const supabaseStorage = require('../services/supabaseStorageService');
 
@@ -209,7 +210,7 @@ const updateProfile = asyncHandler(async (req, res) => {
             queryValues.push(uploadedUrl);
             paramIndex++;
         } catch (uploadError) {
-            console.error('Error uploading profile image:', uploadError);
+            logger.error({ err: uploadError.message }, 'Error uploading profile image');
             const err = new Error('Error al subir la imagen de perfil');
             err.statusCode = 500;
             throw err;

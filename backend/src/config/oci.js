@@ -1,5 +1,6 @@
 const common = require("oci-common");
 const fs = require("fs");
+const logger = require('./logger');
 require('dotenv').config();
 
 async function getProvider() {
@@ -16,7 +17,7 @@ async function getProvider() {
             common.Region.fromRegionId(process.env.OCI_REGION)
         );
     } catch (error) {
-        console.error("Error al configurar OCI Provider:", error.message);
+        logger.error({ err: error.message }, 'Error al configurar OCI Provider');
         throw error;
     }
 }

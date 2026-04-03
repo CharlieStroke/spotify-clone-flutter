@@ -1,6 +1,9 @@
 # Git worktrees
 .worktrees/
 
+# AI working docs (plans, specs generados por Claude)
+docs/superpowers/
+
 # Miscellaneous
 *.class
 *.log

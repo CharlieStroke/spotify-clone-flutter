@@ -1,8 +1,8 @@
+const logger = require('../config/logger');
 const isProduction = process.env.NODE_ENV === 'production';
 
 const errorHandler = (err, req, res, next) => {
-    // Log estructurado — en producción pino lo captura; en dev se ve en consola
-    console.error('Error:', err);
+    logger.error({ err }, 'Unhandled error');
 
     // Multer: tamaño de archivo excedido
     if (err.code === 'LIMIT_FILE_SIZE') {
