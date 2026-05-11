@@ -13,9 +13,13 @@ import 'package:spotify_clone/features/library/presentation/bloc/library_event.d
 import 'package:spotify_clone/features/playlist_detail/presentation/pages/playlist_detail_page.dart';
 import 'package:spotify_clone/features/home/domain/entities/album_entity.dart';
 import 'package:spotify_clone/core/widgets/page_layout.dart';
+import 'package:spotify_clone/core/widgets/empty_state_widget.dart';
 import 'package:spotify_clone/features/artist/presentation/bloc/artist_bloc.dart';
 import 'package:spotify_clone/features/artist/presentation/bloc/artist_event.dart';
 import 'package:spotify_clone/features/artist/presentation/bloc/artist_state.dart';
+import 'package:spotify_clone/features/artist/presentation/cubit/artist_stats_cubit.dart';
+import 'package:spotify_clone/features/artist/domain/entities/artist_stats_entity.dart';
+import 'package:spotify_clone/core/extensions/extensions.dart';
 
 class CreatePage extends StatelessWidget {
   const CreatePage({super.key});
@@ -377,98 +381,145 @@ class _CreatePlaylistViewState extends State<CreatePlaylistView> {
         BlocListener<CreatePlaylistBloc, CreatePlaylistState>(
           listener: (context, state) {
             if (state is CreatePlaylistSuccess) {
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Playlist "${state.playlist.name}" creada'), backgroundColor: AppColors.primary));
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: Text('Playlist "${state.playlist.name}" creada'),
+                  backgroundColor: AppColors.primary));
               context.read<LibraryBloc>().add(LoadLibraryEvent());
-              Navigator.push(context, MaterialPageRoute(builder: (_) => PlaylistDetailPage(
-                id: state.playlist.id.toString(),
-                title: state.playlist.name,
-                type: 'playlist',
-                coverUrl: state.playlist.coverUrl,
-                ownerId: state.playlist.userId,
-              )));
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => PlaylistDetailPage(
+                            id: state.playlist.id.toString(),
+                            title: state.playlist.name,
+                            type: 'playlist',
+                            coverUrl: state.playlist.coverUrl,
+                            ownerId: state.playlist.userId,
+                          )));
             } else if (state is CreatePlaylistFailure) {
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.error), backgroundColor: Colors.red));
+              ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(state.error), backgroundColor: Colors.red));
             }
           },
         ),
         BlocListener<ArtistBloc, ArtistState>(
           listener: (context, state) {
             if (state is ArtistRegistrationSuccess) {
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('¡Ya eres artista!'), backgroundColor: AppColors.primary));
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                  content: Text('¡Ya eres artista!'), backgroundColor: AppColors.primary));
               context.read<ArtistBloc>().add(CheckArtistStatusEvent());
             } else if (state is CreateAlbumSuccess) {
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Álbum "${state.album.title}" creado'), backgroundColor: AppColors.primary));
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: Text('Álbum "${state.album.title}" creado'),
+                  backgroundColor: AppColors.primary));
               context.read<ArtistBloc>().add(LoadArtistAlbumsEvent());
             } else if (state is UploadSongSuccess) {
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Canción "${state.song.title}" subida'), backgroundColor: AppColors.primary));
-              context.read<ArtistBloc>().add(LoadArtistAlbumsEvent()); // recargar para mantener estado artista
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: Text('Canción "${state.song.title}" subida'),
+                  backgroundColor: AppColors.primary));
+              context.read<ArtistBloc>().add(LoadArtistAlbumsEvent());
             } else if (state is UploadSongFailure) {
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error al subir: ${state.message}'), backgroundColor: Colors.red));
-              context.read<ArtistBloc>().add(LoadArtistAlbumsEvent()); // volver a estado artista
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: Text('Error al subir: ${state.message}'), backgroundColor: Colors.red));
+              context.read<ArtistBloc>().add(LoadArtistAlbumsEvent());
             } else if (state is CreateAlbumFailure) {
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: ${state.message}'), backgroundColor: Colors.red));
-              context.read<ArtistBloc>().add(CheckArtistStatusEvent()); // volver a estado artista
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: Text('Error: ${state.message}'), backgroundColor: Colors.red));
+              context.read<ArtistBloc>().add(CheckArtistStatusEvent());
             } else if (state is ArtistFailure) {
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.message), backgroundColor: Colors.red));
+              ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(state.message), backgroundColor: Colors.red));
             }
           },
         ),
       ],
       child: PageLayout(
         title: 'Crear',
+        useScroll: false,
+        padding: EdgeInsets.zero,
         child: BlocBuilder<ArtistBloc, ArtistState>(
           builder: (context, artistState) {
             if (artistState is ArtistLoading) {
               return const Center(child: CircularProgressIndicator(color: AppColors.primary));
             }
 
-            bool isArtist = false;
-            if (artistState is ArtistStatusLoaded) {
-              isArtist = artistState.isArtist;
-            } else if (artistState is ArtistRegistrationSuccess ||
-                       artistState is ArtistAlbumsLoaded ||
-                       artistState is CreateAlbumSuccess ||
-                       artistState is UploadSongSuccess) {
-              isArtist = true;
+            final isArtist = artistState is ArtistStatusLoaded
+                ? artistState.isArtist
+                : (artistState is ArtistRegistrationSuccess ||
+                    artistState is ArtistAlbumsLoaded ||
+                    artistState is CreateAlbumSuccess ||
+                    artistState is UploadSongSuccess);
+
+            if (!isArtist) {
+              return _buildCreateContent(context, isArtist: false);
             }
 
-            return SingleChildScrollView(
+            return DefaultTabController(
+              length: 2,
               child: Column(
                 children: [
-                  const SizedBox(height: 20),
-                  _buildOptionCard(
-                    title: 'Playlist',
-                    subtitle: 'Crea una recopilación de tus canciones favoritas.',
-                    icon: Icons.queue_music,
-                    onTap: () => _showCreateDialog(context),
+                  TabBar(
+                    labelColor: AppColors.primary,
+                    indicatorColor: AppColors.primary,
+                    unselectedLabelColor: Colors.white54,
+                    tabs: const [
+                      Tab(text: 'Crear'),
+                      Tab(text: 'Estadísticas'),
+                    ],
                   ),
-                  if (isArtist) ...[
-                    const SizedBox(height: 15),
-                    _buildOptionCard(
-                      title: 'Álbum',
-                      subtitle: 'Publica una nueva colección de canciones.',
-                      icon: Icons.album,
-                      color: Colors.blueAccent,
-                      onTap: () => _showCreateAlbumDialog(context),
+                  Expanded(
+                    child: TabBarView(
+                      children: [
+                        _buildCreateContent(context, isArtist: true),
+                        BlocProvider(
+                          create: (_) => sl<ArtistStatsCubit>()..loadStats(),
+                          child: const _ArtistStatsTabBody(),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 15),
-                    _buildOptionCard(
-                      title: 'Canción',
-                      subtitle: 'Sube un nuevo track para tus fans.',
-                      icon: Icons.audiotrack,
-                      color: Colors.orangeAccent,
-                      onTap: () {
-                        context.read<ArtistBloc>().add(LoadArtistAlbumsEvent());
-                        _showUploadSongDialog(context);
-                      },
-                    ),
-                  ],
-                    const SizedBox(height: 40),
+                  ),
                 ],
               ),
             );
           },
         ),
+      ),
+    );
+  }
+
+  Widget _buildCreateContent(BuildContext context, {required bool isArtist}) {
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          const SizedBox(height: 20),
+          _buildOptionCard(
+            title: 'Playlist',
+            subtitle: 'Crea una recopilación de tus canciones favoritas.',
+            icon: Icons.queue_music,
+            onTap: () => _showCreateDialog(context),
+          ),
+          if (isArtist) ...[
+            const SizedBox(height: 15),
+            _buildOptionCard(
+              title: 'Álbum',
+              subtitle: 'Publica una nueva colección de canciones.',
+              icon: Icons.album,
+              color: Colors.blueAccent,
+              onTap: () => _showCreateAlbumDialog(context),
+            ),
+            const SizedBox(height: 15),
+            _buildOptionCard(
+              title: 'Canción',
+              subtitle: 'Sube un nuevo track para tus fans.',
+              icon: Icons.audiotrack,
+              color: Colors.orangeAccent,
+              onTap: () {
+                context.read<ArtistBloc>().add(LoadArtistAlbumsEvent());
+                _showUploadSongDialog(context);
+              },
+            ),
+          ],
+          const SizedBox(height: 40),
+        ],
       ),
     );
   }
@@ -510,6 +561,199 @@ class _CreatePlaylistViewState extends State<CreatePlaylistView> {
           ],
         ),
       ),
+    );
+  }
+}
+
+// ─── Stats Tab ────────────────────────────────────────────────────────────────
+
+class _ArtistStatsTabBody extends StatelessWidget {
+  const _ArtistStatsTabBody();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<ArtistStatsCubit, ArtistStatsState>(
+      builder: (context, state) {
+        if (state is ArtistStatsLoading || state is ArtistStatsInitial) {
+          return const Center(child: CircularProgressIndicator(color: AppColors.primary));
+        }
+        if (state is ArtistStatsError) {
+          return EmptyStateWidget(
+            icon: Icons.bar_chart,
+            title: 'Error al cargar estadísticas',
+            message: state.message,
+            buttonText: 'Reintentar',
+            onButtonPressed: () => context.read<ArtistStatsCubit>().retry(),
+          );
+        }
+        if (state is ArtistStatsLoaded) {
+          final stats = state.stats;
+          if (stats.totalSongs == 0) {
+            return const EmptyStateWidget(
+              icon: Icons.bar_chart,
+              title: 'Sin datos',
+              message: 'Aún no tienes canciones subidas',
+            );
+          }
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _TotalPlaysCard(stats: stats),
+                const SizedBox(height: 24),
+                _TopSongsSection(songs: stats.topSongs),
+                const SizedBox(height: 24),
+                _PlaysByAlbumSection(albums: stats.playsByAlbum),
+                const SizedBox(height: 40),
+              ],
+            ),
+          );
+        }
+        return const SizedBox.shrink();
+      },
+    );
+  }
+}
+
+class _TotalPlaysCard extends StatelessWidget {
+  final ArtistStatsEntity stats;
+  const _TotalPlaysCard({required this.stats});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [AppColors.primary.withValues(alpha: 0.6), AppColors.surface],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.music_note, color: Colors.white, size: 28),
+          const SizedBox(height: 8),
+          Text(
+            '${formatPlays(stats.totalPlays)} reproducciones',
+            style: const TextStyle(
+                color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            '${stats.totalSongs} canciones · ${stats.totalAlbums} álbumes',
+            style: const TextStyle(color: Colors.white70, fontSize: 14),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TopSongsSection extends StatelessWidget {
+  final List<TopSongEntity> songs;
+  const _TopSongsSection({required this.songs});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Top canciones',
+            style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 12),
+        ...songs.asMap().entries.map((entry) {
+          final i = entry.key;
+          final song = entry.value;
+          return ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  width: 20,
+                  child: Text('${i + 1}',
+                      style: const TextStyle(
+                          color: Colors.white54, fontSize: 13, fontWeight: FontWeight.w600)),
+                ),
+                const SizedBox(width: 8),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: Image.network(
+                    song.coverUrl,
+                    width: 44, height: 44, fit: BoxFit.cover,
+                    errorBuilder: (_, e, s) =>
+                        Container(width: 44, height: 44, color: AppColors.coverPlaceholder),
+                  ),
+                ),
+              ],
+            ),
+            title: Text(song.title,
+                style: const TextStyle(color: Colors.white, fontSize: 14),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis),
+            trailing: Text(formatPlays(song.plays),
+                style: const TextStyle(color: Colors.white54, fontSize: 13)),
+          );
+        }),
+      ],
+    );
+  }
+}
+
+class _PlaysByAlbumSection extends StatelessWidget {
+  final List<AlbumPlaysEntity> albums;
+  const _PlaysByAlbumSection({required this.albums});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Por álbum',
+            style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 12),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: albums
+                .map((a) => Padding(
+                      padding: const EdgeInsets.only(right: 12),
+                      child: Column(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.network(
+                              a.coverUrl,
+                              width: 100, height: 100, fit: BoxFit.cover,
+                              errorBuilder: (_, e, s) => Container(
+                                  width: 100,
+                                  height: 100,
+                                  color: AppColors.coverPlaceholder),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          SizedBox(
+                            width: 100,
+                            child: Text(a.title,
+                                style: const TextStyle(color: Colors.white, fontSize: 12),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                textAlign: TextAlign.center),
+                          ),
+                          Text(formatPlays(a.plays),
+                              style: const TextStyle(color: Colors.white54, fontSize: 12)),
+                        ],
+                      ),
+                    ))
+                .toList(),
+          ),
+        ),
+      ],
     );
   }
 }
