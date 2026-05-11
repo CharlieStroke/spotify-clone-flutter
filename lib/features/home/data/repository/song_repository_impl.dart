@@ -11,6 +11,15 @@ class SongRepositoryImpl implements SongRepository {
   SongRepositoryImpl(this.songApiService, this._localDataSource);
 
   @override
+  Future<void> incrementPlayCount(String songId) async {
+    try {
+      await songApiService.incrementPlayCount(songId);
+    } catch (_) {
+      // Fire-and-forget: ignore errors to avoid disrupting playback
+    }
+  }
+
+  @override
   Future<Either<String, List<SongEntity>>> getSongs() async {
     try {
       final songs = await songApiService.getSongs();

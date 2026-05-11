@@ -17,6 +17,7 @@ import 'features/home/data/repository/song_repository_impl.dart';
 import 'features/home/data/repository/home_repository.dart';
 import 'features/home/data/repository/home_repository_impl.dart';
 import 'features/home/domain/usecases/get_songs_usecase.dart';
+import 'features/home/domain/usecases/increment_play_count_usecase.dart';
 import 'features/home/domain/usecases/get_albums_usecase.dart';
 import 'features/home/domain/usecases/get_playlists_usecase.dart';
 import 'features/home/presentation/bloc/home_bloc.dart';
@@ -172,6 +173,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => RemoveFavoriteUseCase(sl()));
   sl.registerLazySingleton(() => GetCachedFavoritesUseCase(sl()));
   sl.registerLazySingleton(() => AddCachedFavoriteUseCase(sl()));
+  sl.registerLazySingleton(() => IncrementPlayCountUseCase(sl()));
 
   // --- Blocs ---
   sl.registerFactory(() => AuthBloc(
@@ -198,7 +200,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => LibraryBloc(sl(), sl()));
   sl.registerFactory(() => LibraryActionBloc(sl(), sl(), sl()));
   sl.registerFactory(() => PlaylistDetailBloc(sl()));
-  sl.registerLazySingleton(() => PlayerCubit(sl()));
+  sl.registerLazySingleton(() => PlayerCubit(sl(), sl()));
   sl.registerLazySingleton(() => FavoritesBloc(sl(), sl(), sl(), sl(), sl()));
   sl.registerFactory(() => ArtistBloc(sl()));
 }

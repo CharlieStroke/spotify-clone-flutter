@@ -4,12 +4,18 @@ import '../models/song_model.dart';
 
 abstract class SongApiService {
   Future<List<SongModel>> getSongs();
+  Future<void> incrementPlayCount(String songId);
 }
 
 class SongApiServiceImpl implements SongApiService {
   final ApiClient _apiClient;
 
   SongApiServiceImpl(this._apiClient);
+
+  @override
+  Future<void> incrementPlayCount(String songId) async {
+    await _apiClient.dio.patch('/songs/$songId/play');
+  }
 
   @override
   Future<List<SongModel>> getSongs() async {
