@@ -86,7 +86,71 @@ const getMyArtistProfile = asyncHandler(async (req, res) => {
     });
 });
 
+// =============================
+// GET ARTIST STATS
+// =============================
+const getArtistStats = asyncHandler(async (req, res) => {
+    const artistId = req.artist.artist_id;
+
+    const [totals, topSongs, playsByAlbum] = await Promise.all([
+        pool.query(
+            `SELECT
+               COALESCE(SUM(s.plays), 0) AS total_plays,
+               COUNT(s.song_id)           AS total_songs,
+               COUNT(DISTINCT s.album_id) AS total_albums
+             FROM songs s
+             WHERE s.album_id IN (
+               SELECT album_id FROM albums WHERE artist_id = $1
+             )`,
+            [artistId]
+        ),
+        pool.query(
+            `SELECT s.song_id, s.title, s.plays, s.cover_url
+             FROM songs s
+             WHERE s.album_id IN (
+               SELECT album_id FROM albums WHERE artist_id = $1
+             )
+             ORDER BY s.plays DESC
+             LIMIT 5`,
+            [artistId]
+        ),
+        pool.query(
+            `SELECT al.album_id, al.title, al.cover_url,
+                    COALESCE(SUM(s.plays), 0) AS plays
+             FROM albums al
+             LEFT JOIN songs s ON s.album_id = al.album_id
+             WHERE al.artist_id = $1
+             GROUP BY al.album_id, al.title, al.cover_url
+             ORDER BY plays DESC`,
+            [artistId]
+        ),
+    ]);
+
+    const row = totals.rows[0];
+    res.status(200).json({
+        success: true,
+        stats: {
+            total_plays:   parseInt(row.total_plays, 10),
+            total_songs:   parseInt(row.total_songs, 10),
+            total_albums:  parseInt(row.total_albums, 10),
+            top_songs: topSongs.rows.map(s => ({
+                song_id:   s.song_id,
+                title:     s.title,
+                plays:     parseInt(s.plays, 10),
+                cover_url: s.cover_url,
+            })),
+            plays_by_album: playsByAlbum.rows.map(a => ({
+                album_id:  a.album_id,
+                title:     a.title,
+                cover_url: a.cover_url,
+                plays:     parseInt(a.plays, 10),
+            })),
+        },
+    });
+});
+
 module.exports = {
     createArtist,
     getMyArtistProfile,
+    getArtistStats,
 };
