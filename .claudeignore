@@ -1,0 +1,15 @@
+# Platform directories not targeted
+ios/
+linux/
+macos/
+web/
+windows/
+
+# Build artifacts
+build/
+
+# Generated tool cache
+.dart_tool/
+
+# Backend dependencies
+backend/node_modules/
