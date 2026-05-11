@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import '../../../../core/network/api_client.dart';
 import '../models/artist_model.dart';
+import '../models/artist_stats_model.dart';
 import '../../../home/data/models/album_model.dart';
 import '../../../home/data/models/song_model.dart';
 import 'dart:io';
@@ -28,6 +29,8 @@ abstract class ArtistApiService {
     required File cover,
     int? duration,
   });
+
+  Future<ArtistStatsModel> getArtistStats();
 }
 
 class ArtistApiServiceImpl implements ArtistApiService {
@@ -145,5 +148,14 @@ class ArtistApiServiceImpl implements ArtistApiService {
     } else {
       throw Exception(response.data['message'] ?? 'Error al subir canción');
     }
+  }
+
+  @override
+  Future<ArtistStatsModel> getArtistStats() async {
+    final response = await _apiClient.dio.get('/artists/me/stats');
+    if (response.data != null && response.data['success'] == true) {
+      return ArtistStatsModel.fromJson(response.data as Map<String, dynamic>);
+    }
+    throw Exception('Error al obtener estadísticas del artista');
   }
 }

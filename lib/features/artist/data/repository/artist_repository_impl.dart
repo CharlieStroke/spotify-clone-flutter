@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'dart:io';
 import '../../domain/entities/artist_entity.dart';
+import '../../domain/entities/artist_stats_entity.dart';
 import '../../domain/repository/artist_repository.dart';
 import '../sources/artist_api_service.dart';
 import 'package:spotify_clone/features/home/domain/entities/album_entity.dart';
@@ -79,6 +80,16 @@ class ArtistRepositoryImpl implements ArtistRepository {
         duration: duration,
       );
       return Right(song);
+    } catch (e) {
+      return Left(e.toString());
+    }
+  }
+
+  @override
+  Future<Either<String, ArtistStatsEntity>> getArtistStats() async {
+    try {
+      final stats = await _apiService.getArtistStats();
+      return Right(stats);
     } catch (e) {
       return Left(e.toString());
     }
