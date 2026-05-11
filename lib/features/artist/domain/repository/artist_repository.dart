@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import '../entities/artist_entity.dart';
+import '../entities/artist_stats_entity.dart';
 import '../../../home/domain/entities/album_entity.dart';
 import '../../../home/domain/entities/song_entity.dart';
 import 'dart:io';
@@ -27,4 +28,6 @@ abstract class ArtistRepository {
     required File cover,
     int? duration,
   });
+
+  Future<Either<String, ArtistStatsEntity>> getArtistStats();
 }
