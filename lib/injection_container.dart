@@ -41,7 +41,9 @@ import 'features/create/presentation/bloc/create_playlist_bloc.dart';
 import 'features/artist/data/sources/artist_api_service.dart';
 import 'features/artist/domain/repository/artist_repository.dart';
 import 'features/artist/data/repository/artist_repository_impl.dart';
+import 'features/artist/domain/usecases/get_artist_stats_usecase.dart';
 import 'features/artist/presentation/bloc/artist_bloc.dart';
+import 'features/artist/presentation/cubit/artist_stats_cubit.dart';
 
 // Search Feature
 import 'features/search/data/sources/search_api_service.dart';
@@ -174,6 +176,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => GetCachedFavoritesUseCase(sl()));
   sl.registerLazySingleton(() => AddCachedFavoriteUseCase(sl()));
   sl.registerLazySingleton(() => IncrementPlayCountUseCase(sl()));
+  sl.registerLazySingleton(() => GetArtistStatsUseCase(sl()));
 
   // --- Blocs ---
   sl.registerFactory(() => AuthBloc(
@@ -203,4 +206,5 @@ Future<void> init() async {
   sl.registerLazySingleton(() => PlayerCubit(sl(), sl()));
   sl.registerLazySingleton(() => FavoritesBloc(sl(), sl(), sl(), sl(), sl()));
   sl.registerFactory(() => ArtistBloc(sl()));
+  sl.registerFactory(() => ArtistStatsCubit(sl()));
 }
