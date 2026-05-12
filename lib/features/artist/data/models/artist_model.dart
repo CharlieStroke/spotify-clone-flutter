@@ -7,6 +7,9 @@ class ArtistModel extends ArtistEntity {
     required super.stageName,
     required super.bio,
     required super.imageUrl,
+    super.followersCount = 0,
+    super.totalPlays = 0,
+    super.isFollowing = false,
   });
 
   factory ArtistModel.fromJson(Map<String, dynamic> json) {
@@ -18,6 +21,9 @@ class ArtistModel extends ArtistEntity {
       stageName: json['stage_name'] ?? '',
       bio: json['bio'] ?? '',
       imageUrl: json['image_url'] ?? '',
+      followersCount: (json['followers_count'] as num?)?.toInt() ?? 0,
+      totalPlays: (json['total_plays'] as num?)?.toInt() ?? 0,
+      isFollowing: json['is_following'] as bool? ?? false,
     );
   }
 

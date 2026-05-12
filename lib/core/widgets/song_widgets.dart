@@ -150,6 +150,7 @@ class SongListTileWithHeart extends StatelessWidget {
   final String playlistType;
   final VoidCallback? onRemoveFromPlaylist;
   final bool isFavoritesView;
+  final bool showPlays;
 
   const SongListTileWithHeart({
     super.key,
@@ -160,6 +161,7 @@ class SongListTileWithHeart extends StatelessWidget {
     this.playlistType = 'playlist',
     this.onRemoveFromPlaylist,
     this.isFavoritesView = false,
+    this.showPlays = false,
   });
 
   @override
@@ -183,7 +185,8 @@ class SongListTileWithHeart extends StatelessWidget {
       title: Text(song.title,
           style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
           maxLines: 1, overflow: TextOverflow.ellipsis),
-      subtitle: Text(song.artistName.isNotEmpty ? song.artistName : (song.album.isNotEmpty ? song.album : 'Artista Desconocido'),
+      subtitle: Text(
+          showPlays ? _formatPlays(song.plays) : (song.artistName.isNotEmpty ? song.artistName : (song.album.isNotEmpty ? song.album : 'Artista Desconocido')),
           style: const TextStyle(color: Colors.white70, fontSize: 12),
           maxLines: 1, overflow: TextOverflow.ellipsis),
       trailing: Row(
@@ -233,6 +236,12 @@ class SongListTileWithHeart extends StatelessWidget {
     color: Colors.grey.shade800,
     child: const Icon(Icons.music_note, color: Colors.white54),
   );
+
+  String _formatPlays(int plays) {
+    if (plays >= 1000000) return '${(plays / 1000000).toStringAsFixed(1)} M reproducciones';
+    if (plays >= 1000) return '${(plays / 1000).toStringAsFixed(1)} K reproducciones';
+    return '$plays reproducciones';
+  }
 }
 
 /// Tarjeta de playlist en la biblioteca (imagen cuadrada + nombre)
