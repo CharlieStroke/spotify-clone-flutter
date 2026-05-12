@@ -41,13 +41,15 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     result.fold(
       (failure) => emit(SearchFailure(failure)),
       (data) {
-        if (data['songs']!.isNotEmpty || data['albums']!.isNotEmpty || data['playlists']!.isNotEmpty) {
-           _localDataSource.cacheRecentSearch(query);
+        if (data['songs']!.isNotEmpty || data['albums']!.isNotEmpty ||
+            data['playlists']!.isNotEmpty || (data['artists'] ?? []).isNotEmpty) {
+          _localDataSource.cacheRecentSearch(query);
         }
         emit(SearchLoaded(
           songs: data['songs']!,
           albums: data['albums']!,
           playlists: data['playlists']!,
+          artists: data['artists'] ?? [],
         ));
       },
     );

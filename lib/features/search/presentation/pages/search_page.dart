@@ -4,10 +4,12 @@ import '../bloc/search_bloc.dart';
 import '../bloc/search_event.dart';
 import '../bloc/search_state.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/routes/app_routes.dart';
 import '../../../home/presentation/bloc/home_bloc.dart';
 import '../../../home/presentation/bloc/home_state.dart';
 import '../../../playlist_detail/presentation/pages/playlist_detail_page.dart';
 import '../../../home/domain/entities/song_entity.dart';
+import '../../../artist/domain/entities/artist_entity.dart';
 import '../../../../core/widgets/song_widgets.dart';
 import '../../../../core/widgets/page_layout.dart';
 import '../../../../core/widgets/shimmer_skeleton.dart';
@@ -325,7 +327,7 @@ class _SearchViewState extends State<SearchView> {
   }
 
   Widget _buildSearchResults(SearchLoaded state) {
-    if (state.songs.isEmpty && state.albums.isEmpty && state.playlists.isEmpty) {
+    if (state.songs.isEmpty && state.albums.isEmpty && state.playlists.isEmpty && state.artists.isEmpty) {
       return const EmptyStateWidget(
         icon: Icons.search_off,
         title: 'No encontramos resultados',
@@ -335,6 +337,29 @@ class _SearchViewState extends State<SearchView> {
 
     return ListView(
       children: [
+        if (state.artists.isNotEmpty) _buildSectionTitle('Artistas'),
+        if (state.artists.isNotEmpty)
+          ...state.artists.cast<ArtistEntity>().map((artist) => ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: CircleAvatar(
+              radius: 25,
+              backgroundImage: artist.imageUrl.isNotEmpty
+                  ? NetworkImage(artist.imageUrl)
+                  : null,
+              backgroundColor: Colors.grey.shade800,
+              child: artist.imageUrl.isEmpty
+                  ? const Icon(Icons.person, color: Colors.white54)
+                  : null,
+            ),
+            title: Text(artist.stageName, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            subtitle: const Text('Artista', style: TextStyle(color: Colors.grey, fontSize: 12)),
+            onTap: () => Navigator.pushNamed(
+              context,
+              AppRoutes.artistProfile,
+              arguments: artist.artistId,
+            ),
+          )),
+
         if (state.songs.isNotEmpty) _buildSectionTitle('Canciones'),
         if (state.songs.isNotEmpty)
           ...state.songs.cast<SongEntity>().asMap().entries.map((entry) {
