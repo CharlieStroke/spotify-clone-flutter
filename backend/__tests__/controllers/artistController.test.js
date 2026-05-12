@@ -4,7 +4,8 @@ jest.mock('../../src/services/supabaseStorageService', () => ({ uploadFile: jest
 const pool = require('../../src/config/db');
 const storageService = require('../../src/services/supabaseStorageService');
 const { getMyArtistProfile, getArtistStats, createArtist,
-        getPublicArtistProfile, getPublicArtistTopSongs, getPublicArtistAlbums } = require('../../src/controllers/artistController');
+        getPublicArtistProfile, getPublicArtistTopSongs, getPublicArtistAlbums,
+        followArtist, unfollowArtist } = require('../../src/controllers/artistController');
 const { mockReq, mockRes, mockNext } = require('../helpers');
 
 beforeEach(() => jest.clearAllMocks());
@@ -169,8 +170,8 @@ describe('createArtist', () => {
 
 // ─── getPublicArtistProfile ───────────────────────────────────────────────────
 describe('getPublicArtistProfile', () => {
-    test('devuelve perfil del artista', async () => {
-        pool.query.mockResolvedValue({ rows: [{ artist_id: 1, stage_name: 'DJ Test', bio: 'Bio', image_url: 'https://img' }] });
+    test('devuelve perfil enriquecido con followers, plays e is_following', async () => {
+        pool.query.mockResolvedValue({ rows: [{ artist_id: 1, stage_name: 'DJ Test', bio: 'Bio', image_url: 'https://img', followers_count: 120, total_plays: 5000, is_following: false }] });
         const req  = mockReq({ params: { id: '1' } });
         const res  = mockRes();
         const next = mockNext();
@@ -179,7 +180,9 @@ describe('getPublicArtistProfile', () => {
         await flushPromises();
 
         expect(res.status).toHaveBeenCalledWith(200);
-        expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: true, artist: expect.any(Object) }));
+        const payload = res.json.mock.calls[0][0];
+        expect(payload.success).toBe(true);
+        expect(payload.artist).toMatchObject({ followers_count: 120, total_plays: 5000, is_following: false });
     });
 
     test('lanza 404 si el artista no existe', async () => {
@@ -192,6 +195,69 @@ describe('getPublicArtistProfile', () => {
         await flushPromises();
 
         expect(next).toHaveBeenCalledWith(expect.objectContaining({ statusCode: 404 }));
+    });
+});
+
+// ─── followArtist ─────────────────────────────────────────────────────────────
+describe('followArtist', () => {
+    test('sigue al artista y devuelve 200', async () => {
+        pool.query
+            .mockResolvedValueOnce({ rows: [{ artist_id: 1 }] }) // artistCheck
+            .mockResolvedValueOnce({ rows: [] });                 // INSERT
+
+        const req  = mockReq({ params: { id: '1' } });
+        const res  = mockRes();
+        const next = mockNext();
+
+        followArtist(req, res, next);
+        await flushPromises();
+
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: true }));
+    });
+
+    test('lanza 404 si el artista no existe', async () => {
+        pool.query.mockResolvedValueOnce({ rows: [] });
+
+        const req  = mockReq({ params: { id: '999' } });
+        const res  = mockRes();
+        const next = mockNext();
+
+        followArtist(req, res, next);
+        await flushPromises();
+
+        expect(next).toHaveBeenCalledWith(expect.objectContaining({ statusCode: 404 }));
+    });
+});
+
+// ─── unfollowArtist ───────────────────────────────────────────────────────────
+describe('unfollowArtist', () => {
+    test('deja de seguir al artista y devuelve 200', async () => {
+        pool.query.mockResolvedValueOnce({ rows: [] }); // DELETE
+
+        const req  = mockReq({ params: { id: '1' } });
+        const res  = mockRes();
+        const next = mockNext();
+
+        unfollowArtist(req, res, next);
+        await flushPromises();
+
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: true }));
+    });
+
+    test('llama next con error si pool falla', async () => {
+        const err = new Error('DB error');
+        pool.query.mockRejectedValueOnce(err);
+
+        const req  = mockReq({ params: { id: '1' } });
+        const res  = mockRes();
+        const next = mockNext();
+
+        unfollowArtist(req, res, next);
+        await flushPromises();
+
+        expect(next).toHaveBeenCalledWith(err);
     });
 });
 
