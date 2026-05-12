@@ -94,4 +94,34 @@ class ArtistRepositoryImpl implements ArtistRepository {
       return Left(e.toString());
     }
   }
+
+  @override
+  Future<Either<String, ArtistEntity>> getPublicArtistProfile(int artistId) async {
+    try {
+      final artist = await _apiService.getPublicArtistProfile(artistId);
+      return Right(artist);
+    } catch (e) {
+      return Left(e.toString());
+    }
+  }
+
+  @override
+  Future<Either<String, List<SongEntity>>> getPublicArtistTopSongs(int artistId) async {
+    try {
+      final songs = await _apiService.getPublicArtistTopSongs(artistId);
+      return Right(songs);
+    } catch (e) {
+      return Left(e.toString());
+    }
+  }
+
+  @override
+  Future<Either<String, List<AlbumEntity>>> getPublicArtistAlbums(int artistId) async {
+    try {
+      final albums = await _apiService.getPublicArtistAlbums(artistId);
+      return Right(albums);
+    } catch (e) {
+      return Left(e.toString());
+    }
+  }
 }

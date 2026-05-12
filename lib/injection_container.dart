@@ -42,8 +42,12 @@ import 'features/artist/data/sources/artist_api_service.dart';
 import 'features/artist/domain/repository/artist_repository.dart';
 import 'features/artist/data/repository/artist_repository_impl.dart';
 import 'features/artist/domain/usecases/get_artist_stats_usecase.dart';
+import 'features/artist/domain/usecases/get_public_artist_usecase.dart';
+import 'features/artist/domain/usecases/get_public_artist_top_songs_usecase.dart';
+import 'features/artist/domain/usecases/get_public_artist_albums_usecase.dart';
 import 'features/artist/presentation/bloc/artist_bloc.dart';
 import 'features/artist/presentation/cubit/artist_stats_cubit.dart';
+import 'features/artist/presentation/cubit/public_artist_profile_cubit.dart';
 
 // Search Feature
 import 'features/search/data/sources/search_api_service.dart';
@@ -177,6 +181,9 @@ Future<void> init() async {
   sl.registerLazySingleton(() => AddCachedFavoriteUseCase(sl()));
   sl.registerLazySingleton(() => IncrementPlayCountUseCase(sl()));
   sl.registerLazySingleton(() => GetArtistStatsUseCase(sl()));
+  sl.registerLazySingleton(() => GetPublicArtistUseCase(sl()));
+  sl.registerLazySingleton(() => GetPublicArtistTopSongsUseCase(sl()));
+  sl.registerLazySingleton(() => GetPublicArtistAlbumsUseCase(sl()));
 
   // --- Blocs ---
   sl.registerFactory(() => AuthBloc(
@@ -207,4 +214,5 @@ Future<void> init() async {
   sl.registerLazySingleton(() => FavoritesBloc(sl(), sl(), sl(), sl(), sl()));
   sl.registerFactory(() => ArtistBloc(sl()));
   sl.registerFactory(() => ArtistStatsCubit(sl()));
+  sl.registerFactory(() => PublicArtistProfileCubit(sl(), sl(), sl()));
 }

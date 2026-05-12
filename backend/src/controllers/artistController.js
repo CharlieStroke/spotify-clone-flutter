@@ -149,8 +149,70 @@ const getArtistStats = asyncHandler(async (req, res) => {
     });
 });
 
+// =============================
+// GET PUBLIC ARTIST PROFILE
+// =============================
+const getPublicArtistProfile = asyncHandler(async (req, res) => {
+    const artistId = parseInt(req.params.id, 10);
+
+    const result = await pool.query(
+        `SELECT artist_id, stage_name, bio, image_url
+         FROM artists WHERE artist_id = $1`,
+        [artistId]
+    );
+
+    if (result.rows.length === 0) {
+        const err = new Error('Artista no encontrado');
+        err.statusCode = 404;
+        throw err;
+    }
+
+    res.status(200).json({ success: true, artist: result.rows[0] });
+});
+
+// =============================
+// GET PUBLIC ARTIST TOP SONGS
+// =============================
+const getPublicArtistTopSongs = asyncHandler(async (req, res) => {
+    const artistId = parseInt(req.params.id, 10);
+
+    const result = await pool.query(
+        `SELECT s.song_id, s.title, s.plays, s.cover_url, s.audio_url,
+                s.duration, s.album_id, ar.stage_name AS artist_name
+         FROM songs s
+         JOIN albums al ON s.album_id = al.album_id
+         JOIN artists ar ON al.artist_id = ar.artist_id
+         WHERE al.artist_id = $1
+         ORDER BY s.plays DESC
+         LIMIT 5`,
+        [artistId]
+    );
+
+    res.status(200).json({ success: true, songs: result.rows });
+});
+
+// =============================
+// GET PUBLIC ARTIST ALBUMS
+// =============================
+const getPublicArtistAlbums = asyncHandler(async (req, res) => {
+    const artistId = parseInt(req.params.id, 10);
+
+    const result = await pool.query(
+        `SELECT album_id, title, cover_url
+         FROM albums
+         WHERE artist_id = $1
+         ORDER BY created_at DESC`,
+        [artistId]
+    );
+
+    res.status(200).json({ success: true, albums: result.rows });
+});
+
 module.exports = {
     createArtist,
     getMyArtistProfile,
     getArtistStats,
+    getPublicArtistProfile,
+    getPublicArtistTopSongs,
+    getPublicArtistAlbums,
 };

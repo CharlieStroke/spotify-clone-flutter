@@ -3,6 +3,7 @@ import '../../../../core/network/api_client.dart';
 import '../../../home/data/models/album_model.dart';
 import '../../../home/data/models/playlist_model.dart';
 import '../../../home/data/models/song_model.dart';
+import '../../../artist/data/models/artist_model.dart';
 
 abstract class SearchApiService {
   Future<Map<String, List<dynamic>>> search(String query);
@@ -23,19 +24,22 @@ class SearchApiServiceImpl implements SearchApiService {
         final List<dynamic> rawSongs = response.data['songs'] ?? [];
         final List<dynamic> rawAlbums = response.data['albums'] ?? [];
         final List<dynamic> rawPlaylists = response.data['playlists'] ?? [];
+        final List<dynamic> rawArtists = response.data['artists'] ?? [];
 
         final songs = rawSongs.map((e) => SongModel.fromJson(e as Map<String, dynamic>)).toList();
         final albums = rawAlbums.map((e) => AlbumModel.fromJson(e as Map<String, dynamic>)).toList();
         final playlists = rawPlaylists.map((e) => PlaylistModel.fromJson(e as Map<String, dynamic>)).toList();
+        final artists = rawArtists.map((e) => ArtistModel.fromJson(e as Map<String, dynamic>)).toList();
 
         return {
           'songs': songs,
           'albums': albums,
           'playlists': playlists,
+          'artists': artists,
         };
       }
-      
-      return {'songs': [], 'albums': [], 'playlists': []};
+
+      return {'songs': [], 'albums': [], 'playlists': [], 'artists': []};
     } on DioException catch (e) {
       String msg = e.message ?? 'Error in search';
       if (e.response?.data is Map) {
