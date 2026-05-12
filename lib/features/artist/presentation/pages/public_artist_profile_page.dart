@@ -80,7 +80,7 @@ class _PublicArtistProfilePageState extends State<PublicArtistProfilePage> {
                     placeholder: 'assets/images/logo.png',
                     image: artist.imageUrl,
                     fit: BoxFit.cover,
-                    imageErrorBuilder: (_, __, ___) =>
+                    imageErrorBuilder: (_, _, _) =>
                         Container(color: Colors.grey.shade900),
                   )
                 else
@@ -175,7 +175,7 @@ class _PublicArtistProfilePageState extends State<PublicArtistProfilePage> {
                           placeholder: 'assets/images/logo.png',
                           image: artist.imageUrl,
                           fit: BoxFit.cover,
-                          imageErrorBuilder: (_, __, ___) =>
+                          imageErrorBuilder: (_, _, _) =>
                               Container(height: 220, color: Colors.grey.shade800),
                         ),
                       ),
@@ -273,7 +273,7 @@ class _AlbumCard extends StatelessWidget {
                       image: album.coverUrl,
                       fit: BoxFit.cover,
                       width: double.infinity,
-                      imageErrorBuilder: (_, __, ___) =>
+                      imageErrorBuilder: (_, _, _) =>
                           Container(color: Colors.grey.shade800),
                     )
                   : Container(
