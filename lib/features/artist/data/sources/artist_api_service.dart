@@ -31,6 +31,10 @@ abstract class ArtistApiService {
   });
 
   Future<ArtistStatsModel> getArtistStats();
+
+  Future<ArtistModel> getPublicArtistProfile(int artistId);
+  Future<List<SongModel>> getPublicArtistTopSongs(int artistId);
+  Future<List<AlbumModel>> getPublicArtistAlbums(int artistId);
 }
 
 class ArtistApiServiceImpl implements ArtistApiService {
@@ -157,5 +161,34 @@ class ArtistApiServiceImpl implements ArtistApiService {
       return ArtistStatsModel.fromJson(response.data as Map<String, dynamic>);
     }
     throw Exception('Error al obtener estadísticas del artista');
+  }
+
+  @override
+  Future<ArtistModel> getPublicArtistProfile(int artistId) async {
+    final response = await _apiClient.dio.get('/artists/$artistId');
+    if (response.data != null && response.data['success'] == true) {
+      return ArtistModel.fromJson(response.data['artist']);
+    }
+    throw Exception('Artista no encontrado');
+  }
+
+  @override
+  Future<List<SongModel>> getPublicArtistTopSongs(int artistId) async {
+    final response = await _apiClient.dio.get('/artists/$artistId/top-songs');
+    if (response.data != null && response.data['success'] == true) {
+      final List songs = response.data['songs'] ?? [];
+      return songs.map((e) => SongModel.fromJson(e as Map<String, dynamic>)).toList();
+    }
+    return [];
+  }
+
+  @override
+  Future<List<AlbumModel>> getPublicArtistAlbums(int artistId) async {
+    final response = await _apiClient.dio.get('/artists/$artistId/albums');
+    if (response.data != null && response.data['success'] == true) {
+      final List albums = response.data['albums'] ?? [];
+      return albums.map((e) => AlbumModel.fromJson(e as Map<String, dynamic>)).toList();
+    }
+    return [];
   }
 }
