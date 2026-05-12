@@ -154,11 +154,18 @@ const getArtistStats = asyncHandler(async (req, res) => {
 // =============================
 const getPublicArtistProfile = asyncHandler(async (req, res) => {
     const artistId = parseInt(req.params.id, 10);
+    const userId   = req.user.userId;
 
     const result = await pool.query(
-        `SELECT artist_id, stage_name, bio, image_url
-         FROM artists WHERE artist_id = $1`,
-        [artistId]
+        `SELECT a.artist_id, a.stage_name, a.bio, a.image_url,
+                (SELECT COUNT(*)::int FROM user_follows_artists WHERE artist_id = $1)           AS followers_count,
+                (SELECT COALESCE(SUM(s.plays), 0)::int
+                 FROM songs s JOIN albums al ON s.album_id = al.album_id
+                 WHERE al.artist_id = $1)                                                       AS total_plays,
+                EXISTS(SELECT 1 FROM user_follows_artists
+                       WHERE artist_id = $1 AND user_id = $2)                                   AS is_following
+         FROM artists a WHERE a.artist_id = $1`,
+        [artistId, userId]
     );
 
     if (result.rows.length === 0) {
@@ -168,6 +175,45 @@ const getPublicArtistProfile = asyncHandler(async (req, res) => {
     }
 
     res.status(200).json({ success: true, artist: result.rows[0] });
+});
+
+// =============================
+// FOLLOW ARTIST
+// =============================
+const followArtist = asyncHandler(async (req, res) => {
+    const artistId = parseInt(req.params.id, 10);
+    const userId   = req.user.userId;
+
+    const artistCheck = await pool.query(
+        'SELECT artist_id FROM artists WHERE artist_id = $1', [artistId]
+    );
+    if (artistCheck.rows.length === 0) {
+        const err = new Error('Artista no encontrado');
+        err.statusCode = 404;
+        throw err;
+    }
+
+    await pool.query(
+        'INSERT INTO user_follows_artists (user_id, artist_id) VALUES ($1, $2) ON CONFLICT DO NOTHING',
+        [userId, artistId]
+    );
+
+    res.status(200).json({ success: true, message: 'Ahora sigues a este artista' });
+});
+
+// =============================
+// UNFOLLOW ARTIST
+// =============================
+const unfollowArtist = asyncHandler(async (req, res) => {
+    const artistId = parseInt(req.params.id, 10);
+    const userId   = req.user.userId;
+
+    await pool.query(
+        'DELETE FROM user_follows_artists WHERE user_id = $1 AND artist_id = $2',
+        [userId, artistId]
+    );
+
+    res.status(200).json({ success: true, message: 'Has dejado de seguir a este artista' });
 });
 
 // =============================
@@ -215,4 +261,6 @@ module.exports = {
     getPublicArtistProfile,
     getPublicArtistTopSongs,
     getPublicArtistAlbums,
+    followArtist,
+    unfollowArtist,
 };
