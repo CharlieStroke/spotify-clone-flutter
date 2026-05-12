@@ -30,4 +30,8 @@ abstract class ArtistRepository {
   });
 
   Future<Either<String, ArtistStatsEntity>> getArtistStats();
+
+  Future<Either<String, ArtistEntity>> getPublicArtistProfile(int artistId);
+  Future<Either<String, List<SongEntity>>> getPublicArtistTopSongs(int artistId);
+  Future<Either<String, List<AlbumEntity>>> getPublicArtistAlbums(int artistId);
 }
