@@ -124,4 +124,24 @@ class ArtistRepositoryImpl implements ArtistRepository {
       return Left(e.toString());
     }
   }
+
+  @override
+  Future<Either<String, Unit>> followArtist(int artistId) async {
+    try {
+      await _apiService.followArtist(artistId);
+      return const Right(unit);
+    } catch (e) {
+      return Left(e.toString());
+    }
+  }
+
+  @override
+  Future<Either<String, Unit>> unfollowArtist(int artistId) async {
+    try {
+      await _apiService.unfollowArtist(artistId);
+      return const Right(unit);
+    } catch (e) {
+      return Left(e.toString());
+    }
+  }
 }

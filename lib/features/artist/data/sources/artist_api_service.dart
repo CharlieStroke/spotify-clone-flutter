@@ -35,6 +35,8 @@ abstract class ArtistApiService {
   Future<ArtistModel> getPublicArtistProfile(int artistId);
   Future<List<SongModel>> getPublicArtistTopSongs(int artistId);
   Future<List<AlbumModel>> getPublicArtistAlbums(int artistId);
+  Future<void> followArtist(int artistId);
+  Future<void> unfollowArtist(int artistId);
 }
 
 class ArtistApiServiceImpl implements ArtistApiService {
@@ -190,5 +192,15 @@ class ArtistApiServiceImpl implements ArtistApiService {
       return albums.map((e) => AlbumModel.fromJson(e as Map<String, dynamic>)).toList();
     }
     return [];
+  }
+
+  @override
+  Future<void> followArtist(int artistId) async {
+    await _apiClient.dio.post('/artists/$artistId/follow');
+  }
+
+  @override
+  Future<void> unfollowArtist(int artistId) async {
+    await _apiClient.dio.delete('/artists/$artistId/follow');
   }
 }

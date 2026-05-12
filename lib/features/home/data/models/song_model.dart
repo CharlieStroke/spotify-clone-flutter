@@ -9,10 +9,10 @@ class SongModel extends SongEntity {
     required super.duration,
     required super.coverUrl,
     required super.audioUrl,
+    super.plays = 0,
   });
 
   factory SongModel.fromJson(Map<String, dynamic> json) {
-    // Intentar traer el nombre de artista, si no fallback al título del álbum
     final String artistName = json['artist_name'] ?? json['album_name'] ?? 'Artista desconocido';
     return SongModel(
       id: json['song_id']?.toString() ?? '1',
@@ -22,6 +22,7 @@ class SongModel extends SongEntity {
       duration: json['duration']?.toString() ?? '0',
       coverUrl: json['cover_url'] ?? '',
       audioUrl: json['audio_url'] ?? '',
+      plays: (json['plays'] as num?)?.toInt() ?? 0,
     );
   }
 

@@ -99,19 +99,54 @@ class _PublicArtistProfilePageState extends State<PublicArtistProfilePage> {
           ),
         ),
 
-        // ── Botón Seguir (placeholder v1) ──────────────────────────────────
+        // ── Stats + Follow ─────────────────────────────────────────────────
         SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: OutlinedButton(
-              onPressed: null,
-              style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: Colors.white54),
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 10),
-              ),
-              child: const Text('Seguir', style: TextStyle(color: Colors.white70)),
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _formatPlays(artist.totalPlays),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Text(
+                        '${_formatCount(artist.followersCount)} seguidores',
+                        style: const TextStyle(color: Colors.white54, fontSize: 12),
+                      ),
+                    ],
+                  ),
+                ),
+                OutlinedButton(
+                  onPressed: () => context
+                      .read<PublicArtistProfileCubit>()
+                      .toggleFollow(widget.artistId),
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(
+                      color: artist.isFollowing ? AppColors.primary : Colors.white54,
+                    ),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20)),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                  ),
+                  child: Text(
+                    artist.isFollowing ? 'Siguiendo' : 'Seguir',
+                    style: TextStyle(
+                      color: artist.isFollowing ? AppColors.primary : Colors.white70,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -129,6 +164,7 @@ class _PublicArtistProfilePageState extends State<PublicArtistProfilePage> {
                   indexInQueue: index,
                   playlistName: artist.stageName,
                   playlistType: 'artist',
+                  showPlays: true,
                 );
               },
               childCount: state.topSongs.length,
@@ -163,58 +199,70 @@ class _PublicArtistProfilePageState extends State<PublicArtistProfilePage> {
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Stack(
-                  children: [
-                    if (artist.imageUrl.isNotEmpty)
-                      SizedBox(
-                        height: 220,
-                        width: double.infinity,
-                        child: FadeInImage.assetNetwork(
-                          placeholder: 'assets/images/logo.png',
-                          image: artist.imageUrl,
-                          fit: BoxFit.cover,
-                          imageErrorBuilder: (_, _, _) =>
-                              Container(height: 220, color: Colors.grey.shade800),
-                        ),
-                      ),
-                    Positioned(
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                      child: Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: const BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.bottomCenter,
-                            end: Alignment.topCenter,
-                            colors: [Colors.black87, Colors.transparent],
+              child: GestureDetector(
+                onTap: () => _showBioModal(context, artist.stageName,
+                    artist.imageUrl, artist.bio),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Stack(
+                    children: [
+                      if (artist.imageUrl.isNotEmpty)
+                        SizedBox(
+                          height: 220,
+                          width: double.infinity,
+                          child: FadeInImage.assetNetwork(
+                            placeholder: 'assets/images/logo.png',
+                            image: artist.imageUrl,
+                            fit: BoxFit.cover,
+                            imageErrorBuilder: (_, _, _) =>
+                                Container(height: 220, color: Colors.grey.shade800),
                           ),
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              artist.stageName,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18,
+                      Positioned(
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        child: Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: const BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.bottomCenter,
+                              end: Alignment.topCenter,
+                              colors: [Colors.black87, Colors.transparent],
+                            ),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                artist.stageName,
+                                style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18),
                               ),
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              artist.bio,
-                              style: const TextStyle(color: Colors.white70, fontSize: 13),
-                              maxLines: 3,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
+                              const SizedBox(height: 6),
+                              Text(
+                                artist.bio,
+                                style: const TextStyle(
+                                    color: Colors.white70, fontSize: 13),
+                                maxLines: 3,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 8),
+                              const Text(
+                                'Ver más',
+                                style: TextStyle(
+                                    color: Colors.white54,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -223,6 +271,84 @@ class _PublicArtistProfilePageState extends State<PublicArtistProfilePage> {
 
         const SliverToBoxAdapter(child: SizedBox(height: 100)),
       ],
+    );
+  }
+
+  void _showBioModal(
+      BuildContext context, String name, String imageUrl, String bio) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: const Color(0xFF121212),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) => DraggableScrollableSheet(
+        initialChildSize: 0.75,
+        maxChildSize: 0.95,
+        minChildSize: 0.4,
+        expand: false,
+        builder: (_, scrollController) => SingleChildScrollView(
+          controller: scrollController,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Handle
+              Center(
+                child: Container(
+                  margin: const EdgeInsets.only(top: 12, bottom: 16),
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.white24,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              if (imageUrl.isNotEmpty)
+                ClipRRect(
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(0)),
+                  child: FadeInImage.assetNetwork(
+                    placeholder: 'assets/images/logo.png',
+                    image: imageUrl,
+                    height: 220,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    imageErrorBuilder: (_, _, _) =>
+                        Container(height: 220, color: Colors.grey.shade800),
+                  ),
+                ),
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      name,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      bio,
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 15,
+                        height: 1.6,
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -240,6 +366,22 @@ class _PublicArtistProfilePageState extends State<PublicArtistProfilePage> {
         ),
       ),
     );
+  }
+
+  String _formatPlays(int plays) {
+    if (plays >= 1000000) {
+      return '${(plays / 1000000).toStringAsFixed(1)} M reproducciones';
+    }
+    if (plays >= 1000) {
+      return '${(plays / 1000).toStringAsFixed(1)} K reproducciones';
+    }
+    return '$plays reproducciones';
+  }
+
+  String _formatCount(int count) {
+    if (count >= 1000000) return '${(count / 1000000).toStringAsFixed(1)} M';
+    if (count >= 1000) return '${(count / 1000).toStringAsFixed(1)} K';
+    return count.toString();
   }
 }
 
@@ -278,7 +420,8 @@ class _AlbumCard extends StatelessWidget {
                     )
                   : Container(
                       color: Colors.grey.shade800,
-                      child: const Icon(Icons.album, color: Colors.white24, size: 40),
+                      child: const Icon(Icons.album,
+                          color: Colors.white24, size: 40),
                     ),
             ),
           ),
@@ -293,7 +436,8 @@ class _AlbumCard extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
-          const Text('Álbum', style: TextStyle(color: Colors.white54, fontSize: 12)),
+          const Text('Álbum',
+              style: TextStyle(color: Colors.white54, fontSize: 12)),
         ],
       ),
     );
