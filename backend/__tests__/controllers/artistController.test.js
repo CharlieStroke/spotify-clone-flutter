@@ -3,7 +3,8 @@ jest.mock('../../src/services/supabaseStorageService', () => ({ uploadFile: jest
 
 const pool = require('../../src/config/db');
 const storageService = require('../../src/services/supabaseStorageService');
-const { getMyArtistProfile, getArtistStats, createArtist } = require('../../src/controllers/artistController');
+const { getMyArtistProfile, getArtistStats, createArtist,
+        getPublicArtistProfile, getPublicArtistTopSongs, getPublicArtistAlbums } = require('../../src/controllers/artistController');
 const { mockReq, mockRes, mockNext } = require('../helpers');
 
 beforeEach(() => jest.clearAllMocks());
@@ -163,5 +164,91 @@ describe('createArtist', () => {
         await flushPromises();
 
         expect(next).toHaveBeenCalledWith(expect.objectContaining({ statusCode: 400 }));
+    });
+});
+
+// ─── getPublicArtistProfile ───────────────────────────────────────────────────
+describe('getPublicArtistProfile', () => {
+    test('devuelve perfil del artista', async () => {
+        pool.query.mockResolvedValue({ rows: [{ artist_id: 1, stage_name: 'DJ Test', bio: 'Bio', image_url: 'https://img' }] });
+        const req  = mockReq({ params: { id: '1' } });
+        const res  = mockRes();
+        const next = mockNext();
+
+        getPublicArtistProfile(req, res, next);
+        await flushPromises();
+
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: true, artist: expect.any(Object) }));
+    });
+
+    test('lanza 404 si el artista no existe', async () => {
+        pool.query.mockResolvedValue({ rows: [] });
+        const req  = mockReq({ params: { id: '999' } });
+        const res  = mockRes();
+        const next = mockNext();
+
+        getPublicArtistProfile(req, res, next);
+        await flushPromises();
+
+        expect(next).toHaveBeenCalledWith(expect.objectContaining({ statusCode: 404 }));
+    });
+});
+
+// ─── getPublicArtistTopSongs ──────────────────────────────────────────────────
+describe('getPublicArtistTopSongs', () => {
+    test('devuelve top canciones del artista', async () => {
+        pool.query.mockResolvedValue({ rows: [{ song_id: 1, title: 'Hit', plays: 5000, cover_url: 'https://img', audio_url: 'https://audio', duration: 180, album_id: 1, artist_name: 'DJ Test' }] });
+        const req  = mockReq({ params: { id: '1' } });
+        const res  = mockRes();
+        const next = mockNext();
+
+        getPublicArtistTopSongs(req, res, next);
+        await flushPromises();
+
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: true, songs: expect.any(Array) }));
+    });
+
+    test('devuelve array vacío si no tiene canciones', async () => {
+        pool.query.mockResolvedValue({ rows: [] });
+        const req  = mockReq({ params: { id: '1' } });
+        const res  = mockRes();
+        const next = mockNext();
+
+        getPublicArtistTopSongs(req, res, next);
+        await flushPromises();
+
+        const payload = res.json.mock.calls[0][0];
+        expect(payload.songs).toHaveLength(0);
+    });
+});
+
+// ─── getPublicArtistAlbums ────────────────────────────────────────────────────
+describe('getPublicArtistAlbums', () => {
+    test('devuelve álbumes del artista', async () => {
+        pool.query.mockResolvedValue({ rows: [{ album_id: 1, title: 'Album X', cover_url: 'https://img' }] });
+        const req  = mockReq({ params: { id: '1' } });
+        const res  = mockRes();
+        const next = mockNext();
+
+        getPublicArtistAlbums(req, res, next);
+        await flushPromises();
+
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ success: true, albums: expect.any(Array) }));
+    });
+
+    test('devuelve array vacío si no tiene álbumes', async () => {
+        pool.query.mockResolvedValue({ rows: [] });
+        const req  = mockReq({ params: { id: '1' } });
+        const res  = mockRes();
+        const next = mockNext();
+
+        getPublicArtistAlbums(req, res, next);
+        await flushPromises();
+
+        const payload = res.json.mock.calls[0][0];
+        expect(payload.albums).toHaveLength(0);
     });
 });
